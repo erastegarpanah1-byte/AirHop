@@ -5,6 +5,14 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 
 /// دکمه‌ی ۲.۵ بعدی گلس‌مورفیک.
+///
+/// ویژگی‌ها:
+///  - پس‌زمینه‌ی شیشه‌ای (BackdropFilter + ImageFilter.blur)
+///  - سایه‌ی نرم + glow ظریف دور لبه‌ها
+///  - افکت "lift" موقع هاور/پرس (scale + سایه عمیق‌تر + glow قوی‌تر)
+///  - انیمیشن فیزیک‌محور با curve طبیعی
+///
+/// این ویجت کاملاً self-contained است و می‌تواند در هر جای اپ استفاده شود.
 class GlassButton extends StatefulWidget {
   const GlassButton({
     super.key,
@@ -35,7 +43,10 @@ class _GlassButtonState extends State<GlassButton> {
 
   @override
   Widget build(BuildContext context) {
-    final scale = _pressed ? 0.97 : (_hovered ? 1.04 : 1.0);
+    // مقیاس: هاور 1.04، پرس 0.97 (احساس فیزیکی "فشردن")
+    final scale = _pressed
+        ? 0.97
+        : (_hovered ? 1.04 : 1.0);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -56,6 +67,7 @@ class _GlassButtonState extends State<GlassButton> {
             height: widget.height,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
+              // سایه‌ی نرم + glow که موقع هاور عمیق‌تر می‌شود
               boxShadow: [
                 BoxShadow(
                   color: AppColors.shadowSoft,
@@ -63,12 +75,15 @@ class _GlassButtonState extends State<GlassButton> {
                   offset: Offset(0, _hovered ? 12 : 8),
                 ),
                 BoxShadow(
-                  color: widget.accentColor.withOpacity(_hovered ? 0.45 : 0.18),
+                  color: widget.accentColor.withOpacity(
+                    _hovered ? 0.45 : 0.18,
+                  ),
                   blurRadius: _hovered ? 32 : 16,
                   spreadRadius: _hovered ? 2 : 0,
                 ),
               ],
             ),
+            // لایه‌ی شیشه‌ای واقعی با blur
             child: ClipRRect(
               borderRadius: BorderRadius.circular(22),
               child: BackdropFilter(
@@ -76,37 +91,54 @@ class _GlassButtonState extends State<GlassButton> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(22),
+                    // گرادیان شیشه‌ای: هایلایت بالا → شفاف پایین
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        widget.accentColor.withOpacity(_hovered ? 0.35 : 0.22),
+                        widget.accentColor.withOpacity(
+                          _hovered ? 0.35 : 0.22,
+                        ),
                         widget.accentColor.withOpacity(0.08),
                       ],
                     ),
+                    // border نیمه‌شفاف سفید
                     border: Border.all(
-                      color: _hovered ? AppColors.glassHighlight : AppColors.glassBorder,
+                      color: _hovered
+                          ? AppColors.glassHighlight
+                          : AppColors.glassBorder,
                       width: 1.2,
                     ),
                   ),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.icon != null) ...[
-                          Icon(widget.icon, color: AppColors.textPrimary, size: 26),
-                          const SizedBox(width: 12),
-                        ],
-                        Text(
-                          widget.label,
-                          style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.icon != null) ...[
+                            Icon(
+                              widget.icon,
+                              color: AppColors.textPrimary,
+                              size: 26,
+                            ),
+                            const SizedBox(width: 12),
+                          ],
+                          Flexible(
+                            child: Text(
+                              widget.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

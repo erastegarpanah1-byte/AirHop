@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../config/app_config.dart';
 
+/// نوع پیام‌های سیگنالینگ بین دو peer.
 enum SignalType { offer, answer, ice, ready, welcome, peerLeft, error }
 
+/// یک پیام سیگنالینگ.
 class SignalMessage {
   const SignalMessage({required this.type, this.sdp, this.candidate, this.payload});
 
@@ -23,15 +26,25 @@ class SignalMessage {
       };
 
   factory SignalMessage.fromJson(Map<String, dynamic> json) => SignalMessage(
-        type: SignalType.values.firstWhere((t) => t.name == json['type'], orElse: () => SignalType.error),
+        type: SignalType.values.firstWhere(
+          (t) => t.name == json['type'],
+          orElse: () => SignalType.error,
+        ),
         sdp: json['sdp'] as String?,
         candidate: json['candidate'] as Map<String, dynamic>?,
         payload: json['payload'] as Map<String, dynamic>?,
       );
 }
 
+/// نتایج اتصال به سرور سیگنالینگ.
 class RoomInfo {
-  const RoomInfo({required this.code, required this.peerId, required this.role, required this.peerCount, required this.roomReady});
+  const RoomInfo({
+    required this.code,
+    required this.peerId,
+    required this.role,
+    required this.peerCount,
+    required this.roomReady,
+  });
 
   final String code;
   final String peerId;
@@ -40,6 +53,7 @@ class RoomInfo {
   final bool roomReady;
 }
 
+/// وب‌سوکت کلاینت به Cloudflare Worker.
 class SignalingService {
   SignalingService({this.server = AppConfig.signalingServer});
 
@@ -51,39 +65,54 @@ class SignalingService {
 
   bool get isConnected => _channel != null;
 
-  final _messages = StreamController<SignalMessage>.broadcast();
+  final StreamController<SignalMessage> _messages =
+      StreamController<SignalMessage>.broadcast();
   Stream<SignalMessage> get messages => _messages.stream;
 
-  final _events = StreamController<RoomInfo>.broadcast();
+  final StreamController<RoomInfo> _events = StreamController<RoomInfo>.broadcast();
   Stream<RoomInfo> get events => _events.stream;
 
+  /// ساخت یک اتاق جدید و برگرداندن کد جفت‌سازی.
   Future<String> createRoom() async {
-    final uri = _toHttp('$server/room');
-    final response = await _httpPost(uri);
-    final body = jsonDecode(response);
-    final code = body['code'] as String;
-    return code;
+    final uri = Uri.parse('$server/room');
+    final response = await http.post(uri);
+    if (response.statusCode != 200) {
+      throw Exception('createRoom failed: ${response.statusCode}');
+    }
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return body['code'] as String;
   }
 
+  /// اتصال وب‌سوکت به یک اتاق با کد مشخص.
   Future<void> joinRoom(String code, {required String role}) async {
-    final wsUri = _toWs('$server/room/$code/ws?role=$role');
-    _channel = WebSocketChannel.connect(Uri.parse(wsUri));
+    final wsUri = Uri.parse(
+      '$server/room/$code/ws?role=$role'
+          .replaceFirst('https://', 'wss://')
+          .replaceFirst('http://', 'ws://'),
+    );
+    _channel = WebSocketChannel.connect(wsUri);
     _role = role;
 
     _sub = _channel!.stream.listen(
       (dynamic data) {
         if (data is String) {
-          final json = jsonDecode(data) as Map<String, dynamic>;
+          final Map<String, dynamic> json = jsonDecode(data) as Map<String, dynamic>;
           _handleMessage(json);
         }
       },
       onError: (Object e) => _messages.addError(e),
-      onDone: () => _events.add(const RoomInfo(code: '', peerId: '', role: '', peerCount: 0, roomReady: false)),
+      onDone: () => _events.add(const RoomInfo(
+        code: '',
+        peerId: '',
+        role: '',
+        peerCount: 0,
+        roomReady: false,
+      )),
     );
   }
 
   void _handleMessage(Map<String, dynamic> json) {
-    final type = json['type'] as String?;
+    final String? type = json['type'] as String?;
 
     if (type == 'welcome') {
       _peerId = json['peerId'] as String?;
@@ -98,7 +127,13 @@ class SignalingService {
     }
 
     if (type == 'ready') {
-      _events.add(RoomInfo(code: '', peerId: _peerId ?? '', role: _role ?? '', peerCount: 2, roomReady: true));
+      _events.add(RoomInfo(
+        code: '',
+        peerId: _peerId ?? '',
+        role: _role ?? '',
+        peerCount: 2,
+        roomReady: true,
+      ));
       return;
     }
 
@@ -115,12 +150,5 @@ class SignalingService {
     _channel?.sink.close();
     _messages.close();
     _events.close();
-  }
-
-  Uri _toWs(String url) => Uri.parse(url.replaceFirst('https://', 'wss://').replaceFirst('http://', 'ws://'));
-  Uri _toHttp(String url) => Uri.parse(url);
-
-  Future<String> _httpPost(Uri uri) async {
-    throw UnimplementedError('HTTP POST باید با package:http پیاده‌سازی شود.');
   }
 }

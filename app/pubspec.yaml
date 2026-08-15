@@ -19,6 +19,9 @@ dependencies:
   # Signaling (WebSocket)
   web_socket_channel: ^2.4.5
 
+  # HTTP client (برای ساخت اتاق جفت‌سازی)
+  http: ^1.2.0
+
   # QR code
   qr_flutter: ^4.1.0
 
@@ -47,3 +50,16 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # فونت Inter (در پوشه assets/fonts قرار دهید)
+  # fonts:
+  #   - family: Inter
+  #     fonts:
+  #       - asset: assets/fonts/Inter-Regular.ttf
+  #         weight: 400
+  #       - asset: assets/fonts/Inter-Medium.ttf
+  #         weight: 500
+  #       - asset: assets/fonts/Inter-SemiBold.ttf
+  #         weight: 600
+  #       - asset: assets/fonts/Inter-Bold.ttf
+  #         weight: 700

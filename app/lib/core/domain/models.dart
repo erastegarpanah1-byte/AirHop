@@ -1,29 +1,42 @@
-/// مدل‌های دامنه‌ی انتقال فایل.
+// مدل‌های دامنه‌ی انتقال فایل.
 
+/// وضعیت یک جلسه‌ی جفت‌سازی (pairing).
 enum PairingStatus {
-  creating,
-  waiting,
-  connected,
-  transferring,
-  completed,
-  failed,
-  expired,
+  creating, // در حال ساخت اتاق
+  waiting, // منتظر اتصال peer
+  connected, // دو peer متصل شدند
+  transferring, // در حال انتقال فایل
+  completed, // انتقال کامل شد
+  failed, // خطا
+  expired, // TTL تمام شد
 }
 
+/// نقش هر دستگاه در یک اتاق.
 enum PeerRole {
-  sender,
-  receiver,
+  sender, // فرستنده‌ی فایل
+  receiver, // گیرنده‌ی فایل
 }
 
+/// متادیتای یک فایل قبل/حین انتقال.
 class FileMetadata {
-  const FileMetadata({required this.id, required this.name, required this.size, this.mimeType});
+  const FileMetadata({
+    required this.id,
+    required this.name,
+    required this.size,
+    this.mimeType,
+  });
 
   final String id;
   final String name;
-  final int size;
+  final int size; // بایت
   final String? mimeType;
 
-  Map<String, dynamic> toJson() => {'id': id, 'name': name, 'size': size, 'mimeType': mimeType};
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'size': size,
+        'mimeType': mimeType,
+      };
 
   factory FileMetadata.fromJson(Map<String, dynamic> json) => FileMetadata(
         id: json['id'] as String,
@@ -33,25 +46,52 @@ class FileMetadata {
       );
 }
 
+/// وضعیت پیشرفت انتقال.
 class TransferProgress {
-  const TransferProgress({required this.receivedBytes, required this.totalBytes, this.speedBytesPerSecond = 0});
+  const TransferProgress({
+    required this.receivedBytes,
+    required this.totalBytes,
+    this.speedBytesPerSecond = 0,
+  });
 
   final int receivedBytes;
   final int totalBytes;
   final int speedBytesPerSecond;
 
-  double get ratio => totalBytes == 0 ? 0.0 : receivedBytes / totalBytes;
+  double get ratio =>
+      totalBytes == 0 ? 0.0 : receivedBytes / totalBytes;
+
   int get percent => (ratio * 100).round();
 
+  /// زمان باقی‌مانده‌ی تخمینی (ثانیه).
   int get remainingSeconds {
     if (speedBytesPerSecond <= 0) return 0;
     final remaining = totalBytes - receivedBytes;
     return (remaining / speedBytesPerSecond).round();
   }
+
+  TransferProgress copyWith({
+    int? receivedBytes,
+    int? totalBytes,
+    int? speedBytesPerSecond,
+  }) =>
+      TransferProgress(
+        receivedBytes: receivedBytes ?? this.receivedBytes,
+        totalBytes: totalBytes ?? this.totalBytes,
+        speedBytesPerSecond: speedBytesPerSecond ?? this.speedBytesPerSecond,
+      );
 }
 
+/// یک رکورد در تاریخچه‌ی انتقال‌ها.
 class TransferRecord {
-  const TransferRecord({required this.id, required this.fileName, required this.fileSize, required this.direction, required this.completedAt, required this.success});
+  const TransferRecord({
+    required this.id,
+    required this.fileName,
+    required this.fileSize,
+    required this.direction,
+    required this.completedAt,
+    required this.success,
+  });
 
   final String id;
   final String fileName;
@@ -61,8 +101,12 @@ class TransferRecord {
   final bool success;
 
   Map<String, dynamic> toJson() => {
-        'id': id, 'fileName': fileName, 'fileSize': fileSize, 'direction': direction,
-        'completedAt': completedAt.toIso8601String(), 'success': success,
+        'id': id,
+        'fileName': fileName,
+        'fileSize': fileSize,
+        'direction': direction,
+        'completedAt': completedAt.toIso8601String(),
+        'success': success,
       };
 
   factory TransferRecord.fromJson(Map<String, dynamic> json) => TransferRecord(

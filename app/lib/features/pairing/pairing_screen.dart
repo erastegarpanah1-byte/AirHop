@@ -26,7 +26,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   void initState() {
     super.initState();
     if (widget.isSender) {
-      Future.microtask(() => ref.read(sessionProvider.notifier).startSending());
+      // شروع جلسه‌ی ارسال: ساخت room + دریافت کد
+      Future.microtask(() {
+        ref.read(sessionProvider.notifier).startSending();
+      });
     }
   }
 
@@ -40,10 +43,16 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
 
+    // اگر متصل شد، انتقال را شروع کن
     if (session.status == PairingStatus.connected) {
       Future.microtask(() {
-        if (mounted) {
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const TransferScreen()));
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const TransferScreen(),
+            ),
+          );
         }
       });
     }
@@ -55,11 +64,22 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
+                // هدر
                 Row(
                   children: [
-                    IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary)),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                    ),
                     const Spacer(),
-                    const Text('جفت‌سازی', style: TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w600)),
+                    const Text(
+                      'جفت‌سازی',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const Spacer(),
                     const SizedBox(width: 48),
                   ],
@@ -76,46 +96,88 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
     );
   }
 
+  /// حالت ارسال: نمایش QR + کد عددی.
   Widget _buildSenderCard(SessionState session) {
     return GlassCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('کد اتصال خود را اسکن کنید', style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+          const Text(
+            'کد اتصال خود را اسکن کنید',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+          ),
           const SizedBox(height: 24),
           if (session.pairingCode.isNotEmpty) ...[
+            // QR code داخل یک frame گلس
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
-              child: QrImageView(data: session.pairingCode, version: QrVersions.auto, size: 200),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: QrImageView(
+                data: session.pairingCode,
+                version: QrVersions.auto,
+                size: 200,
+              ),
             ),
             const SizedBox(height: 24),
-            Text(session.pairingCode, style: const TextStyle(color: AppColors.textPrimary, fontSize: 42, fontWeight: FontWeight.w700, letterSpacing: 8)),
+            // کد متنی بزرگ
+            Text(
+              session.pairingCode,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 42,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 8,
+              ),
+            ),
           ] else ...[
+            // در حال ساخت room
             const CircularProgressIndicator(color: AppColors.primary),
             const SizedBox(height: 16),
-            const Text('در حال ساخت کد اتصال...', style: TextStyle(color: AppColors.textSecondary)),
+            const Text(
+              'در حال ساخت کد اتصال...',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
           ],
           const SizedBox(height: 16),
-          const Text('منتظر اتصال دستگاه دیگر...', style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          const Text(
+            'منتظر اتصال دستگاه دیگر...',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
+          ),
         ],
       ),
     );
   }
 
+  /// حالت دریافت: ورود کد ۶ رقمی.
   Widget _buildReceiverCard() {
     return GlassCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('کد اتصال را وارد کنید', style: TextStyle(color: AppColors.textSecondary, fontSize: 15)),
+          const Text(
+            'کد اتصال را وارد کنید',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 15),
+          ),
           const SizedBox(height: 24),
+          // فیلد ورود کد
           Container(
-            decoration: BoxDecoration(color: AppColors.glassBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.glassBorder)),
+            decoration: BoxDecoration(
+              color: AppColors.glassBg,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.glassBorder),
+            ),
             child: TextField(
               controller: _codeController,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textPrimary, fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: 6),
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 6,
+              ),
               maxLength: 6,
               textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
