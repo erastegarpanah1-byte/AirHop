@@ -34,6 +34,9 @@ dependencies:
   # Path provider (cross-platform برای دایرکتوری دریافت فایل)
   path_provider: ^2.1.3
 
+  # Device info (برای نمایش مدل گوشی)
+  device_info_plus: ^10.1.0
+
   # Animations
   flutter_animate: ^4.5.0
 

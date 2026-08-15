@@ -5,9 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../config/app_config.dart';
+import '../domain/models.dart';
 
 /// نوع پیام‌های سیگنالینگ بین دو peer.
-enum SignalType { offer, answer, ice, ready, welcome, peerLeft, error }
+enum SignalType { offer, answer, ice, ready, welcome, peerLeft, error, deviceInfo }
 
 /// یک پیام سیگنالینگ.
 class SignalMessage {
@@ -71,6 +72,14 @@ class SignalingService {
 
   final StreamController<RoomInfo> _events = StreamController<RoomInfo>.broadcast();
   Stream<RoomInfo> get events => _events.stream;
+
+  final StreamController<DeviceInfo> _peerDevice = StreamController<DeviceInfo>.broadcast();
+  Stream<DeviceInfo> get peerDevice => _peerDevice.stream;
+
+  /// ارسال نام دستگاه خودمان به طرف مقابل.
+  void sendDeviceInfo(DeviceInfo device) {
+    send(SignalMessage(type: SignalType.deviceInfo, payload: device.toJson()));
+  }
 
   /// ساخت یک اتاق جدید و برگرداندن کد جفت‌سازی.
   Future<String> createRoom() async {
@@ -138,6 +147,13 @@ class SignalingService {
     }
 
     final signal = SignalMessage.fromJson(json);
+
+    // پیام معرفی دستگاه همتا
+    if (signal.type == SignalType.deviceInfo && signal.payload != null) {
+      _peerDevice.add(DeviceInfo.fromJson(signal.payload!));
+      return;
+    }
+
     _messages.add(signal);
   }
 
@@ -150,5 +166,6 @@ class SignalingService {
     _channel?.sink.close();
     _messages.close();
     _events.close();
+    _peerDevice.close();
   }
 }

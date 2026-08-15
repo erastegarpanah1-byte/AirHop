@@ -7,14 +7,16 @@ import '../../core/theme/app_colors.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 
-/// صفحه‌ی انتقال فایل — نمایش پیشرفت، سرعت و زمان باقی‌مانده.
+/// صفحه‌ی انتقال فایل — نمایش پیشرفت، سرعت، زمان باقی‌مانده و چند فایل.
 class TransferScreen extends ConsumerWidget {
   const TransferScreen({super.key});
 
   String _formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024) {
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
   }
 
@@ -30,7 +32,11 @@ class TransferScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(sessionProvider);
     final progress = session.progress;
+
     final isDone = session.status == PairingStatus.completed;
+    final fileName = progress.currentFileName.isNotEmpty
+        ? progress.currentFileName
+        : (session.currentFile?.name ?? 'در حال انتقال...');
 
     return Scaffold(
       body: GradientBackground(
@@ -43,38 +49,98 @@ class TransferScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // آیکون وضعیت
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: isDone
-                          ? const Icon(Icons.check_circle_rounded, key: ValueKey('done'), color: AppColors.success, size: 72)
-                          : const Icon(Icons.swap_horiz_rounded, key: ValueKey('progress'), color: AppColors.primary, size: 72),
+                          ? const Icon(Icons.check_circle_rounded,
+                              key: ValueKey('done'),
+                              color: AppColors.success,
+                              size: 76)
+                          : const Icon(Icons.swap_horiz_rounded,
+                              key: ValueKey('progress'),
+                              color: AppColors.primary,
+                              size: 76),
                     ),
                     const SizedBox(height: 24),
+
+                    // نام فایل
                     Text(
-                      session.currentFile?.name ?? 'در حال انتقال...',
-                      style: const TextStyle(color: AppColors.textPrimary, fontSize: 20, fontWeight: FontWeight.w600),
+                      fileName,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
-                    Text('${progress.percent}%', style: const TextStyle(color: AppColors.textPrimary, fontSize: 48, fontWeight: FontWeight.w700, letterSpacing: -1)),
+
+                    // شماره فایل (برای multi-file)
+                    if (progress.totalFiles > 1) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        'فایل ${progress.currentFileIndex + 1} از ${progress.totalFiles}',
+                        style: const TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 16),
+
+                    // درصد
+                    Text(
+                      '${progress.percent}%',
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 48,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -1,
+                      ),
+                    ),
                     const SizedBox(height: 24),
+
+                    // نوار پیشرفت گلس‌مورفیک
                     _GlassProgressBar(progress: progress),
+
                     const SizedBox(height: 24),
+
+                    // آمار: سرعت + زمان باقی‌مانده
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _Stat(label: 'دریافت شده', value: _formatBytes(progress.receivedBytes)),
-                        _Stat(label: 'حجم کل', value: _formatBytes(progress.totalBytes)),
-                        _Stat(label: 'زمان باقی‌مانده', value: _formatDuration(progress.remainingSeconds)),
+                        _Stat(
+                          label: 'دریافت شده',
+                          value: _formatBytes(progress.receivedBytes),
+                        ),
+                        _Stat(
+                          label: 'حجم کل',
+                          value: _formatBytes(progress.totalBytes),
+                        ),
+                        _Stat(
+                          label: 'زمان باقی‌مانده',
+                          value: _formatDuration(progress.remainingSeconds),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 28),
                     if (isDone)
                       TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('بازگشت به خانه', style: TextStyle(color: AppColors.accent)),
+                        onPressed: () {
+                          ref.read(sessionProvider.notifier).reset();
+                          Navigator.pop(context);
+                        },
+                        child: const Text(
+                          'بازگشت به خانه',
+                          style: TextStyle(
+                            color: AppColors.accentLight,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -87,6 +153,7 @@ class TransferScreen extends ConsumerWidget {
   }
 }
 
+/// نوار پیشرفت با افکت گلس (گرادیان آبی → بنفش).
 class _GlassProgressBar extends StatelessWidget {
   const _GlassProgressBar({required this.progress});
 
@@ -96,7 +163,11 @@ class _GlassProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 16,
-      decoration: BoxDecoration(color: AppColors.glassBg, borderRadius: BorderRadius.circular(8), border: Border.all(color: AppColors.glassBorder)),
+      decoration: BoxDecoration(
+        color: AppColors.glassBg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
         child: LayoutBuilder(
@@ -110,9 +181,14 @@ class _GlassProgressBar extends StatelessWidget {
                   curve: Curves.easeOutCubic,
                   width: width,
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(colors: [AppColors.primary, AppColors.accent]),
+                    gradient: AppColors.accentGradient,
                     borderRadius: BorderRadius.circular(8),
-                    boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.5), blurRadius: 12)],
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.5),
+                        blurRadius: 12,
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -124,6 +200,7 @@ class _GlassProgressBar extends StatelessWidget {
   }
 }
 
+/// یک قلم آمار (label + value).
 class _Stat extends StatelessWidget {
   const _Stat({required this.label, required this.value});
 
@@ -134,9 +211,22 @@ class _Stat extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(value, style: const TextStyle(color: AppColors.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppColors.textPrimary,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+        Text(
+          label,
+          style: const TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 12,
+          ),
+        ),
       ],
     );
   }

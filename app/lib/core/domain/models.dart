@@ -1,10 +1,13 @@
-// مدل‌های دامنه‌ی انتقال فایل.
+import 'dart:typed_data';
+
+/// مدل‌های دامنه‌ی انتقال فایل.
 
 /// وضعیت یک جلسه‌ی جفت‌سازی (pairing).
 enum PairingStatus {
   creating, // در حال ساخت اتاق
   waiting, // منتظر اتصال peer
   connected, // دو peer متصل شدند
+  readyToSend, // sender آماده انتخاب فایل است
   transferring, // در حال انتقال فایل
   completed, // انتقال کامل شد
   failed, // خطا
@@ -17,6 +20,21 @@ enum PeerRole {
   receiver, // گیرنده‌ی فایل
 }
 
+/// اطلاعات دستگاه (برای نمایش نام دستگاه مقصد/مبدأ).
+class DeviceInfo {
+  const DeviceInfo({required this.name, required this.platform});
+
+  final String name; // مثلاً "Pixel 7" یا "گوشی من"
+  final String platform; // android / windows / macos / linux / ios
+
+  Map<String, dynamic> toJson() => {'name': name, 'platform': platform};
+
+  factory DeviceInfo.fromJson(Map<String, dynamic> json) => DeviceInfo(
+        name: json['name'] as String? ?? 'دستگاه',
+        platform: json['platform'] as String? ?? 'unknown',
+      );
+}
+
 /// متادیتای یک فایل قبل/حین انتقال.
 class FileMetadata {
   const FileMetadata({
@@ -24,12 +42,14 @@ class FileMetadata {
     required this.name,
     required this.size,
     this.mimeType,
+    this.bytes, // محتوای فایل (برای sender که از دیسک خوانده)
   });
 
   final String id;
   final String name;
   final int size; // بایت
   final String? mimeType;
+  final Uint8List? bytes;
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -52,14 +72,21 @@ class TransferProgress {
     required this.receivedBytes,
     required this.totalBytes,
     this.speedBytesPerSecond = 0,
+    this.currentFileIndex = 0,
+    this.totalFiles = 1,
+    this.currentFileName = '',
   });
 
   final int receivedBytes;
   final int totalBytes;
   final int speedBytesPerSecond;
 
-  double get ratio =>
-      totalBytes == 0 ? 0.0 : receivedBytes / totalBytes;
+  /// برای پشتیبانی چند فایل: شماره فایل جاری و تعداد کل.
+  final int currentFileIndex;
+  final int totalFiles;
+  final String currentFileName;
+
+  double get ratio => totalBytes == 0 ? 0.0 : receivedBytes / totalBytes;
 
   int get percent => (ratio * 100).round();
 
@@ -74,11 +101,17 @@ class TransferProgress {
     int? receivedBytes,
     int? totalBytes,
     int? speedBytesPerSecond,
+    int? currentFileIndex,
+    int? totalFiles,
+    String? currentFileName,
   }) =>
       TransferProgress(
         receivedBytes: receivedBytes ?? this.receivedBytes,
         totalBytes: totalBytes ?? this.totalBytes,
         speedBytesPerSecond: speedBytesPerSecond ?? this.speedBytesPerSecond,
+        currentFileIndex: currentFileIndex ?? this.currentFileIndex,
+        totalFiles: totalFiles ?? this.totalFiles,
+        currentFileName: currentFileName ?? this.currentFileName,
       );
 }
 
