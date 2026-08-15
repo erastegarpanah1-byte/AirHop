@@ -10,6 +10,8 @@ const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const https = require('https');
+const http = require('http');
 const WebSocket = require('ws');
 const nodeDataChannel = require('node-datachannel');
 
@@ -79,8 +81,7 @@ app.on('window-all-closed', () => {
 
 ipcMain.handle('airhop:create-room', async () => {
   try {
-    const resp = await fetch(`${SIGNALING_SERVER}/room`, { method: 'POST' });
-    const body = await resp.json();
+    const body = await httpPostJson(`${SIGNALING_SERVER}/room`, {});
     session.role = 'sender';
     session.code = body.code;
     initPeerConnection(); // sender: pc آماده می‌شود
@@ -395,6 +396,46 @@ function getSaveDirectory() {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/// درخواست HTTP POST با بدنه‌ی JSON (بدون اتکا به fetch سراسری که در Electron
+/// گاهی با «fetch failed» شکست می‌خورد).
+function httpPostJson(url, data) {
+  return new Promise((resolve, reject) => {
+    const target = new URL(url);
+    const mod = target.protocol === 'https:' ? https : http;
+    const payload = JSON.stringify(data);
+
+    const req = mod.request(
+      {
+        hostname: target.hostname,
+        port: target.port || (target.protocol === 'https:' ? 443 : 80),
+        path: target.pathname + target.search,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+        timeout: 10000,
+      },
+      (res) => {
+        let body = '';
+        res.on('data', (c) => (body += c));
+        res.on('end', () => {
+          try {
+            resolve(JSON.parse(body));
+          } catch (_) {
+            resolve(body);
+          }
+        });
+      },
+    );
+
+    req.on('timeout', () => req.destroy(new Error('timeout')));
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
 
 function sendToRenderer(channel, payload) {
   if (mainWindow && !mainWindow.isDestroyed()) {
