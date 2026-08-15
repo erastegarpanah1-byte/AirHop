@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+.pub-cache/
+.pub/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Node / Worker
+worker/node_modules/
+worker/.wrangler/
+worker/dist/
+worker/.dev.vars
