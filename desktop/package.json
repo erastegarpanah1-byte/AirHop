@@ -1,0 +1,50 @@
+{
+  "name": "airhop-desktop",
+  "version": "1.0.0",
+  "description": "AirHop Desktop — fast and secure peer-to-peer file transfer (Windows)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "build:dir": "electron-builder --win --dir"
+  },
+  "author": "AirHop",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "node-datachannel": "^0.11.0",
+    "ws": "^8.18.0"
+  },
+  "build": {
+    "appId": "com.airhop.desktop",
+    "productName": "AirHop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "AirHop-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "AirHop"
+    }
+  }
+}
