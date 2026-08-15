@@ -1,0 +1,18 @@
+name = "airhop-signaling"
+main = "src/index.ts"
+compatibility_date = "2024-09-01"
+
+# Durable Objects
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+
+# TURN service (اختیاری — بایندینگ به یک Worker دیگر یا سرویس Cloudflare Calls)
+# اگر از Twilio/Xirsys استفاده می‌کنید، این بخش را کامنت کنید.
+# [[services]]
+# binding = "TURN_SERVICE"
+# service = "turn-service"
