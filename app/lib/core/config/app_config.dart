@@ -1,11 +1,16 @@
 /// پیکربندی سراسری برای اتصال به سرور سیگنالینگ.
+///
+/// در محیط توسعه، این مقدار را روی URL لوکال Worker (`wrangler dev`)
+/// یا URL دیپلوی‌شده‌ی Cloudflare تنظیم کنید.
 class AppConfig {
   AppConfig._();
 
   /// URL سرور سیگنالینگ (Cloudflare Worker).
-  static const signalingServer = 'wss://airhop-signaling.YOUR_SUBDOMAIN.workers.dev';
+  /// تبدیل `https://` → `wss://` به صورت خودکار داخل SignalingService انجام می‌شود.
+  static const signalingServer =
+      'https://airhop-signaling.e-rastegarpanah1.workers.dev';
 
-  /// کد جفت‌سازی.
+  /// حداکثر تعداد اتاق‌ها / کد جفت‌سازی.
   static const pairingCodeLength = 6;
 
   /// اندازه‌ی هر chunk در انتقال فایل (بایت).
