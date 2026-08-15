@@ -5,6 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/models.dart';
 
+/// آیا اپ روی دسکتاپ (ویندوز/مک/لینوکس) اجرا می‌شود؟
+bool get isDesktop => Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+
+/// آیا اپ روی موبایل (اندروید/iOS) اجرا می‌شود؟
+bool get isMobile => Platform.isAndroid || Platform.isIOS;
+
 /// سرویس شناسایی اسم دستگاه + پلتفرم.
 class DeviceService {
   const DeviceService();

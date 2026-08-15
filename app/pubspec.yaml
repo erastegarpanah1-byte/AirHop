@@ -31,6 +31,12 @@ dependencies:
   # File picking (cross-platform)
   file_picker: ^8.0.6
 
+  # Drag & drop (دسکتاپ)
+  desktop_drop: ^0.4.4
+
+  # Cross-platform file handle (برای drag & drop)
+  cross_file: ^0.3.4
+
   # Path provider (cross-platform برای دایرکتوری دریافت فایل)
   path_provider: ^2.1.3
 

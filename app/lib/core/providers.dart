@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'data/receive_service.dart';
 import 'data/signaling_service.dart';
 import 'data/webrtc_service.dart';
 import 'domain/models.dart';
@@ -106,8 +107,21 @@ class SessionNotifier extends StateNotifier<SessionState> {
     await _webrtc!.initialize();
 
     if (role == PeerRole.receiver) {
-      _webrtc!.fileReceived.listen((path) {
-        state = state.copyWith(status: PairingStatus.completed);
+      _webrtc!.fileReceived.listen((received) async {
+        // ذخیره‌ی فایل در Downloads/AirHop
+        final savedPath = await const ReceiveService().saveFile(
+          fileName: received.fileName,
+          bytes: received.bytes,
+        );
+        state = state.copyWith(
+          status: PairingStatus.completed,
+          currentFile: FileMetadata(
+            id: received.fileName,
+            name: received.fileName,
+            size: received.bytes.length,
+            mimeType: savedPath,
+          ),
+        );
       });
     }
 

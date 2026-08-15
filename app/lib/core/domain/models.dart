@@ -115,6 +115,14 @@ class TransferProgress {
       );
 }
 
+/// یک فایل کامل دریافت‌شده (نام + bytes).
+class ReceivedFile {
+  const ReceivedFile({required this.fileName, required this.bytes});
+
+  final String fileName;
+  final Uint8List bytes;
+}
+
 /// یک رکورد در تاریخچه‌ی انتقال‌ها.
 class TransferRecord {
   const TransferRecord({

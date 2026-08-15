@@ -28,8 +28,9 @@ class WebRtcService {
       StreamController<TransferProgress>.broadcast();
   Stream<TransferProgress> get progress => _progress.stream;
 
-  final StreamController<String> _fileReceived = StreamController<String>.broadcast();
-  Stream<String> get fileReceived => _fileReceived.stream;
+  final StreamController<ReceivedFile> _fileReceived =
+      StreamController<ReceivedFile>.broadcast();
+  Stream<ReceivedFile> get fileReceived => _fileReceived.stream;
 
   Future<void> initialize() async {
     final configuration = <String, dynamic>{
@@ -163,7 +164,10 @@ class WebRtcService {
   }
 
   void _finalizeFile() {
-    _fileReceived.add(_currentFilePath ?? 'received-file');
+    _fileReceived.add(ReceivedFile(
+      fileName: _currentFilePath ?? 'received-file',
+      bytes: Uint8List.fromList(_buffer),
+    ));
   }
 
   Future<void> dispose() async {
