@@ -12,7 +12,6 @@ const fs = require('fs');
 const os = require('os');
 const https = require('https');
 const http = require('http');
-const dns = require('dns');
 const WebSocket = require('ws');
 const nodeDataChannel = require('node-datachannel');
 
@@ -152,17 +151,7 @@ ipcMain.handle('airhop:reset', async () => {
 
 function connectWebSocket(code, role) {
   const wsUrl = `${WS_SERVER}/room/${code}/ws?role=${role}`;
-  const target = new URL(wsUrl);
-  const ws = new WebSocket(wsUrl, {
-    // دور زدن DNS/proxy محلی: مستقیماً DNS عمومی Google
-    lookup: (hostname, opts, cb) => {
-      dns.resolve4(hostname, (err, addrs) => {
-        if (err || !addrs.length) return cb(err || new Error('DNS resolve failed'));
-        cb(null, addrs[0], 4);
-      });
-    },
-    servername: target.hostname,
-  });
+  const ws = new WebSocket(wsUrl);
   session.ws = ws;
 
   ws.on('open', () => {
@@ -432,15 +421,6 @@ function httpPostJson(url, data) {
           'Content-Length': Buffer.byteLength(payload),
         },
         timeout: 10000,
-        // دور زدن DNS محلی خراب: مستقیماً از DNS عمومی Google استفاده کن
-        lookup: (hostname, opts, cb) => {
-          dns.resolve4(hostname, (err, addrs) => {
-            if (err || !addrs.length) return cb(err || new Error('DNS resolve failed'));
-            cb(null, addrs[0], 4);
-          });
-        },
-        // برای SNI درست هنگام اتصال مستقیم
-        servername: target.hostname,
       },
       (res) => {
         let body = '';
