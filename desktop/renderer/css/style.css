@@ -16,10 +16,42 @@
   --glass-border: rgba(255, 255, 255, 0.15);
 }
 
+/* --- فونت Peyda --- */
+@font-face {
+  font-family: 'Peyda';
+  src: url('../fonts/Peyda-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Peyda';
+  src: url('../fonts/Peyda-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Peyda';
+  src: url('../fonts/Peyda-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Peyda';
+  src: url('../fonts/Peyda-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Peyda';
+  src: url('../fonts/Peyda-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-family: 'Peyda', 'Segoe UI', Tahoma, sans-serif;
   background: linear-gradient(135deg, var(--bg-top), var(--bg-mid), var(--bg-bottom));
   color: var(--text);
   height: 100vh;
