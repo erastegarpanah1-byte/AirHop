@@ -44,9 +44,8 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
                     children: [
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 18),
 
-                      // تیتر دو-رنگ (وسط‌چین)
                       Column(
                         children: const [
                           Text(
@@ -54,35 +53,34 @@ class HomeScreen extends ConsumerWidget {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textHigh,
-                              fontSize: 28,
+                              fontSize: 26,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
                             ),
                           ),
-                          SizedBox(height: 6),
+                          SizedBox(height: 4),
                           GradientText(
                             'بی‌رقیب در سرعت',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 21,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       const Text(
                         'فایل‌های خود را در چند ثانیه به هر دستگاهی منتقل کنید',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textSecondary,
-                          fontSize: 14,
-                          height: 1.6,
+                          fontSize: 13,
+                          height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 26),
+                      const SizedBox(height: 18),
 
-                      // دو کارت ارسال / دریافت
                       Row(
                         children: [
                           Expanded(
@@ -120,9 +118,8 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 20),
 
-                      // هدر «آخرین انتقال‌ها»
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -130,7 +127,7 @@ class HomeScreen extends ConsumerWidget {
                             'آخرین انتقال‌ها',
                             style: TextStyle(
                               color: AppColors.textPrimary,
-                              fontSize: 18,
+                              fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -140,7 +137,7 @@ class HomeScreen extends ConsumerWidget {
                                 'مشاهده همه',
                                 style: TextStyle(
                                   color: AppColors.accentLight,
-                                  fontSize: 13,
+                                  fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -148,47 +145,23 @@ class HomeScreen extends ConsumerWidget {
                               const Icon(
                                 Icons.chevron_left_rounded,
                                 color: AppColors.accentLight,
-                                size: 18,
+                                size: 17,
                               ),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 12),
 
-                      // لیست آخرین انتقال‌ها
                       if (history.isEmpty)
                         _EmptyHistory()
                       else
                         for (final record in history.take(3)) ...[
                           _HistoryItem(record: record),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 8),
                         ],
 
-                      if (history.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Center(
-                            child: InkWell(
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const HistoryScreen(),
-                                ),
-                              ),
-                              child: const Text(
-                                'مشاهده همه',
-                                style: TextStyle(
-                                  color: AppColors.accentLight,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                     ],
                   ),
                 ),
@@ -258,7 +231,7 @@ class _ActionCardState extends State<_ActionCard> {
               ],
             ),
             child: Container(
-              padding: const EdgeInsets.all(18),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.5),
                 color: AppColors.backgroundMid,
@@ -268,8 +241,8 @@ class _ActionCardState extends State<_ActionCard> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: 44,
+                    height: 44,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: widget.gradient,
@@ -280,26 +253,26 @@ class _ActionCardState extends State<_ActionCard> {
                         ),
                       ],
                     ),
-                    child: Icon(widget.icon, color: Colors.white, size: 26),
+                    child: Icon(widget.icon, color: Colors.white, size: 23),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Text(
                     widget.title,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textPrimary,
-                      fontSize: 17,
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 3),
                   Text(
                     widget.subtitle,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
-                      fontSize: 12,
-                      height: 1.4,
+                      fontSize: 11.5,
+                      height: 1.35,
                     ),
                   ),
                 ],
@@ -322,21 +295,19 @@ class _HistoryItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final color = FileUi.colorFor(record.fileName);
     return GlassCard(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(
         children: [
-          // آیکون فایل رنگی
           Container(
-            width: 44,
-            height: 44,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: color.withOpacity(0.15),
             ),
-            child: Icon(FileUi.iconFor(record.fileName), color: color, size: 22),
+            child: Icon(FileUi.iconFor(record.fileName), color: color, size: 20),
           ),
           const SizedBox(width: 12),
-          // نام + حجم + منبع
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +318,7 @@ class _HistoryItem extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -356,32 +327,31 @@ class _HistoryItem extends StatelessWidget {
                   '${FileUi.formatBytes(record.fileSize)} • ${_sourceLabel(record)}',
                   style: const TextStyle(
                     color: AppColors.textMuted,
-                    fontSize: 11.5,
+                    fontSize: 11,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          // وضعیت موفق + تیک
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                width: 22,
-                height: 22,
+                width: 20,
+                height: 20,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: AppColors.brandGradient,
                 ),
                 child: const Icon(Icons.check_rounded,
-                    color: Colors.white, size: 14),
+                    color: Colors.white, size: 13),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 3),
               const Text(
                 'موفق',
-                style: TextStyle(color: AppColors.success, fontSize: 10),
+                style: TextStyle(color: AppColors.success, fontSize: 9.5),
               ),
             ],
           ),
@@ -398,16 +368,16 @@ class _EmptyHistory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassCard(
-      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
       child: Column(
         children: [
           Icon(Icons.swap_horiz_rounded,
-              color: AppColors.textMuted.withOpacity(0.5), size: 40),
-          const SizedBox(height: 10),
+              color: AppColors.textMuted.withOpacity(0.5), size: 34),
+          const SizedBox(height: 8),
           const Text(
             'هنوز انتقالی انجام نشده',
             textAlign: TextAlign.center,
-            style: TextStyle(color: AppColors.textMuted, fontSize: 13.5),
+            style: TextStyle(color: AppColors.textMuted, fontSize: 13),
           ),
         ],
       ),
