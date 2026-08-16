@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,7 +21,7 @@ class AirhopApp extends StatelessWidget {
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
-      // زبان عربی/فارسی: تاریخ‌ها، جهت متن، تقویم و ... RTL می‌شوند.
+      // زبان فارسی: جهت متن RTL و اعداد/تقویم فارسی می‌شوند.
       locale: const Locale('fa'),
       supportedLocales: const [Locale('fa'), Locale('en')],
       localizationsDelegates: const [
@@ -30,8 +29,8 @@ class AirhopApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      // با Builder، Directionality کل درخت رو RTL می‌کنیم
-      // تا همه Rows/Cols/Alignها به‌صورت پیش‌فرض راست‌چین شوند.
+      // با Builder، Directionality کل درخت را RTL می‌کند
+      // تا همه Row/Col/Alignها به‌صورت پیش‌فرض راست‌چین شوند.
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
         child: child!,
