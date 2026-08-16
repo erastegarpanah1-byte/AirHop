@@ -8,7 +8,7 @@ import '../config/app_config.dart';
 import '../domain/models.dart';
 import 'signaling_service.dart';
 
-/// سرویس WebRTC — برقراری اتصال peer-to-peer و انتقال فایل از طریق DataChannel.
+/// سرویس WebRTC — انتقال P2P از طریق DataChannel + fallback به relay سرور.
 class WebRtcService {
   WebRtcService({required this.signaling, this.role = PeerRole.sender});
 
@@ -18,6 +18,7 @@ class WebRtcService {
   RTCPeerConnection? _pc;
   RTCDataChannel? _channel;
   StreamSubscription? _signalSub;
+  StreamSubscription? _relaySub;
 
   String? _currentFilePath;
   int _currentFileSize = 0;
@@ -35,7 +36,15 @@ class WebRtcService {
   Future<void> initialize() async {
     final configuration = <String, dynamic>{
       'iceServers': [
-        for (final url in AppConfig.iceServers) {'urls': url},
+        for (final url in AppConfig.iceServers)
+          if (url == AppConfig.turnUrl)
+            {
+              'urls': url,
+              'username': AppConfig.turnUsername,
+              'credential': AppConfig.turnCredential,
+            }
+          else
+            {'urls': url},
       ],
       'sdpSemantics': 'unified-plan',
     };
@@ -46,13 +55,8 @@ class WebRtcService {
       signaling.send(SignalMessage(type: SignalType.ice, candidate: candidate.toMap()));
     };
 
-    _pc!.onConnectionState = (state) {};
-
     if (role == PeerRole.sender) {
-      _channel = await _pc!.createDataChannel(
-        'file-transfer',
-        RTCDataChannelInit()..ordered = true,
-      );
+      _channel = await _pc!.createDataChannel('file-transfer', RTCDataChannelInit()..ordered = true);
       _setupChannel();
     } else {
       _pc!.onDataChannel = (channel) {
@@ -62,14 +66,15 @@ class WebRtcService {
     }
 
     _signalSub = signaling.messages.listen(_handleSignal);
+    _relaySub = signaling.relayChunks.listen(_onRelayChunk);
   }
 
   void _setupChannel() {
     _channel!.onMessage = (RTCDataChannelMessage message) {
       if (message.isBinary) {
-        _handleBinaryChunk(message.binary);
+        _onBinaryChunk(message.binary);
       } else {
-        _handleTextMessage(message.text);
+        _onTextMessage(message.text);
       }
     };
   }
@@ -77,17 +82,13 @@ class WebRtcService {
   Future<void> _handleSignal(SignalMessage message) async {
     switch (message.type) {
       case SignalType.offer:
-        await _pc!.setRemoteDescription(
-          RTCSessionDescription(message.sdp, 'offer'),
-        );
+        await _pc!.setRemoteDescription(RTCSessionDescription(message.sdp, 'offer'));
         final answer = await _pc!.createAnswer();
         await _pc!.setLocalDescription(answer);
         signaling.send(SignalMessage(type: SignalType.answer, sdp: answer.sdp));
         break;
       case SignalType.answer:
-        await _pc!.setRemoteDescription(
-          RTCSessionDescription(message.sdp, 'answer'),
-        );
+        await _pc!.setRemoteDescription(RTCSessionDescription(message.sdp, 'answer'));
         break;
       case SignalType.ice:
         final candidate = RTCIceCandidate(
@@ -98,9 +99,13 @@ class WebRtcService {
         await _pc!.addCandidate(candidate);
         break;
       case SignalType.ready:
-        if (role == PeerRole.sender) {
-          await _createOffer();
-        }
+        if (role == PeerRole.sender) await _createOffer();
+        break;
+      case SignalType.relayHeader:
+        _onRelayHeader(message.payload);
+        break;
+      case SignalType.relayEnd:
+        _finalizeFile();
         break;
       default:
         break;
@@ -113,7 +118,19 @@ class WebRtcService {
     signaling.send(SignalMessage(type: SignalType.offer, sdp: offer.sdp));
   }
 
+  bool get _p2pReady =>
+      _channel != null &&
+      _pc?.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateConnected;
+
   Future<void> sendFile(FileMetadata metadata, List<int> content) async {
+    if (_p2pReady) {
+      await _sendP2P(metadata, content);
+    } else {
+      await _sendRelay(metadata, content);
+    }
+  }
+
+  Future<void> _sendP2P(FileMetadata metadata, List<int> content) async {
     _channel!.send(RTCDataChannelMessage(
       jsonEncode({'type': 'file-header', 'metadata': metadata.toJson()}),
     ));
@@ -121,30 +138,50 @@ class WebRtcService {
     final chunkSize = AppConfig.chunkSize;
     int sent = 0;
     final total = content.length;
-
     while (sent < total) {
       final end = (sent + chunkSize < total) ? sent + chunkSize : total;
-      final Uint8List chunk = Uint8List.fromList(content.sublist(sent, end));
+      final chunk = Uint8List.fromList(content.sublist(sent, end));
       await _sendChunk(chunk);
       sent = end;
       _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total));
     }
-
     _channel!.send(RTCDataChannelMessage(jsonEncode({'type': 'file-end'})));
   }
 
+  Future<void> _sendRelay(FileMetadata metadata, List<int> content) async {
+    signaling.send(SignalMessage(
+      type: SignalType.relayHeader,
+      payload: metadata.toJson(),
+    ));
+
+    final chunkSize = AppConfig.chunkSize;
+    int sent = 0;
+    final total = content.length;
+    while (sent < total) {
+      final end = (sent + chunkSize < total) ? sent + chunkSize : total;
+      final chunk = Uint8List.fromList(content.sublist(sent, end));
+      signaling.sendRelayChunk(chunk);
+      sent = end;
+      _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total));
+      await Future<void>.delayed(const Duration(milliseconds: 1));
+    }
+    signaling.send(const SignalMessage(type: SignalType.relayEnd));
+  }
+
   Future<void> _sendChunk(Uint8List data) async {
+    final buffered = _channel!.bufferedAmount;
+    if (buffered != null && buffered > 4 * 1024 * 1024) {
+      await Future<void>.delayed(const Duration(milliseconds: 10));
+    }
     _channel!.send(RTCDataChannelMessage.fromBinary(data));
     await Future<void>.delayed(Duration.zero);
   }
 
-  void _handleTextMessage(String text) {
+  void _onTextMessage(String text) {
     final Map<String, dynamic> json = jsonDecode(text) as Map<String, dynamic>;
-    final String? type = json['type'] as String?;
-
+    final type = json['type'] as String?;
     if (type == 'file-header') {
-      final metadata =
-          FileMetadata.fromJson(json['metadata'] as Map<String, dynamic>);
+      final metadata = FileMetadata.fromJson(json['metadata'] as Map<String, dynamic>);
       _currentFilePath = metadata.name;
       _currentFileSize = metadata.size;
       _receivedBytes = 0;
@@ -154,7 +191,20 @@ class WebRtcService {
     }
   }
 
-  void _handleBinaryChunk(Uint8List bytes) {
+  void _onRelayHeader(Map<String, dynamic>? payload) {
+    if (payload == null) return;
+    final metadata = FileMetadata.fromJson(payload);
+    _currentFilePath = metadata.name;
+    _currentFileSize = metadata.size;
+    _receivedBytes = 0;
+    _buffer.clear();
+  }
+
+  void _onBinaryChunk(Uint8List bytes) => _appendChunk(bytes);
+
+  void _onRelayChunk(Uint8List bytes) => _appendChunk(bytes);
+
+  void _appendChunk(Uint8List bytes) {
     _buffer.addAll(bytes);
     _receivedBytes += bytes.length;
     _progress.add(TransferProgress(
@@ -172,6 +222,7 @@ class WebRtcService {
 
   Future<void> dispose() async {
     _signalSub?.cancel();
+    _relaySub?.cancel();
     await _channel?.close();
     await _pc?.close();
     await _progress.close();
