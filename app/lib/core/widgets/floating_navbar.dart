@@ -5,9 +5,6 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 
 /// نوار ناوبری شناور «جزیره‌ای» AirHop.
-///
-/// چیدمان: لوگوی برند کاملاً سمت راست، دکمه‌های شیشه‌ای کاملاً سمت چپ.
-/// عنوان (وقتی showLogo=false) در وسط می‌نشیند.
 class FloatingNavbar extends StatelessWidget {
   const FloatingNavbar({
     super.key,
@@ -26,8 +23,6 @@ class FloatingNavbar extends StatelessWidget {
   final VoidCallback? onSettings;
   final VoidCallback? onHelp;
   final bool showLogo;
-
-  /// محتوای سفارشی وسط (اختیاری).
   final Widget? child;
 
   @override
@@ -61,7 +56,7 @@ class FloatingNavbar extends StatelessWidget {
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: showLogo
-                ? _buildWithLogo(context)
+                ? _buildWithLogo()
                 : _buildWithBack(context, showBack),
           ),
         ),
@@ -69,15 +64,11 @@ class FloatingNavbar extends StatelessWidget {
     );
   }
 
-  /// حالت لوگو (صفحه اصلی): لوگو راست، دکمه‌ها چپ.
-  Widget _buildWithLogo(BuildContext context) {
+  Widget _buildWithLogo() {
     return Row(
       children: [
-        // سمت راست: لوگوی برند (کاملاً چسبیده به راست)
         const _BrandLogo(),
-        // فاصله‌گیر که بقیه را به چپ هل می‌دهد
         const Spacer(),
-        // سمت چپ: دکمه‌های شیشه‌ای
         _NavCircleButton(
           icon: Icons.history_rounded,
           onTap: onHistory ?? () {},
@@ -96,35 +87,41 @@ class FloatingNavbar extends StatelessWidget {
     );
   }
 
-  /// حالت بدون لوگو (صفحات داخلی): دکمه برگشت راست، عنوان وسط.
   Widget _buildWithBack(BuildContext context, bool showBack) {
     return Row(
       children: [
-        if (showBack)
+        _NavCircleButton(
+          icon: showBack ? Icons.arrow_back_rounded : Icons.home_rounded,
+          onTap: showBack ? (onBack ?? () {}) : () => navigatorHome(context),
+        ),
+        Expanded(
+          child: Center(
+            child: child ??
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+          ),
+        ),
+        if (onSettings != null) ...[
           _NavCircleButton(
-            icon: Icons.arrow_back_rounded,
-            onTap: onBack ?? () {},
+            icon: Icons.settings_rounded,
+            onTap: onSettings!,
+          ),
+          const SizedBox(width: 6),
+        ],
+        if (onHelp != null)
+          _NavCircleButton(
+            icon: Icons.help_outline_rounded,
+            onTap: onHelp!,
           )
         else
-          _NavCircleButton(
-            icon: Icons.home_rounded,
-            onTap: () => navigatorHome(context),
-          ),
-        // عنوان وسط
-        Expanded(
-          child: child ??
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-        ),
-        // تعادل بصری با دکمه راست (برای وسط‌ماندن عنوان)
-        const SizedBox(width: 44),
+          const SizedBox(width: 44),
       ],
     );
   }
@@ -134,7 +131,6 @@ class FloatingNavbar extends StatelessWidget {
   }
 }
 
-/// لوگوی برند: قوس گرادیانی + وردمارک Airhop.
 class _BrandLogo extends StatelessWidget {
   const _BrandLogo();
 
@@ -163,7 +159,6 @@ class _BrandLogo extends StatelessWidget {
   }
 }
 
-/// نقاشی قوس لوگو (از نقطه فیروزه‌ای به نقطه بنفش).
 class _ArcPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
@@ -187,23 +182,14 @@ class _ArcPainter extends CustomPainter {
 
     final startDot = Paint()..color = AppColors.cyan;
     final endDot = Paint()..color = AppColors.primarySoft;
-    canvas.drawCircle(
-      Offset(size.width * 0.08, size.height * 0.75),
-      3.5,
-      startDot,
-    );
-    canvas.drawCircle(
-      Offset(size.width * 0.92, size.height * 0.75),
-      3.5,
-      endDot,
-    );
+    canvas.drawCircle(Offset(size.width * 0.08, size.height * 0.75), 3.5, startDot);
+    canvas.drawCircle(Offset(size.width * 0.92, size.height * 0.75), 3.5, endDot);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// دکمه‌ی دایره‌ای شیشه‌ای با هاور/لمس درخشان.
 class _NavCircleButton extends StatefulWidget {
   const _NavCircleButton({required this.icon, required this.onTap});
 
