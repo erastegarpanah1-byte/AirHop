@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 
+import 'package:cross_file/cross_file.dart';
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../core/data/device_service.dart';
 import '../../core/domain/models.dart';
 import '../../core/providers.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/utils/file_ui.dart';
+import '../../core/widgets/airhop_footer.dart';
+import '../../core/widgets/file_card.dart';
+import '../../core/widgets/floating_navbar.dart';
 import '../../core/widgets/glass_button.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../transfer/transfer_screen.dart';
 
-/// صفحه‌ی ارسال — بعد از سینک شدن نمایش داده می‌شود.
-///
-/// «داری به [نام دستگاه مقصد] می‌فرستی» + انتخاب چند فایل + دکمه ارسال.
-/// روی دسکتاپ از drag & drop هم پشتیبانی می‌کند.
+/// صفحه ارسال فایل (آپلود).
 class SendScreen extends ConsumerStatefulWidget {
   const SendScreen({super.key});
 
@@ -29,20 +29,9 @@ class SendScreen extends ConsumerStatefulWidget {
 
 class _SendScreenState extends ConsumerState<SendScreen> {
   final List<FileMetadata> _selected = [];
-  bool _picking = false;
   bool _sending = false;
 
-  String _formatBytes(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) {
-      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-    }
-    return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB';
-  }
-
   Future<void> _pickFiles() async {
-    setState(() => _picking = true);
     try {
       final result = await FilePicker.platform.pickFiles(
         allowMultiple: true,
@@ -68,16 +57,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
           SnackBar(content: Text('خطا در انتخاب فایل: $e')),
         );
       }
-    } finally {
-      if (mounted) setState(() => _picking = false);
     }
   }
 
-  /// افزودن فایل‌ها از drag & drop (دسکتاپ).
   Future<void> _addDroppedFiles(List<XFile> dropped) async {
     for (final file in dropped) {
-      final name = file.name;
-
       Uint8List? bytes;
       int size = 0;
       try {
@@ -85,20 +69,15 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         bytes = data;
         size = data.length;
       } catch (_) {
-        try {
-          size = await file.length();
-        } catch (_) {
-          size = 0;
-        }
+        try { size = await file.length(); } catch (_) { size = 0; }
       }
-
       if (!mounted) return;
       setState(() {
         _selected.add(FileMetadata(
           id: const Uuid().v4(),
-          name: name,
+          name: file.name,
           size: size,
-          mimeType: name.contains('.') ? name.split('.').last : null,
+          mimeType: FileUi.extensionOf(file.name),
           bytes: bytes,
         ));
       });
@@ -121,242 +100,236 @@ class _SendScreenState extends ConsumerState<SendScreen> {
   Widget build(BuildContext context) {
     final session = ref.watch(sessionProvider);
     final peer = session.peerDevice;
-    final peerName = peer != null && peer.name.isNotEmpty
-        ? peer.name
-        : 'دستگاه مقصد';
-    final totalSize = _selected.fold<int>(0, (sum, f) => sum + f.size);
+    final peerName = peer != null && peer.name.isNotEmpty ? peer.name : 'دستگاه مقصد';
 
     return Scaffold(
       body: DropTarget(
         onDragDone: (details) => _addDroppedFiles(details.files),
         child: GradientBackground(
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      const Spacer(),
-                      const Text(
-                        'ارسال فایل',
-                        style: TextStyle(
-                          color: AppColors.textPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const Spacer(),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // اعلان دستگاه مقصد
-                  GlassCard(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 16),
-                    child: Row(
+            child: Column(
+              children: [
+                FloatingNavbar(
+                  title: 'ارسال فایل',
+                  onBack: () => Navigator.pop(context),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: AppColors.accentGradient,
-                          ),
-                          child: const Icon(
-                            Icons.devices_rounded,
-                            color: Colors.white,
-                            size: 24,
+                        const SizedBox(height: 12),
+                        const Text(
+                          'ارسال فایل',
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'داری به این دستگاه می‌فرستی:',
-                                style: TextStyle(
-                                  color: AppColors.textMuted,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                '$peerName  (${peer != null ? DeviceService.platformLabel(peer.platform) : ''})',
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(height: 4),
+                        Text(
+                          'داری به «$peerName» می‌فرستی',
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13.5,
                           ),
                         ),
-                        const Icon(
-                          Icons.check_circle_rounded,
-                          color: AppColors.success,
-                          size: 22,
-                        ),
+                        const SizedBox(height: 22),
+
+                        if (_selected.isEmpty) ...[
+                          // Drop zone
+                          _DropZone(onTap: _pickFiles),
+                          const SizedBox(height: 26),
+
+                          // انواع فایل‌های پشتیبانی‌شده
+                          _SectionDivider(text: 'انواع فایل‌های پشتیبانی‌شده'),
+                          const SizedBox(height: 16),
+                          const _FileTypeGrid(),
+                        ] else ...[
+                          // لیست فایل‌های انتخاب‌شده
+                          const Text(
+                            'فایل‌های انتخاب‌شده',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          for (var i = 0; i < _selected.length; i++) ...[
+                            FileCard(
+                              name: _selected[i].name,
+                              size: _selected[i].size,
+                              onRemove: () =>
+                                  setState(() => _selected.removeAt(i)),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          const SizedBox(height: 6),
+                          GlassButton(
+                            label: _sending ? 'در حال ارسال...' : 'ارسال فایل‌ها',
+                            icon: Icons.send_rounded,
+                            height: 62,
+                            onPressed: _sending ? null : _send,
+                          ),
+                        ],
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  GlassButton(
-                    label: _selected.isEmpty
-                        ? 'انتخاب فایل‌ها'
-                        : '+ افزودن فایل بیشتر',
-                    icon: Icons.folder_open_rounded,
-                    accentColor: AppColors.accent,
-                    height: 60,
-                    onPressed: _picking ? null : _pickFiles,
-                  ),
-                  const SizedBox(height: 20),
-                  // لیست فایل‌های انتخاب‌شده
-                  Expanded(
-                    child: _selected.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.cloud_upload_outlined,
-                                  color: AppColors.textMuted.withOpacity(0.5),
-                                  size: 64,
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'فایل‌ها را اینجا بکشید یا دکمه را بزنید',
-                                  style: TextStyle(color: AppColors.textMuted),
-                                ),
-                              ],
-                            ),
-                          )
-                        : ListView.separated(
-                            itemCount: _selected.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 10),
-                            itemBuilder: (context, i) {
-                              final f = _selected[i];
-                              return GlassCard(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      _iconFor(f),
-                                      color: AppColors.accent,
-                                      size: 26,
-                                    ),
-                                    const SizedBox(width: 14),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            f.name,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: AppColors.textPrimary,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Text(
-                                            _formatBytes(f.size),
-                                            style: const TextStyle(
-                                              color: AppColors.textMuted,
-                                              fontSize: 12,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    IconButton(
-                                      onPressed: () => setState(
-                                          () => _selected.removeAt(i)),
-                                      icon: const Icon(
-                                        Icons.close_rounded,
-                                        color: AppColors.textSecondary,
-                                        size: 20,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                  if (_selected.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Row(
-                        children: [
-                          Text(
-                            '${_selected.length} فایل  ·  ${_formatBytes(totalSize)}',
-                            style: const TextStyle(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const Spacer(),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    GlassButton(
-                      label: _sending
-                          ? 'در حال ارسال...'
-                          : 'ارسال (${_selected.length})',
-                      icon: Icons.send_rounded,
-                      accentColor: AppColors.primary,
-                      height: 66,
-                      onPressed: _sending ? null : _send,
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                ],
-              ),
+                ),
+                const AirhopFooter(),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+}
 
-  IconData _iconFor(FileMetadata f) {
-    final ext = (f.mimeType ?? '').toLowerCase();
-    if (ext == 'jpg' ||
-        ext == 'jpeg' ||
-        ext == 'png' ||
-        ext == 'gif' ||
-        ext == 'webp' ||
-        ext == 'heic') {
-      return Icons.image_rounded;
-    }
-    if (ext == 'mp4' || ext == 'mov' || ext == 'mkv' || ext == 'avi') {
-      return Icons.videocam_rounded;
-    }
-    if (ext == 'mp3' || ext == 'wav' || ext == 'flac') {
-      return Icons.audiotrack_rounded;
-    }
-    if (ext == 'pdf') return Icons.picture_as_pdf_rounded;
-    if (ext == 'zip' || ext == 'rar') return Icons.folder_zip_rounded;
-    if (ext == 'doc' || ext == 'docx' || ext == 'txt' || ext == 'md') {
-      return Icons.description_rounded;
-    }
-    return Icons.insert_drive_file_rounded;
+/// Drop zone بزرگ با خط‌چین.
+class _DropZone extends StatelessWidget {
+  const _DropZone({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        child: Column(
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.blueGradient,
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.glowBlue.withOpacity(0.5),
+                    blurRadius: 24,
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.cloud_upload_rounded,
+                  color: Colors.white, size: 36),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'فایل را بکشید یا لمس کنید',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'فایل‌های خود را اینجا رها کنید',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// جداکننده با خطوط نقطه‌چین کناری.
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(height: 1, color: AppColors.glassBorder),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(height: 1, color: AppColors.glassBorder),
+        ),
+      ],
+    );
+  }
+}
+
+/// شبکه ۴ کارته انواع فایل.
+class _FileTypeGrid extends StatelessWidget {
+  const _FileTypeGrid();
+
+  static const _types = [
+    (Icons.image_rounded, 'تصویر', 'JPG, PNG, GIF', Color(0xFF34D399)),
+    (Icons.videocam_rounded, 'ویدیو', 'MP4, MOV, AVI', AppColors.pink),
+    (Icons.description_rounded, 'سند', 'PDF, DOC, TXT', AppColors.accentLight),
+    (Icons.folder_zip_rounded, 'فشرده', 'ZIP, RAR, 7Z', Color(0xFFFBBF24)),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      childAspectRatio: 1.35,
+      children: [
+        for (final t in _types)
+          GlassCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: t.$4.withOpacity(0.15),
+                  ),
+                  child: Icon(t.$1, color: t.$4, size: 22),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  t.$2,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  t.$3,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 10.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
   }
 }

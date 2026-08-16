@@ -1,36 +1,28 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
+import '../theme/app_colors.dart';
 
-/// دکمه‌ی ۲.۵ بعدی گلس‌مورفیک.
-///
-/// ویژگی‌ها:
-///  - پس‌زمینه‌ی شیشه‌ای (BackdropFilter + ImageFilter.blur)
-///  - سایه‌ی نرم + glow ظریف دور لبه‌ها
-///  - افکت "lift" موقع هاور/پرس (scale + سایه عمیق‌تر + glow قوی‌تر)
-///  - انیمیشن فیزیک‌محور با curve طبیعی
-///
-/// این ویجت کاملاً self-contained است و می‌تواند در هر جای اپ استفاده شود.
+/// دکمه‌ی شیشه‌ای با گرادیان حاشیه نئونی + هاور درخشان.
 class GlassButton extends StatefulWidget {
   const GlassButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.icon,
-    this.width = 240,
-    this.height = 72,
-    this.accentColor = AppColors.primary,
+    this.subtitle,
+    this.width,
+    this.height = 60,
+    this.iconOnly = false,
     this.enabled = true,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
-  final double width;
+  final String? subtitle;
+  final double? width;
   final double height;
-  final Color accentColor;
+  final bool iconOnly;
   final bool enabled;
 
   @override
@@ -38,15 +30,12 @@ class GlassButton extends StatefulWidget {
 }
 
 class _GlassButtonState extends State<GlassButton> {
-  bool _hovered = false;
   bool _pressed = false;
+  bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    // مقیاس: هاور 1.04، پرس 0.97 (احساس فیزیکی "فشردن")
-    final scale = _pressed
-        ? 0.97
-        : (_hovered ? 1.04 : 1.0);
+    final scale = _pressed ? 0.96 : (_hovered ? 1.03 : 1.0);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -59,87 +48,80 @@ class _GlassButtonState extends State<GlassButton> {
         child: AnimatedScale(
           scale: scale,
           duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutBack,
+          curve: Curves.easeOut,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
             width: widget.width,
             height: widget.height,
+            padding: const EdgeInsets.all(1.5),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              // سایه‌ی نرم + glow که موقع هاور عمیق‌تر می‌شود
+              borderRadius: BorderRadius.circular(20),
+              gradient: widget.enabled
+                  ? AppColors.brandGradient
+                  : const LinearGradient(colors: [AppColors.textMuted, AppColors.textMuted]),
               boxShadow: [
-                BoxShadow(
-                  color: AppColors.shadowSoft,
-                  blurRadius: _hovered ? 28 : 16,
-                  offset: Offset(0, _hovered ? 12 : 8),
-                ),
-                BoxShadow(
-                  color: widget.accentColor.withOpacity(
-                    _hovered ? 0.45 : 0.18,
+                if (widget.enabled)
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(
+                      _hovered ? 0.5 : 0.25,
+                    ),
+                    blurRadius: _hovered ? 34 : 18,
+                    spreadRadius: _hovered ? 2 : 0,
                   ),
-                  blurRadius: _hovered ? 32 : 16,
-                  spreadRadius: _hovered ? 2 : 0,
-                ),
               ],
             ),
-            // لایه‌ی شیشه‌ای واقعی با blur
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(22),
-                    // گرادیان شیشه‌ای: هایلایت بالا → شفاف پایین
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        widget.accentColor.withOpacity(
-                          _hovered ? 0.35 : 0.22,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18.5),
+                color: AppColors.backgroundMid,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                child: Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (widget.icon != null) ...[
+                        Icon(
+                          widget.icon,
+                          color: AppColors.primarySoft,
+                          size: 24,
                         ),
-                        widget.accentColor.withOpacity(0.08),
+                        if (!widget.iconOnly) const SizedBox(width: 12),
                       ],
-                    ),
-                    // border نیمه‌شفاف سفید
-                    border: Border.all(
-                      color: _hovered
-                          ? AppColors.glassHighlight
-                          : AppColors.glassBorder,
-                      width: 1.2,
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.icon != null) ...[
-                            Icon(
-                              widget.icon,
-                              color: AppColors.textPrimary,
-                              size: 26,
-                            ),
-                            const SizedBox(width: 12),
-                          ],
-                          Flexible(
-                            child: Text(
-                              widget.label,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.3,
+                      if (!widget.iconOnly)
+                        Flexible(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                widget.label,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
-                            ),
+                              if (widget.subtitle != null) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  widget.subtitle!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 11.5,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
+                        ),
+                    ],
                   ),
                 ),
               ),
