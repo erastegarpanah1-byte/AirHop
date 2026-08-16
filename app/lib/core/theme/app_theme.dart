@@ -19,7 +19,7 @@ class AppTheme {
           onSurface: AppColors.textPrimary,
         ),
         scaffoldBackgroundColor: Colors.transparent,
-        fontFamily: 'Vazirmatn',
+        fontFamily: 'Peyda',
         splashFactory: InkSparkle.splashFactory,
         textTheme: const TextTheme(
           headlineLarge: TextStyle(
