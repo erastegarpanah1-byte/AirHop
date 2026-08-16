@@ -10,6 +10,7 @@ import '../../core/widgets/floating_navbar.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../../core/widgets/gradient_text.dart';
+import '../about/about_screen.dart';
 import '../history/history_screen.dart';
 import '../pairing/pairing_screen.dart';
 import '../settings/settings_screen.dart';
@@ -17,6 +18,21 @@ import '../settings/settings_screen.dart';
 /// صفحه اصلی AirHop.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
+
+  void _openHistory(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const HistoryScreen()),
+      );
+
+  void _openSettings(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const SettingsScreen()),
+      );
+
+  void _openAbout(BuildContext context) => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const AboutScreen()),
+      );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -29,14 +45,9 @@ class HomeScreen extends ConsumerWidget {
             children: [
               FloatingNavbar(
                 title: 'Airhop',
-                onHistory: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HistoryScreen()),
-                ),
-                onSettings: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                ),
+                onHistory: () => _openHistory(context),
+                onSettings: () => _openSettings(context),
+                onHelp: () => _openAbout(context),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -44,7 +55,7 @@ class HomeScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
                     children: [
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 24),
 
                       Column(
                         children: const [
@@ -69,7 +80,7 @@ class HomeScreen extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       const Text(
                         'فایل‌های خود را در چند ثانیه به هر دستگاهی منتقل کنید',
                         textAlign: TextAlign.center,
@@ -79,46 +90,50 @@ class HomeScreen extends ConsumerWidget {
                           height: 1.5,
                         ),
                       ),
-                      const SizedBox(height: 18),
-
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.upload_rounded,
-                              title: 'ارسال فایل',
-                              subtitle: 'فایل‌های خود را ارسال کنید',
-                              gradient: AppColors.purpleGradient,
-                              glow: AppColors.glowPurple,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const PairingScreen(isSender: true),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: _ActionCard(
-                              icon: Icons.download_rounded,
-                              title: 'دریافت فایل',
-                              subtitle: 'فایل‌ها را دریافت کنید',
-                              gradient: AppColors.blueGradient,
-                              glow: AppColors.glowBlue,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      const PairingScreen(isSender: false),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                       const SizedBox(height: 20),
+
+                      // دو کارت ارسال / دریافت (هم‌قد و هم‌تراز)
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: _ActionCard(
+                                icon: Icons.upload_rounded,
+                                title: 'ارسال فایل',
+                                subtitle: 'فایل‌های خود را ارسال کنید',
+                                gradient: AppColors.purpleGradient,
+                                glow: AppColors.glowPurple,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const PairingScreen(isSender: true),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: _ActionCard(
+                                icon: Icons.download_rounded,
+                                title: 'دریافت فایل',
+                                subtitle: 'فایل‌ها را دریافت کنید',
+                                gradient: AppColors.blueGradient,
+                                glow: AppColors.glowBlue,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        const PairingScreen(isSender: false),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
 
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -131,23 +146,33 @@ class HomeScreen extends ConsumerWidget {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                'مشاهده همه',
-                                style: TextStyle(
-                                  color: AppColors.accentLight,
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                          InkWell(
+                            onTap: () => _openHistory(context),
+                            borderRadius: BorderRadius.circular(8),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 4,
+                                horizontal: 2,
                               ),
-                              const SizedBox(width: 2),
-                              const Icon(
-                                Icons.chevron_left_rounded,
-                                color: AppColors.accentLight,
-                                size: 17,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    'مشاهده همه',
+                                    style: TextStyle(
+                                      color: AppColors.accentLight,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(width: 2),
+                                  Icon(
+                                    Icons.chevron_left_rounded,
+                                    color: AppColors.accentLight,
+                                    size: 17,
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
@@ -161,7 +186,7 @@ class HomeScreen extends ConsumerWidget {
                           const SizedBox(height: 8),
                         ],
 
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
@@ -231,6 +256,7 @@ class _ActionCardState extends State<_ActionCard> {
               ],
             ),
             child: Container(
+              width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(24.5),
