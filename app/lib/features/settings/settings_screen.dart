@@ -39,11 +39,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 24),
                       const Text(
                         'تنظیمات',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 26,
@@ -53,6 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 6),
                       const Text(
                         'مدیریت تنظیمات برنامه و شخصی‌سازی تجربه',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13.5,
@@ -216,7 +217,7 @@ class _ToggleRow extends StatelessWidget {
   }
 }
 
-/// سوییچ گرادیانی بنفش-آبی.
+/// سوییچ گرادیانی بنفش-آبی (آگاه از جهت RTL).
 class _NeonSwitch extends StatelessWidget {
   const _NeonSwitch({required this.value, required this.onChanged});
 
@@ -225,6 +226,12 @@ class _NeonSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // در RTL، سوییچ روشن باید به سمت چپ (شروع متن) بیفتد.
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final alignment = value
+        ? (isRtl ? Alignment.centerLeft : Alignment.centerRight)
+        : (isRtl ? Alignment.centerRight : Alignment.centerLeft);
+
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: AnimatedContainer(
@@ -252,7 +259,7 @@ class _NeonSwitch extends StatelessWidget {
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeInOut,
-          alignment: Alignment.centerRight,
+          alignment: alignment,
           child: Container(
             width: 22,
             height: 22,
