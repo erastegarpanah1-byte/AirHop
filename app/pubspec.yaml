@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # State management
   flutter_riverpod: ^2.5.1
@@ -64,15 +66,23 @@ flutter:
     - assets/images/
 
   fonts:
-    - family: Vazirmatn
+    - family: Peyda
       fonts:
-        - asset: assets/fonts/Vazirmatn-Regular.ttf
+        - asset: assets/fonts/Peyda-Thin.ttf
+          weight: 100
+        - asset: assets/fonts/Peyda-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Peyda-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Peyda-Regular.ttf
           weight: 400
-        - asset: assets/fonts/Vazirmatn-Medium.ttf
+        - asset: assets/fonts/Peyda-Medium.ttf
           weight: 500
-        - asset: assets/fonts/Vazirmatn-SemiBold.ttf
+        - asset: assets/fonts/Peyda-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Vazirmatn-Bold.ttf
+        - asset: assets/fonts/Peyda-Bold.ttf
           weight: 700
-        - asset: assets/fonts/Vazirmatn-ExtraBold.ttf
+        - asset: assets/fonts/Peyda-ExtraBold.ttf
           weight: 800
+        - asset: assets/fonts/Peyda-Black.ttf
+          weight: 900
