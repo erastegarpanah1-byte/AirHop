@@ -1,0 +1,17 @@
+{
+  "name": "airhop-signaling-server",
+  "version": "1.0.0",
+  "description": "AirHop signaling server (Node.js) — WebSocket SDP/ICE relay + optional file relay fallback",
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js",
+    "dev": "node --watch src/main.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
