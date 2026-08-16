@@ -69,7 +69,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         bytes = data;
         size = data.length;
       } catch (_) {
-        try { size = await file.length(); } catch (_) { size = 0; }
+        try {
+          size = await file.length();
+        } catch (_) {
+          size = 0;
+        }
       }
       if (!mounted) return;
       setState(() {
@@ -118,11 +122,11 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                     physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 12),
                         const Text(
                           'ارسال فایل',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
                             fontSize: 26,
@@ -132,6 +136,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                         const SizedBox(height: 4),
                         Text(
                           'داری به «$peerName» می‌فرستی',
+                          textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13.5,
@@ -152,6 +157,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                           // لیست فایل‌های انتخاب‌شده
                           const Text(
                             'فایل‌های انتخاب‌شده',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16,
@@ -223,6 +229,7 @@ class _DropZone extends StatelessWidget {
             const SizedBox(height: 18),
             const Text(
               'فایل را بکشید یا لمس کنید',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 16,
@@ -232,6 +239,7 @@ class _DropZone extends StatelessWidget {
             const SizedBox(height: 5),
             const Text(
               'فایل‌های خود را اینجا رها کنید',
+              textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
             ),
           ],
@@ -258,6 +266,7 @@ class _SectionDivider extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             text,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
@@ -298,7 +307,7 @@ class _FileTypeGrid extends StatelessWidget {
           GlassCard(
             padding: const EdgeInsets.all(14),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   width: 40,
@@ -312,6 +321,7 @@ class _FileTypeGrid extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   t.$2,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
                     fontSize: 14,
@@ -321,6 +331,7 @@ class _FileTypeGrid extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   t.$3,
+                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 10.5,
