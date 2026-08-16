@@ -1,0 +1,15 @@
+[Unit]
+Description=AirHop Signaling Server (Node.js)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/airhop/server
+ExecStart=/usr/bin/node /opt/airhop/server/src/main.js
+Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+EnvironmentFile=/opt/airhop/server/.env
+
+[Install]
+WantedBy=multi-user.target

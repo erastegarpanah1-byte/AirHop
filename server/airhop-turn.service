@@ -1,0 +1,12 @@
+[Unit]
+Description=AirHop TURN server (coturn)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/turnserver -c /etc/turnserver.conf
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
