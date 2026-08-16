@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/providers.dart';
+import '../../core/data/device_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/airhop_footer.dart';
 import '../../core/widgets/floating_navbar.dart';
