@@ -43,15 +43,15 @@ class HomeScreen extends ConsumerWidget {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 28),
 
-                      // تیتر دو-رنگ
-                      Row(
+                      // تیتر دو-رنگ (وسط‌چین)
+                      Column(
                         children: const [
                           Text(
-                            'انتقال فایل ',
+                            'انتقال فایل سریع و امن',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textHigh,
                               fontSize: 28,
@@ -59,19 +59,21 @@ class HomeScreen extends ConsumerWidget {
                               letterSpacing: -0.5,
                             ),
                           ),
+                          SizedBox(height: 6),
                           GradientText(
-                            'سریع و امن',
+                            'بی‌رقیب در سرعت',
                             style: TextStyle(
-                              fontSize: 28,
+                              fontSize: 24,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.5,
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       const Text(
-                        'فایل‌های خود را در چند ثانیه و بدون نیاز به اینترنت منتقل کنید',
+                        'فایل‌های خود را در چند ثانیه به هر دستگاهی منتقل کنید',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 14,
@@ -142,6 +144,7 @@ class HomeScreen extends ConsumerWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              const SizedBox(width: 2),
                               const Icon(
                                 Icons.chevron_left_rounded,
                                 color: AppColors.accentLight,
@@ -162,7 +165,6 @@ class HomeScreen extends ConsumerWidget {
                           const SizedBox(height: 10),
                         ],
 
-                      // لینک مشاهده همه (کلیک)
                       if (history.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
@@ -262,7 +264,8 @@ class _ActionCardState extends State<_ActionCard> {
                 color: AppColors.backgroundMid,
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
                     width: 52,
@@ -282,6 +285,7 @@ class _ActionCardState extends State<_ActionCard> {
                   const SizedBox(height: 16),
                   Text(
                     widget.title,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textPrimary,
                       fontSize: 17,
@@ -291,6 +295,7 @@ class _ActionCardState extends State<_ActionCard> {
                   const SizedBox(height: 4),
                   Text(
                     widget.subtitle,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -360,7 +365,8 @@ class _HistoryItem extends StatelessWidget {
           const SizedBox(width: 8),
           // وضعیت موفق + تیک
           Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
                 width: 22,
@@ -400,6 +406,7 @@ class _EmptyHistory extends StatelessWidget {
           const SizedBox(height: 10),
           const Text(
             'هنوز انتقالی انجام نشده',
+            textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.textMuted, fontSize: 13.5),
           ),
         ],
