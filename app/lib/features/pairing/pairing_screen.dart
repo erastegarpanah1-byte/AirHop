@@ -113,6 +113,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 12),
         const Text(
           'برای اتصال اسکن کنید',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 22,
@@ -122,6 +123,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 6),
         const Text(
           'کد QR را در دستگاه مقابل اسکن کنید',
+          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
         const SizedBox(height: 26),
@@ -137,6 +139,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         // کد جفت‌سازی
         const Text(
           'کد جفت‌سازی',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textSecondary,
             fontSize: 13,
@@ -148,6 +151,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 12),
         const Text(
           'یا کد را وارد کنید',
+          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         const SizedBox(height: 8),
@@ -172,6 +176,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 12),
         const Text(
           'اسکن کد QR',
+          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
             fontSize: 22,
@@ -181,6 +186,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 6),
         const Text(
           'کد QR دستگاه فرستنده را اسکن کنید',
+          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
         const SizedBox(height: 22),
@@ -194,6 +200,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         // ورود دستی
         const Text(
           'یا کد را به صورت دستی وارد کنید',
+          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
         ),
         const SizedBox(height: 12),
@@ -476,10 +483,7 @@ class _PulseDotPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    // نقطه مرکزی
-    canvas.drawCircle(
-        center, 4, Paint()..color = AppColors.primarySoft);
-    // دو قوس هم‌مرکز نبض‌دار
+    canvas.drawCircle(center, 4, Paint()..color = AppColors.primarySoft);
     for (var i = 0; i < 2; i++) {
       final p = (progress + i / 2) % 1.0;
       canvas.drawCircle(
