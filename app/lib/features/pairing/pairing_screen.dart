@@ -16,9 +16,6 @@ import '../send/send_screen.dart';
 import '../transfer/transfer_screen.dart';
 
 /// صفحه جفت‌سازی (Pairing).
-///
-/// - Sender: QR با لوگو وسط + حلقه رادار + کد ۶ رقمی + منتظر اتصال.
-/// - Receiver: اسکنر بارکد + ورود دستی کد.
 class PairingScreen extends ConsumerStatefulWidget {
   const PairingScreen({super.key, required this.isSender});
 
@@ -93,7 +90,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                   child: widget.isSender
                       ? _buildSender(session)
                       : _buildReceiver(),
@@ -110,62 +107,58 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   Widget _buildSender(SessionState session) {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         const Text(
           'برای اتصال اسکن کنید',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         const Text(
           'کد QR را در دستگاه مقابل اسکن کنید',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
-        const SizedBox(height: 26),
-
-        // فریم QR با حلقه رادار و گوشه‌های اسکنر
-        _QrWithRadar(code: session.pairingCode),
         const SizedBox(height: 16),
 
-        // منتظر اتصال با آیکون پالس
-        const _WaitingIndicator(),
-        const SizedBox(height: 24),
+        _QrWithRadar(code: session.pairingCode),
+        const SizedBox(height: 10),
 
-        // کد جفت‌سازی
+        const _WaitingIndicator(),
+        const SizedBox(height: 14),
+
         const Text(
           'کد جفت‌سازی',
-          textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textSecondary,
-            fontSize: 13,
+            fontSize: 12.5,
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _CodeBoxes(code: session.pairingCode),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         const Text(
           'یا کد را وارد کنید',
-          textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         const SizedBox(height: 8),
         Container(
-          width: 48,
-          height: 48,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: AppColors.glassBgStrong,
             border: Border.all(color: AppColors.glassBorder),
           ),
           child: const Icon(Icons.keyboard_rounded,
-              color: AppColors.textSecondary, size: 22),
+              color: AppColors.textSecondary, size: 20),
         ),
+        const SizedBox(height: 6),
       ],
     );
   }
@@ -173,45 +166,43 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   Widget _buildReceiver() {
     return Column(
       children: [
-        const SizedBox(height: 12),
+        const SizedBox(height: 6),
         const Text(
           'اسکن کد QR',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
           ),
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         const Text(
           'کد QR دستگاه فرستنده را اسکن کنید',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 14),
 
-        // اسکنر بارکد
         _BarcodeScanner(onScanned: (code) {
           if (code.isNotEmpty) _join(code.toUpperCase());
         }),
-        const SizedBox(height: 20),
+        const SizedBox(height: 14),
 
-        // ورود دستی
         const Text(
           'یا کد را به صورت دستی وارد کنید',
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textMuted, fontSize: 12.5),
+          style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         GlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
           child: TextField(
             controller: _codeController,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 28,
+              fontSize: 26,
               fontWeight: FontWeight.w700,
               letterSpacing: 8,
             ),
@@ -221,13 +212,14 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
               counterText: '',
               border: InputBorder.none,
               hintText: '••••••',
-              hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 26),
+              hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 24),
             ),
             onChanged: (v) {
               if (v.length == 6) _join(v.toUpperCase());
             },
           ),
         ),
+        const SizedBox(height: 6),
       ],
     );
   }
@@ -272,25 +264,23 @@ class _QrWithRadarState extends State<_QrWithRadar>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 260,
-      height: 260,
+      width: 230,
+      height: 230,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // حلقه‌های رادار پالس‌دار
           AnimatedBuilder(
             animation: _radar,
             builder: (context, _) {
               return CustomPaint(
-                size: const Size(260, 260),
+                size: const Size(230, 230),
                 painter: _RadarPainter(progress: _radar.value),
               );
             },
           ),
-          // فریم QR
           Container(
-            width: 210,
-            height: 210,
+            width: 186,
+            height: 186,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -316,7 +306,7 @@ class _QrWithRadarState extends State<_QrWithRadar>
                       QrImageView(
                         data: widget.code,
                         version: QrVersions.auto,
-                        size: 186,
+                        size: 162,
                         eyeStyle: const QrEyeStyle(
                           eyeShape: QrEyeShape.square,
                           color: Color(0xFF0A0A18),
@@ -326,10 +316,9 @@ class _QrWithRadarState extends State<_QrWithRadar>
                           color: Color(0xFF0A0A18),
                         ),
                       ),
-                      // لوگو وسط QR
                       Container(
-                        width: 46,
-                        height: 46,
+                        width: 42,
+                        height: 42,
                         padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: Colors.white,
@@ -349,7 +338,6 @@ class _QrWithRadarState extends State<_QrWithRadar>
                     ],
                   ),
           ),
-          // گوشه‌های اسکنر (براکت‌های L)
           ..._scannerCorners(),
         ],
       ),
@@ -358,11 +346,10 @@ class _QrWithRadarState extends State<_QrWithRadar>
 
   List<Widget> _scannerCorners() {
     const color = AppColors.primarySoft;
-    const length = 28.0;
+    const length = 26.0;
     const thickness = 3.5;
-    const offset = 16.0;
+    const offset = 14.0;
     final positions = [
-      // بالا-راست
       Alignment.topRight,
       Alignment.topLeft,
       Alignment.bottomRight,
@@ -411,7 +398,7 @@ class _RadarPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     for (var i = 0; i < 3; i++) {
       final p = (progress + i / 3) % 1.0;
-      final radius = 105 + p * 25;
+      final radius = 92 + p * 22;
       final opacity = (1.0 - p) * 0.5;
       final paint = Paint()
         ..style = PaintingStyle.stroke
@@ -460,7 +447,7 @@ class _WaitingIndicatorState extends State<_WaitingIndicator>
           animation: _c,
           builder: (context, _) {
             return CustomPaint(
-              size: const Size(20, 20),
+              size: const Size(18, 18),
               painter: _PulseDotPainter(progress: _c.value),
             );
           },
@@ -468,7 +455,7 @@ class _WaitingIndicatorState extends State<_WaitingIndicator>
         const SizedBox(width: 10),
         const Text(
           'منتظر اتصال...',
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
       ],
     );
@@ -516,12 +503,12 @@ class _CodeBoxes extends StatelessWidget {
       children: [
         for (var i = 0; i < 6; i++) ...[
           Container(
-            width: 46,
-            height: 56,
+            width: 40,
+            height: 48,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               color: AppColors.glassBg,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(11),
               border: Border.all(color: AppColors.glassBorder),
             ),
             child: code.isEmpty
@@ -529,19 +516,19 @@ class _CodeBoxes extends StatelessWidget {
                     digits[i],
                     style: const TextStyle(
                       color: AppColors.textMuted,
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
                   )
                 : GradientText(
                     digits[i],
                     style: const TextStyle(
-                      fontSize: 26,
+                      fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
           ),
-          if (i < 5) const SizedBox(width: 8),
+          if (i < 5) const SizedBox(width: 7),
         ],
       ],
     );
@@ -559,8 +546,8 @@ class _BarcodeScanner extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: SizedBox(
-        width: 260,
-        height: 260,
+        width: 230,
+        height: 230,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -572,7 +559,6 @@ class _BarcodeScanner extends StatelessWidget {
                 }
               },
             ),
-            // overlay گوشه‌ها
             IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
