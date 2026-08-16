@@ -63,7 +63,7 @@ class FloatingNavbar extends StatelessWidget {
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Row(
               children: [
-                // سمت راست: دکمه خانه/برگشت
+                // سمت راست (در RTL: اول) دکمه خانه/برگشت
                 _NavCircleButton(
                   icon: showBack
                       ? Icons.arrow_back_rounded
@@ -81,6 +81,7 @@ class FloatingNavbar extends StatelessWidget {
                         ? const _BrandLogo()
                         : Text(
                             title,
+                            textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 17,
@@ -91,7 +92,7 @@ class FloatingNavbar extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 8),
-                // سمت چپ: ۳ دکمه دایره‌ای
+                // سمت چپ (در RTL: آخر) ۳ دکمه دایره‌ای
                 _NavCircleButton(
                   icon: Icons.history_rounded,
                   onTap: onHistory ?? () {},
@@ -142,7 +143,6 @@ class _BrandLogo extends StatelessWidget {
             fontSize: 18,
             fontWeight: FontWeight.w800,
             letterSpacing: 0.3,
-            fontFamily: 'Vazirmatn',
           ),
         ),
       ],
