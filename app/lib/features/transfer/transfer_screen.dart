@@ -54,6 +54,7 @@ class TransferScreen extends ConsumerWidget {
                       const SizedBox(height: 12),
                       Text(
                         isDone ? 'انتقال کامل شد' : 'در حال ارسال...',
+                        textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 22,
@@ -64,6 +65,7 @@ class TransferScreen extends ConsumerWidget {
                         const SizedBox(height: 5),
                         const Text(
                           'لطفاً دستگاه‌ها را نزدیک نگه دارید',
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textSecondary,
                             fontSize: 13,
@@ -95,6 +97,7 @@ class TransferScreen extends ConsumerWidget {
                               fileName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: AppColors.textPrimary,
                                 fontSize: 18,
@@ -104,6 +107,7 @@ class TransferScreen extends ConsumerWidget {
                             const SizedBox(height: 4),
                             Text(
                               FileUi.formatBytes(progress.totalBytes),
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: AppColors.textMuted,
                                 fontSize: 13,
@@ -330,6 +334,7 @@ class _ProgressRing extends StatelessWidget {
               ),
               Text(
                 done ? 'کامل شد' : 'در حال ارسال',
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
                   fontSize: 12.5,
@@ -379,7 +384,6 @@ class _RingPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round;
       canvas.drawArc(rect, -math.pi / 2, sweep, false, progressPaint);
 
-      // درخشش در نوک
       final tipAngle = -math.pi / 2 + sweep;
       final tip = Offset(
         center.dx + radius * math.cos(tipAngle),
@@ -419,6 +423,7 @@ class _StatRow extends StatelessWidget {
         const SizedBox(height: 3),
         Text(
           label,
+          textAlign: TextAlign.center,
           style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5),
         ),
       ],
