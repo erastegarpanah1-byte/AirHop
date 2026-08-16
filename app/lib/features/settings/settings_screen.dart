@@ -7,6 +7,7 @@ import '../../core/widgets/airhop_footer.dart';
 import '../../core/widgets/floating_navbar.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
+import '../about/about_screen.dart';
 
 /// صفحه تنظیمات AirHop.
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -35,6 +36,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               FloatingNavbar(
                 title: 'تنظیمات',
                 onBack: () => Navigator.pop(context),
+                onHelp: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutScreen()),
+                ),
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -122,7 +127,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       const SizedBox(height: 10),
                       const _NavRow(
                         title: 'درباره برنامه',
-                        value: 'نسخه ۱.۰.۵',
+                        value: 'نسخه 1.0.0',
                         icon: Icons.info_outline_rounded,
                       ),
                       const SizedBox(height: 8),
