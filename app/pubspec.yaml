@@ -68,12 +68,6 @@ flutter:
   fonts:
     - family: Peyda
       fonts:
-        - asset: assets/fonts/Peyda-Thin.ttf
-          weight: 100
-        - asset: assets/fonts/Peyda-ExtraLight.ttf
-          weight: 200
-        - asset: assets/fonts/Peyda-Light.ttf
-          weight: 300
         - asset: assets/fonts/Peyda-Regular.ttf
           weight: 400
         - asset: assets/fonts/Peyda-Medium.ttf
@@ -84,5 +78,3 @@ flutter:
           weight: 700
         - asset: assets/fonts/Peyda-ExtraBold.ttf
           weight: 800
-        - asset: assets/fonts/Peyda-Black.ttf
-          weight: 900
