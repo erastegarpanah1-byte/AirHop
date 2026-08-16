@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -54,7 +55,7 @@ class RoomInfo {
   final bool roomReady;
 }
 
-/// وب‌سوکت کلاینت به Cloudflare Worker.
+/// وب‌سوکت کلاینت به سرور سیگنالینگ، با پشتیبانی از چند سرور (fallback).
 class SignalingService {
   SignalingService({this.server = AppConfig.signalingServer});
 
@@ -63,6 +64,7 @@ class SignalingService {
   StreamSubscription? _sub;
   String? _peerId;
   String? _role;
+  String? _activeServer;
 
   bool get isConnected => _channel != null;
 
@@ -73,18 +75,38 @@ class SignalingService {
   final StreamController<RoomInfo> _events = StreamController<RoomInfo>.broadcast();
   Stream<RoomInfo> get events => _events.stream;
 
-  final StreamController<DeviceInfo> _peerDevice = StreamController<DeviceInfo>.broadcast();
+  final StreamController<DeviceInfo> _peerDevice =
+      StreamController<DeviceInfo>.broadcast();
   Stream<DeviceInfo> get peerDevice => _peerDevice.stream;
 
-  /// ارسال نام دستگاه خودمان به طرف مقابل.
+  final StreamController<Uint8List> _relayChunks =
+      StreamController<Uint8List>.broadcast();
+  Stream<Uint8List> get relayChunks => _relayChunks.stream;
+
   void sendDeviceInfo(DeviceInfo device) {
     send(SignalMessage(type: SignalType.deviceInfo, payload: device.toJson()));
   }
 
-  /// ساخت یک اتاق جدید و برگرداندن کد جفت‌سازی.
+  /// ساخت اتاق — از سرور اصلی، و در صورت خطا از سرورهای fallback.
   Future<String> createRoom() async {
+    final servers = [server, ...AppConfig.fallbackSignalingServers];
+    Object? lastError;
+    for (final s in servers) {
+      try {
+        final code = await _createRoomOn(s);
+        _activeServer = s;
+        return code;
+      } catch (e) {
+        lastError = e;
+      }
+    }
+    throw Exception('createRoom failed on all servers: $lastError');
+  }
+
+  Future<String> _createRoomOn(String server) async {
     final uri = Uri.parse('$server/room');
-    final response = await http.post(uri);
+    final response =
+        await http.post(uri).timeout(const Duration(seconds: 8));
     if (response.statusCode != 200) {
       throw Exception('createRoom failed: ${response.statusCode}');
     }
@@ -92,10 +114,11 @@ class SignalingService {
     return body['code'] as String;
   }
 
-  /// اتصال وب‌سوکت به یک اتاق با کد مشخص.
+  /// اتصال وب‌سوکت به اتاق.
   Future<void> joinRoom(String code, {required String role}) async {
+    final base = _activeServer ?? server;
     final wsUri = Uri.parse(
-      '$server/room/$code/ws?role=$role'
+      '$base/room/$code/ws?role=$role'
           .replaceFirst('https://', 'wss://')
           .replaceFirst('http://', 'ws://'),
     );
@@ -105,19 +128,23 @@ class SignalingService {
     _sub = _channel!.stream.listen(
       (dynamic data) {
         if (data is String) {
-          final Map<String, dynamic> json = jsonDecode(data) as Map<String, dynamic>;
+          final Map<String, dynamic> json =
+              jsonDecode(data) as Map<String, dynamic>;
           _handleMessage(json);
+        } else if (data is List<int>) {
+          _relayChunks.add(Uint8List.fromList(data));
         }
       },
       onError: (Object e) => _messages.addError(e),
       onDone: () => _events.add(const RoomInfo(
-        code: '',
-        peerId: '',
-        role: '',
-        peerCount: 0,
-        roomReady: false,
+        code: '', peerId: '', role: '', peerCount: 0, roomReady: false,
       )),
     );
+  }
+
+  /// ارسال چانک باینری از طریق سرور (fallback relay).
+  void sendRelayChunk(Uint8List chunk) {
+    _channel?.sink.add(chunk);
   }
 
   void _handleMessage(Map<String, dynamic> json) {
@@ -148,7 +175,6 @@ class SignalingService {
 
     final signal = SignalMessage.fromJson(json);
 
-    // پیام معرفی دستگاه همتا
     if (signal.type == SignalType.deviceInfo && signal.payload != null) {
       _peerDevice.add(DeviceInfo.fromJson(signal.payload!));
       return;
@@ -167,5 +193,6 @@ class SignalingService {
     _messages.close();
     _events.close();
     _peerDevice.close();
+    _relayChunks.close();
   }
 }
