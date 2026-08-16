@@ -69,11 +69,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
         bytes = data;
         size = data.length;
       } catch (_) {
-        try {
-          size = await file.length();
-        } catch (_) {
-          size = 0;
-        }
+        try { size = await file.length(); } catch (_) { size = 0; }
       }
       if (!mounted) return;
       setState(() {
@@ -120,16 +116,17 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 8),
                         const Text(
                           'ارسال فایل',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textPrimary,
-                            fontSize: 26,
+                            fontSize: 22,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -139,32 +136,28 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: AppColors.textSecondary,
-                            fontSize: 13.5,
+                            fontSize: 13,
                           ),
                         ),
-                        const SizedBox(height: 22),
+                        const SizedBox(height: 16),
 
                         if (_selected.isEmpty) ...[
-                          // Drop zone
                           _DropZone(onTap: _pickFiles),
-                          const SizedBox(height: 26),
+                          const SizedBox(height: 18),
 
-                          // انواع فایل‌های پشتیبانی‌شده
                           _SectionDivider(text: 'انواع فایل‌های پشتیبانی‌شده'),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           const _FileTypeGrid(),
                         ] else ...[
-                          // لیست فایل‌های انتخاب‌شده
                           const Text(
                             'فایل‌های انتخاب‌شده',
-                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: AppColors.textPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 10),
                           for (var i = 0; i < _selected.length; i++) ...[
                             FileCard(
                               name: _selected[i].name,
@@ -178,7 +171,7 @@ class _SendScreenState extends ConsumerState<SendScreen> {
                           GlassButton(
                             label: _sending ? 'در حال ارسال...' : 'ارسال فایل‌ها',
                             icon: Icons.send_rounded,
-                            height: 62,
+                            height: 56,
                             onPressed: _sending ? null : _send,
                           ),
                         ],
@@ -207,12 +200,12 @@ class _DropZone extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: GlassCard(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+        padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
         child: Column(
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 60,
+              height: 60,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: AppColors.blueGradient,
@@ -224,23 +217,23 @@ class _DropZone extends StatelessWidget {
                 ],
               ),
               child: const Icon(Icons.cloud_upload_rounded,
-                  color: Colors.white, size: 36),
+                  color: Colors.white, size: 30),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
             const Text(
               'فایل را بکشید یا لمس کنید',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textPrimary,
-                fontSize: 16,
+                fontSize: 15,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 5),
+            const SizedBox(height: 4),
             const Text(
               'فایل‌های خود را اینجا رها کنید',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
             ),
           ],
         ),
@@ -266,7 +259,6 @@ class _SectionDivider extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             text,
-            textAlign: TextAlign.center,
             style: const TextStyle(
               color: AppColors.textSecondary,
               fontSize: 13,
@@ -299,39 +291,37 @@ class _FileTypeGrid extends StatelessWidget {
       crossAxisCount: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: 12,
-      crossAxisSpacing: 12,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
       childAspectRatio: 1.35,
       children: [
         for (final t in _types)
           GlassCard(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.all(13),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 38,
+                  height: 38,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: t.$4.withOpacity(0.15),
                   ),
-                  child: Icon(t.$1, color: t.$4, size: 22),
+                  child: Icon(t.$1, color: t.$4, size: 21),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
                   t.$2,
-                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textPrimary,
-                    fontSize: 14,
+                    fontSize: 13.5,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   t.$3,
-                  textAlign: TextAlign.center,
                   style: const TextStyle(
                     color: AppColors.textMuted,
                     fontSize: 10.5,
