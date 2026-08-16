@@ -9,7 +9,18 @@ import '../config/app_config.dart';
 import '../domain/models.dart';
 
 /// نوع پیام‌های سیگنالینگ بین دو peer.
-enum SignalType { offer, answer, ice, ready, welcome, peerLeft, error, deviceInfo }
+enum SignalType {
+  offer,
+  answer,
+  ice,
+  ready,
+  welcome,
+  peerLeft,
+  error,
+  deviceInfo,
+  relayHeader,
+  relayEnd,
+}
 
 /// یک پیام سیگنالینگ.
 class SignalMessage {
@@ -105,8 +116,7 @@ class SignalingService {
 
   Future<String> _createRoomOn(String server) async {
     final uri = Uri.parse('$server/room');
-    final response =
-        await http.post(uri).timeout(const Duration(seconds: 8));
+    final response = await http.post(uri).timeout(const Duration(seconds: 8));
     if (response.statusCode != 200) {
       throw Exception('createRoom failed: ${response.statusCode}');
     }
