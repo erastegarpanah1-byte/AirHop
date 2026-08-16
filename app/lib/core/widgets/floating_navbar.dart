@@ -6,8 +6,8 @@ import '../theme/app_colors.dart';
 
 /// نوار ناوبری شناور «جزیره‌ای» AirHop.
 ///
-/// یک پیل/سوپر-الیپس کپسولی که از لبه‌های صفحه فاصله دارد و شناور است،
-/// با حاشیهٔ گرادیانی نئونی و گلوی بیرونی.
+/// چیدمان: لوگوی برند کاملاً سمت راست، دکمه‌های شیشه‌ای کاملاً سمت چپ.
+/// عنوان (وقتی showLogo=false) در وسط می‌نشیند.
 class FloatingNavbar extends StatelessWidget {
   const FloatingNavbar({
     super.key,
@@ -20,7 +20,6 @@ class FloatingNavbar extends StatelessWidget {
     this.child,
   });
 
-  /// عنوان وسط (اختیاری؛ اگر لوگو نشان داده شود نادیده گرفته می‌شود).
   final String title;
   final VoidCallback? onBack;
   final VoidCallback? onHistory;
@@ -61,57 +60,72 @@ class FloatingNavbar extends StatelessWidget {
           borderRadius: BorderRadius.circular(32),
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Row(
-              children: [
-                // سمت راست (در RTL: اول) دکمه خانه/برگشت
-                _NavCircleButton(
-                  icon: showBack
-                      ? Icons.arrow_back_rounded
-                      : Icons.home_rounded,
-                  onTap: showBack
-                      ? (onBack ?? () {})
-                      : () => navigatorHome(context),
-                ),
-                const SizedBox(width: 8),
-
-                // وسط: لوگو + وردمارک یا عنوان
-                Expanded(
-                  child: Center(
-                    child: showLogo
-                        ? const _BrandLogo()
-                        : Text(
-                            title,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                  ),
-                ),
-
-                const SizedBox(width: 8),
-                // سمت چپ (در RTL: آخر) ۳ دکمه دایره‌ای
-                _NavCircleButton(
-                  icon: Icons.history_rounded,
-                  onTap: onHistory ?? () {},
-                ),
-                const SizedBox(width: 6),
-                _NavCircleButton(
-                  icon: Icons.settings_rounded,
-                  onTap: onSettings ?? () {},
-                ),
-                const SizedBox(width: 6),
-                _NavCircleButton(
-                  icon: Icons.help_outline_rounded,
-                  onTap: onHelp ?? () {},
-                ),
-              ],
-            ),
+            child: showLogo
+                ? _buildWithLogo(context)
+                : _buildWithBack(context, showBack),
           ),
         ),
       ),
+    );
+  }
+
+  /// حالت لوگو (صفحه اصلی): لوگو راست، دکمه‌ها چپ.
+  Widget _buildWithLogo(BuildContext context) {
+    return Row(
+      children: [
+        // سمت راست: لوگوی برند (کاملاً چسبیده به راست)
+        const _BrandLogo(),
+        // فاصله‌گیر که بقیه را به چپ هل می‌دهد
+        const Spacer(),
+        // سمت چپ: دکمه‌های شیشه‌ای
+        _NavCircleButton(
+          icon: Icons.history_rounded,
+          onTap: onHistory ?? () {},
+        ),
+        const SizedBox(width: 6),
+        _NavCircleButton(
+          icon: Icons.settings_rounded,
+          onTap: onSettings ?? () {},
+        ),
+        const SizedBox(width: 6),
+        _NavCircleButton(
+          icon: Icons.help_outline_rounded,
+          onTap: onHelp ?? () {},
+        ),
+      ],
+    );
+  }
+
+  /// حالت بدون لوگو (صفحات داخلی): دکمه برگشت راست، عنوان وسط.
+  Widget _buildWithBack(BuildContext context, bool showBack) {
+    return Row(
+      children: [
+        if (showBack)
+          _NavCircleButton(
+            icon: Icons.arrow_back_rounded,
+            onTap: onBack ?? () {},
+          )
+        else
+          _NavCircleButton(
+            icon: Icons.home_rounded,
+            onTap: () => navigatorHome(context),
+          ),
+        // عنوان وسط
+        Expanded(
+          child: child ??
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  color: AppColors.textPrimary,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+        ),
+        // تعادل بصری با دکمه راست (برای وسط‌ماندن عنوان)
+        const SizedBox(width: 44),
+      ],
     );
   }
 
@@ -129,7 +143,6 @@ class _BrandLogo extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // قوس مینیمال (دو نقطه رنگی با قوس اتصال)
         SizedBox(
           width: 40,
           height: 28,
@@ -162,7 +175,6 @@ class _ArcPainter extends CustomPainter {
         colors: [AppColors.cyan, AppColors.accent, AppColors.primary],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
-    // قوس رو به بالا که دو نقطه را وصل می‌کند
     final path = Path()
       ..moveTo(size.width * 0.08, size.height * 0.75)
       ..quadraticBezierTo(
@@ -173,7 +185,6 @@ class _ArcPainter extends CustomPainter {
       );
     canvas.drawPath(path, stroke);
 
-    // دو نقطه انتهایی
     final startDot = Paint()..color = AppColors.cyan;
     final endDot = Paint()..color = AppColors.primarySoft;
     canvas.drawCircle(
