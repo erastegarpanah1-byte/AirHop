@@ -48,51 +48,47 @@ class TransferScreen extends ConsumerWidget {
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
                   child: Column(
                     children: [
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       Text(
                         isDone ? 'انتقال کامل شد' : 'در حال ارسال...',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       if (!isDone) ...[
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 4),
                         const Text(
                           'لطفاً دستگاه‌ها را نزدیک نگه دارید',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textSecondary,
-                            fontSize: 13,
+                            fontSize: 12.5,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 22),
+                      const SizedBox(height: 14),
 
-                      // کارت اصلی
                       GlassCard(
-                        padding: const EdgeInsets.all(28),
+                        padding: const EdgeInsets.all(22),
                         glowColor: AppColors.glowPurple,
                         child: Column(
                           children: [
-                            // دو دستگاه + جریان ذرات
                             const _DeviceStream(),
-                            const SizedBox(height: 26),
+                            const SizedBox(height: 18),
 
-                            // حلقه پیشرفت
                             _ProgressRing(
                               percent: isDone ? 100 : progress.percent,
                               done: isDone,
                               active: isTransferring,
                             ),
-                            const SizedBox(height: 18),
+                            const SizedBox(height: 12),
 
-                            // نام و حجم فایل
                             Text(
                               fileName,
                               maxLines: 1,
@@ -100,26 +96,24 @@ class TransferScreen extends ConsumerWidget {
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: AppColors.textPrimary,
-                                fontSize: 18,
+                                fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 3),
                             Text(
                               FileUi.formatBytes(progress.totalBytes),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: AppColors.textMuted,
-                                fontSize: 13,
+                                fontSize: 12.5,
                               ),
                             ),
-                            const SizedBox(height: 20),
-
-                            // خط جداکننده
-                            const Divider(color: AppColors.glassBorder, height: 1),
                             const SizedBox(height: 16),
 
-                            // آمار: سرعت + زمان
+                            const Divider(color: AppColors.glassBorder, height: 1),
+                            const SizedBox(height: 12),
+
                             Row(
                               children: [
                                 Expanded(
@@ -143,7 +137,7 @@ class TransferScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 16),
 
                       if (isDone)
                         TextButton(
@@ -200,7 +194,7 @@ class _DeviceStreamState extends State<_DeviceStream>
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 56,
+      height: 48,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -209,7 +203,6 @@ class _DeviceStreamState extends State<_DeviceStream>
             gradient: AppColors.purpleGradient,
             glow: AppColors.glowPurple,
           ),
-          // خط انرژی با ذرات
           SizedBox(
             width: 100,
             height: 20,
@@ -242,7 +235,6 @@ class _ParticleStreamPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final centerY = size.height / 2;
-    // خط پایه انرژی
     final linePaint = Paint()
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round
@@ -251,7 +243,6 @@ class _ParticleStreamPainter extends CustomPainter {
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
     canvas.drawLine(Offset(8, centerY), Offset(size.width - 8, centerY), linePaint);
 
-    // ذرات در حال حرکت
     for (var i = 0; i < 5; i++) {
       final p = (progress + i / 5) % 1.0;
       final x = 8 + p * (size.width - 16);
@@ -283,8 +274,8 @@ class _DeviceIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 56,
-      height: 56,
+      width: 48,
+      height: 48,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: gradient,
@@ -292,7 +283,7 @@ class _DeviceIcon extends StatelessWidget {
           BoxShadow(color: glow.withOpacity(0.4), blurRadius: 18),
         ],
       ),
-      child: Icon(icon, color: Colors.white, size: 28),
+      child: Icon(icon, color: Colors.white, size: 24),
     );
   }
 }
@@ -311,7 +302,7 @@ class _ProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = 180.0;
+    const size = 150.0;
     return SizedBox(
       width: size,
       height: size,
@@ -330,14 +321,14 @@ class _ProgressRing extends StatelessWidget {
             children: [
               GradientText(
                 done ? '100%' : '$percent%',
-                style: const TextStyle(fontSize: 44, fontWeight: FontWeight.w800),
+                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800),
               ),
               Text(
                 done ? 'کامل شد' : 'در حال ارسال',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: AppColors.textSecondary,
-                  fontSize: 12.5,
+                  fontSize: 11.5,
                 ),
               ),
             ],
@@ -418,13 +409,13 @@ class _StatRow extends StatelessWidget {
         const SizedBox(height: 6),
         GradientText(
           value,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 3),
         Text(
           label,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+          style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
         ),
       ],
     );
