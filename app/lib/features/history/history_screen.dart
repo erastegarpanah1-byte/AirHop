@@ -9,6 +9,8 @@ import '../../core/widgets/airhop_footer.dart';
 import '../../core/widgets/floating_navbar.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
+import '../about/about_screen.dart';
+import '../settings/settings_screen.dart';
 
 /// صفحه تاریخچه انتقال‌ها.
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -21,7 +23,7 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   final _searchController = TextEditingController();
   String _query = '';
-  String? _filter; // null = all, 'sent', 'received'
+  String? _filter;
 
   @override
   void dispose() {
@@ -71,15 +73,24 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               FloatingNavbar(
                 title: 'تاریخچه انتقال‌ها',
                 onBack: () => Navigator.pop(context),
+                onSettings: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
+                onHelp: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutScreen()),
+                ),
               ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 18),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Text(
-                        'همه فایل‌های ارسال و دریافت شده',
+                        'همه فایل‌های ارسال شده و دریافت شده',
                         style: const TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13,
@@ -88,7 +99,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // جستجو + فیلتر
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Row(
@@ -109,7 +119,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // لیست
                     Expanded(
                       child: filtered.isEmpty
                           ? const Center(
@@ -170,7 +179,6 @@ class _HistoryRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
-          // تیک سبز نئونی (وضعیت موفق)
           Container(
             width: 22,
             height: 22,
@@ -184,7 +192,6 @@ class _HistoryRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
 
-          // اطلاعات فایل
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +227,6 @@ class _HistoryRow extends StatelessWidget {
           ),
           const SizedBox(width: 10),
 
-          // badge رنگی فایل
           Container(
             width: 44,
             padding: const EdgeInsets.symmetric(vertical: 6),
