@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/providers.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/airhop_footer.dart';
 import '../../core/widgets/floating_navbar.dart';
@@ -7,24 +9,24 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 
 /// صفحه تنظیمات AirHop.
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _encryption = true;
   bool _notifications = true;
-  bool _autoRun = false;
-  bool _darkMode = true;
+  bool _confirmReceive = true;
   bool _saveHistory = true;
-  bool _compress = false;
   bool _wifiOnly = true;
 
   @override
   Widget build(BuildContext context) {
+    final device = ref.watch(deviceProvider);
+
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
@@ -39,11 +41,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 24),
                       const Text(
                         'تنظیمات',
-                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textPrimary,
                           fontSize: 26,
@@ -53,7 +55,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const SizedBox(height: 6),
                       const Text(
                         'مدیریت تنظیمات برنامه و شخصی‌سازی تجربه',
-                        textAlign: TextAlign.center,
                         style: TextStyle(
                           color: AppColors.textSecondary,
                           fontSize: 13.5,
@@ -61,7 +62,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // تنظیمات با سوییچ
                       _ToggleRow(
                         title: 'رمزنگاری فایل‌ها',
                         subtitle: 'رمزنگاری سرتاسری حین انتقال',
@@ -71,43 +71,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       _ToggleRow(
-                        title: 'اعلان‌ها',
-                        subtitle: 'نمایش اعلان هنگام دریافت فایل',
+                        title: 'اعلان دریافت و ارسال',
+                        subtitle: 'نمایش اعلان هنگام دریافت و ارسال فایل',
                         icon: Icons.notifications_rounded,
                         value: _notifications,
                         onChanged: (v) => setState(() => _notifications = v),
                       ),
                       const SizedBox(height: 10),
                       _ToggleRow(
-                        title: 'اجرای خودکار',
-                        subtitle: 'اجرای خودکار در شروع سیستم',
-                        icon: Icons.play_circle_rounded,
-                        value: _autoRun,
-                        onChanged: (v) => setState(() => _autoRun = v),
+                        title: 'تأیید قبل از دریافت فایل',
+                        subtitle: 'دریافت فایل فقط پس از تأیید شما',
+                        icon: Icons.verified_user_rounded,
+                        value: _confirmReceive,
+                        onChanged: (v) => setState(() => _confirmReceive = v),
                       ),
                       const SizedBox(height: 10),
-                      _ToggleRow(
-                        title: 'حالت تاریک',
-                        subtitle: 'ظاهر تاریک دائم',
-                        icon: Icons.dark_mode_rounded,
-                        value: _darkMode,
-                        onChanged: (v) => setState(() => _darkMode = v),
+
+                      _EditableNameRow(
+                        icon: Icons.phone_iphone_rounded,
+                        title: 'نام نمایشی دستگاه',
+                        value: device.name,
+                        onSave: (name) {
+                          ref.read(deviceProvider.notifier).rename(name);
+                        },
                       ),
                       const SizedBox(height: 10),
+
                       _ToggleRow(
-                        title: 'ذخیره تاریخچه انتقال‌ها',
+                        title: 'ذخیره تاریخچه انتقال',
                         subtitle: 'نگهداری لیست فایل‌های منتقل‌شده',
                         icon: Icons.history_rounded,
                         value: _saveHistory,
                         onChanged: (v) => setState(() => _saveHistory = v),
-                      ),
-                      const SizedBox(height: 10),
-                      _ToggleRow(
-                        title: 'فشرده‌سازی فایل‌ها',
-                        subtitle: 'فشرده‌سازی قبل از انتقال',
-                        icon: Icons.compress_rounded,
-                        value: _compress,
-                        onChanged: (v) => setState(() => _compress = v),
                       ),
                       const SizedBox(height: 10),
                       _ToggleRow(
@@ -119,13 +114,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 18),
 
-                      // ردیف‌های ناوبری
-                      const _NavRow(
-                        title: 'زبان برنامه',
-                        value: 'فارسی',
-                        icon: Icons.language_rounded,
-                      ),
-                      const SizedBox(height: 10),
                       const _NavRow(
                         title: 'مکان ذخیره فایل‌ها',
                         value: 'حافظه داخلی',
@@ -151,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-/// ردیف با سوییچ گرادیانی.
+/// ردیف با سوییچ گرادیانی (آگاه از جهت RTL).
 class _ToggleRow extends StatelessWidget {
   const _ToggleRow({
     required this.title,
@@ -173,7 +161,6 @@ class _ToggleRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       child: Row(
         children: [
-          // آیکون گرد
           Container(
             width: 42,
             height: 42,
@@ -184,7 +171,6 @@ class _ToggleRow extends StatelessWidget {
             child: Icon(icon, color: AppColors.primarySoft, size: 21),
           ),
           const SizedBox(width: 12),
-          // عنوان + توضیح
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,11 +195,130 @@ class _ToggleRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          // سوییچ
           _NeonSwitch(value: value, onChanged: onChanged),
         ],
       ),
     );
+  }
+}
+
+/// ردیف نام دستگاه با امکان ویرایش (با دیالوگ).
+class _EditableNameRow extends StatelessWidget {
+  const _EditableNameRow({
+    required this.icon,
+    required this.title,
+    required this.value,
+    required this.onSave,
+  });
+
+  final IconData icon;
+  final String title;
+  final String value;
+  final ValueChanged<String> onSave;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: AppColors.accent.withOpacity(0.15),
+            ),
+            child: Icon(icon, color: AppColors.accentLight, size: 21),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value.isEmpty ? 'تعیین نشده' : value,
+                  style: const TextStyle(
+                    color: AppColors.textMuted,
+                    fontSize: 11.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: () => _showEditDialog(context),
+            child: const Icon(
+              Icons.edit_rounded,
+              color: AppColors.accentLight,
+              size: 20,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _showEditDialog(BuildContext context) async {
+    final controller = TextEditingController(text: value);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF17162B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text(
+          'نام دستگاه',
+          style: TextStyle(color: AppColors.textPrimary),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: AppColors.textPrimary),
+          decoration: InputDecoration(
+            hintText: 'مثلاً «گوشی من»',
+            hintStyle: const TextStyle(color: AppColors.textMuted),
+            filled: true,
+            fillColor: AppColors.glassBg,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.glassBorder),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.glassBorder),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'انصراف',
+              style: TextStyle(color: AppColors.textSecondary),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text(
+              'ذخیره',
+              style: TextStyle(color: AppColors.accentLight),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result.isNotEmpty) {
+      onSave(result);
+    }
   }
 }
 
@@ -226,7 +331,6 @@ class _NeonSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // در RTL، سوییچ روشن باید به سمت چپ (شروع متن) بیفتد.
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final alignment = value
         ? (isRtl ? Alignment.centerLeft : Alignment.centerRight)
