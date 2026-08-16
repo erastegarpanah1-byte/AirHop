@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// فوتر تگ‌لاین: آیکون سپر + «انتقال مستقیم، امن، بدون اینترنت».
+/// فوتر تگ‌لاین: آیکون سپر + «انتقال مستقیم و امن».
 class AirhopFooter extends StatelessWidget {
   const AirhopFooter({super.key});
 
@@ -20,11 +20,13 @@ class AirhopFooter extends StatelessWidget {
               shape: BoxShape.circle,
               gradient: AppColors.cyanBlueGradient,
             ),
-            child: const Icon(Icons.shield_rounded, color: Colors.white, size: 13),
+            child: const Icon(Icons.shield_rounded,
+                color: Colors.white, size: 13),
           ),
           const SizedBox(width: 8),
-          Text(
-            'انتقال مستقیم، امن، بدون اینترنت',
+          const Text(
+            'انتقال مستقیم و امن، نیازمند اتصال اینترنت',
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textMuted,
               fontSize: 12,
