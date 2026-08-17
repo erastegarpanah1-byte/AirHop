@@ -23,6 +23,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _confirmReceive = true;
   bool _saveHistory = true;
   bool _wifiOnly = true;
+  String _saveLocation = 'حافظه داخلی';
 
   @override
   Widget build(BuildContext context) {
@@ -119,16 +120,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       ),
                       const SizedBox(height: 18),
 
-                      const _NavRow(
+                      _NavRow(
                         title: 'مکان ذخیره فایل‌ها',
-                        value: 'حافظه داخلی',
+                        value: _saveLocation,
                         icon: Icons.sd_storage_rounded,
+                        onTap: () => _pickSaveLocation(),
                       ),
                       const SizedBox(height: 10),
-                      const _NavRow(
+                      _NavRow(
                         title: 'درباره برنامه',
                         value: 'نسخه 1.0.0',
                         icon: Icons.info_outline_rounded,
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AboutScreen()),
+                        ),
                       ),
                       const SizedBox(height: 8),
                     ],
@@ -139,6 +145,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _pickSaveLocation() async {
+    // TODO: در نسخه موبایل از file_picker برای انتخاب پوشه استفاده شود.
+    // فعلاً محل پیش‌فرض (Downloads/AirHop) را اعلام می‌کنیم.
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('فایل‌ها در پوشه Downloads/AirHop ذخیره می‌شوند.'),
       ),
     );
   }
@@ -385,57 +402,66 @@ class _NeonSwitch extends StatelessWidget {
 
 /// ردیف ناوبری ساده (بدون سوییچ).
 class _NavRow extends StatelessWidget {
-  const _NavRow({required this.title, required this.value, required this.icon});
+  const _NavRow({
+    required this.title,
+    required this.value,
+    required this.icon,
+    this.onTap,
+  });
 
   final String title;
   final String value;
   final IconData icon;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.accent.withOpacity(0.15),
+      child: InkWell(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.accent.withOpacity(0.15),
+              ),
+              child: Icon(icon, color: AppColors.accentLight, size: 21),
             ),
-            child: Icon(icon, color: AppColors.accentLight, size: 21),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w600,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 11.5,
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      color: AppColors.textMuted,
+                      fontSize: 11.5,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Icon(
-            Icons.chevron_left_rounded,
-            color: AppColors.textMuted,
-            size: 20,
-          ),
-        ],
+            const Icon(
+              Icons.chevron_left_rounded,
+              color: AppColors.textMuted,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
