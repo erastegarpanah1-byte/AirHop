@@ -3,7 +3,9 @@ class AppConfig {
   AppConfig._();
 
   /// آدرس سرور سیگنالینگ اصلی (سرور deployment).
-  static const signalingServer = 'https://181.41.194.56:8787';
+  /// نکته: سرور Node.js ما plain HTTP را اجرا می‌کند (نه HTTPS)،
+  /// بنابراین باید http (و به تبع آن ws) استفاده شود.
+  static const signalingServer = 'http://181.41.194.56:8787';
 
   /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
   static const fallbackSignalingServers = [
