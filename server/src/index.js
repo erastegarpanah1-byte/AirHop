@@ -1,5 +1,6 @@
 import http from 'node:http';
 import { parse as parseUrl } from 'node:url';
+import { randomBytes } from 'node:crypto';
 import { WebSocketServer, WebSocket } from 'ws';
 
 /**
@@ -15,8 +16,7 @@ const MAX_CLIENTS = 2;
 
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 function generateCode(len = 6) {
-  const bytes = new Uint8Array(len);
-  crypto.getRandomValues(bytes);
+  const bytes = randomBytes(len);
   let out = '';
   for (let i = 0; i < len; i++) out += ALPHABET[bytes[i] % ALPHABET.length];
   return out;
@@ -113,7 +113,7 @@ export function startServer() {
     if (!room) { ws.close(1008, 'room_not_found'); return; }
     if (room.clients.size >= MAX_CLIENTS) { ws.close(1013, 'room_full'); return; }
 
-    const peerId = crypto.randomUUID();
+    const peerId = randomBytes(16).toString('hex');
     room.clients.set(peerId, { ws, role });
     const peerCount = room.clients.size;
     const roomReady = peerCount >= MAX_CLIENTS;
