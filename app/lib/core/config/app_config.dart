@@ -8,8 +8,8 @@ class AppConfig {
 
   /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
   static const fallbackSignalingServers = <String>[
-    'http://45.156.186.140:8787',
     'https://airhop-signaling.e-rastegarpanah1.workers.dev',
+    'https://181.41.194.56',
   ];
 
   /// TURN server (برای عبور از NAT سخت).
