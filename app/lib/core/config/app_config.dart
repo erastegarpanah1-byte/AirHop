@@ -7,9 +7,11 @@ class AppConfig {
   /// بنابراین باید https (و به تبع آن wss) استفاده شود.
   static const signalingServer = 'https://181.41.194.56';
 
-  /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
-  /// (فعلاً خالی — فقط سرور اختصاصی استفاده می‌شود.)
-  static const fallbackSignalingServers = <String>[];
+  /// سرورهای سیگنالینگ جایگزین (اگر wss/TLS ناموفق بود).
+  /// ws:// مستقیم روی پورت 8787 (بدون TLS) به عنوان fallback.
+  static const fallbackSignalingServers = <String>[
+    'http://181.41.194.56:8787',
+  ];
 
   /// TURN server (برای عبور از NAT سخت).
   static const turnUrl = 'turn:181.41.194.56:3478';

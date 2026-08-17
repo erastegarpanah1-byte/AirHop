@@ -75,6 +75,19 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       });
     }
 
+    // نمایش خطا در صورت fail
+    if (session.error != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('خطا: ${session.error}'),
+            backgroundColor: Colors.red.shade700,
+            duration: const Duration(seconds: 6),
+          ),
+        );
+      });
+    }
+
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
