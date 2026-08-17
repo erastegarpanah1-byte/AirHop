@@ -50,13 +50,25 @@ function expireRoom(code) {
   rooms.delete(code);
 }
 
+function sendTo(ws, data) {
+  if (ws.readyState === WebSocket.OPEN) {
+    try { ws.send(data); } catch (_) {}
+  }
+}
+
 function broadcast(room, message, except) {
-  const data = typeof message === 'string' ? message : JSON.stringify(message);
+  const isBinary =
+    Buffer.isBuffer(message) ||
+    message instanceof ArrayBuffer ||
+    ArrayBuffer.isView(message);
+  const data = isBinary
+    ? message
+    : typeof message === 'string'
+      ? message
+      : JSON.stringify(message);
   for (const { ws } of room.clients.values()) {
     if (ws === except) continue;
-    if (ws.readyState === WebSocket.OPEN) {
-      try { ws.send(data); } catch (_) {}
-    }
+    sendTo(ws, data);
   }
 }
 
@@ -106,13 +118,14 @@ export function startServer() {
     const peerCount = room.clients.size;
     const roomReady = peerCount >= MAX_CLIENTS;
 
-    ws.send(JSON.stringify({ type: 'welcome', peerId, role, peerCount, roomReady }));
+    sendTo(ws, JSON.stringify({ type: 'welcome', peerId, role, peerCount, roomReady }));
     if (roomReady) broadcast(room, { type: 'ready' });
 
     ws.on('message', (data, isBinary) => {
       if (isBinary) { broadcast(room, data, ws); return; }
-      try { JSON.parse(data.toString()); } catch (_) { return; }
-      broadcast(room, data, ws);
+      const text = Buffer.isBuffer(data) ? data.toString() : String(data);
+      try { JSON.parse(text); } catch (_) { return; }
+      broadcast(room, text, ws);
     });
 
     ws.on('close', () => {
@@ -126,7 +139,7 @@ export function startServer() {
   });
 
   server.listen(PORT, HOST, () => {
-    console.log(`AirHop signaling server listening on ${HOST}:${PORT}`);
+    console.log('AirHop signaling server listening on ' + HOST + ':' + PORT);
   });
 
   return server;
