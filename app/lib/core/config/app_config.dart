@@ -2,15 +2,14 @@
 class AppConfig {
   AppConfig._();
 
-  /// آدرس سرور سیگنالینگ اصلی (سرور deployment).
-  /// سرور از طریق nginx روی پورت 443 با TLS (wss) سرو داده می‌شود،
-  /// بنابراین باید https (و به تبع آن wss) استفاده شود.
-  static const signalingServer = 'https://181.41.194.56';
+  /// آدرس سرور سیگنالینگ اصلی (Cloudflare Worker).
+  /// از ایران در دسترس است و گواهی معتبر Cloudflare دارد (نیازی به self-signed نیست).
+  static const signalingServer = 'https://airhop-signaling.e-rastegarpanah1.workers.dev';
 
-  /// سرورهای سیگنالینگ جایگزین (اگر wss/TLS ناموفق بود).
-  /// ws:// مستقیم روی پورت 8787 (بدون TLS) به عنوان fallback.
+  /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
+  /// VPS اختصاصی (هلند) به عنوان fallback.
   static const fallbackSignalingServers = <String>[
-    'http://181.41.194.56:8787',
+    'https://181.41.194.56',
   ];
 
   /// TURN server (برای عبور از NAT سخت).
