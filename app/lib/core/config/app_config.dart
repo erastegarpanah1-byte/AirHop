@@ -2,14 +2,14 @@
 class AppConfig {
   AppConfig._();
 
-  /// آدرس سرور سیگنالینگ اصلی (Cloudflare Worker).
-  /// از ایران در دسترس است و گواهی معتبر Cloudflare دارد (نیازی به self-signed نیست).
-  static const signalingServer = 'https://airhop-signaling.e-rastegarpanah1.workers.dev';
+  /// آدرس سرور سیگنالینگ اصلی — سرور ایران (مسیر داخلی، سریع و بدون فیلترینگ).
+  /// فعلاً HTTP/WS چون هنوز دامنه و TLS نداریم.
+  static const signalingServer = 'http://45.156.186.140:8080';
 
   /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
-  /// VPS اختصاصی (هلند) به عنوان fallback.
   static const fallbackSignalingServers = <String>[
-    'https://181.41.194.56',
+    'http://45.156.186.140:8787',
+    'https://airhop-signaling.e-rastegarpanah1.workers.dev',
   ];
 
   /// TURN server (برای عبور از NAT سخت).
