@@ -180,6 +180,8 @@ class SignalingService {
         peerCount: 2,
         roomReady: true,
       ));
+      // تصحیح مهم: sender باید از طریق messages بتواند offer بسازد.
+      _messages.add(const SignalMessage(type: SignalType.ready));
       return;
     }
 
