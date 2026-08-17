@@ -56,6 +56,17 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = state.copyWith(status: PairingStatus.creating);
 
     _signaling = SignalingService();
+
+    // تصحیح مهم: listener ها را قبل از اتصال ثبت کن تا رویدادها از دست نروند.
+    _signaling!.events.listen((info) {
+      if (info.roomReady) {
+        _signaling!.sendDeviceInfo(myDevice);
+      }
+    });
+    _signaling!.peerDevice.listen((device) {
+      state = state.copyWith(peerDevice: device, status: PairingStatus.readyToSend);
+    });
+
     final code = await _signaling!.createRoom();
     await _signaling!.joinRoom(code, role: 'sender');
 
@@ -64,21 +75,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
       status: PairingStatus.waiting,
     );
 
-    // تصحیح مهم: sender باید WebRTC را فوراً راه اندازی کند
-    // تا وقتی peer وصل شد و پیام ready رسید، بتواند offer بسازد.
+    // sender باید WebRTC را فوراً راه اندازی کند تا بتواند offer بسازد.
     await initializeWebRtc(PeerRole.sender);
-
-    // معرفی خودمان به peer (وقتی وصل شد)
-    _signaling!.events.listen((info) {
-      if (info.roomReady) {
-        _signaling!.sendDeviceInfo(myDevice);
-      }
-    });
-
-    // شنیدن معرفی دستگاه مقصد
-    _signaling!.peerDevice.listen((device) {
-      state = state.copyWith(peerDevice: device, status: PairingStatus.readyToSend);
-    });
   }
 
   /// شروع جلسه ی دریافت: همان کد را وارد/اسکن می کند.
@@ -86,23 +84,23 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = state.copyWith(status: PairingStatus.creating, pairingCode: code);
 
     _signaling = SignalingService();
-    await _signaling!.joinRoom(code, role: 'receiver');
 
-    state = state.copyWith(status: PairingStatus.waiting);
-
-    // تصحیح مهم: receiver باید WebRTC را قبل از peer (sender) وصل شود راه اندازی کند.
-    await initializeWebRtc(PeerRole.receiver);
-
+    // تصحیح مهم: listener ها را قبل از joinRoom ثبت کن،
+    // چون پیام welcome (شامل roomReady) ممکن است پیش از آماده شدن WebRTC برسد.
     _signaling!.events.listen((info) {
       if (info.roomReady) {
         _signaling!.sendDeviceInfo(myDevice);
         state = state.copyWith(status: PairingStatus.connected);
       }
     });
-
     _signaling!.peerDevice.listen((device) {
       state = state.copyWith(peerDevice: device);
     });
+
+    await _signaling!.joinRoom(code, role: 'receiver');
+    state = state.copyWith(status: PairingStatus.waiting);
+
+    await initializeWebRtc(PeerRole.receiver);
   }
 
   /// بعد از اتصال، سرویس WebRTC را راه اندازی کن.
