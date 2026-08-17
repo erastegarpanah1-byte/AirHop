@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../config/app_config.dart';
@@ -116,12 +119,25 @@ class SignalingService {
 
   Future<String> _createRoomOn(String server) async {
     final uri = Uri.parse('$server/room');
-    final response = await http.post(uri).timeout(const Duration(seconds: 8));
-    if (response.statusCode != 200) {
-      throw Exception('createRoom failed: ${response.statusCode}');
+    final client = _buildClient();
+    try {
+      final response = await client.post(uri).timeout(const Duration(seconds: 8));
+      if (response.statusCode != 200) {
+        throw Exception('createRoom failed: ${response.statusCode}');
+      }
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      return body['code'] as String;
+    } finally {
+      client.close();
     }
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
-    return body['code'] as String;
+  }
+
+  /// HTTP client که گواهی self-signed سرور را می‌پذیرد.
+  /// (چون روی IP مستقیم با گواهی self-signed سرو می‌دهیم.)
+  IOClient _buildClient() {
+    final io = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    return IOClient(io);
   }
 
   /// اتصال وب‌سوکت به اتاق.
@@ -132,7 +148,9 @@ class SignalingService {
           .replaceFirst('https://', 'wss://')
           .replaceFirst('http://', 'ws://'),
     );
-    _channel = WebSocketChannel.connect(wsUri);
+    final httpClient = HttpClient()
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    _channel = IOWebSocketChannel.connect(wsUri, customClient: httpClient);
     _role = role;
 
     _sub = _channel!.stream.listen(

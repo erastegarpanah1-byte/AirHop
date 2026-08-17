@@ -3,14 +3,13 @@ class AppConfig {
   AppConfig._();
 
   /// آدرس سرور سیگنالینگ اصلی (سرور deployment).
-  /// نکته: سرور Node.js ما plain HTTP را اجرا می‌کند (نه HTTPS)،
-  /// بنابراین باید http (و به تبع آن ws) استفاده شود.
-  static const signalingServer = 'http://181.41.194.56:8787';
+  /// سرور از طریق nginx روی پورت 443 با TLS (wss) سرو داده می‌شود،
+  /// بنابراین باید https (و به تبع آن wss) استفاده شود.
+  static const signalingServer = 'https://181.41.194.56';
 
   /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
-  static const fallbackSignalingServers = [
-    'https://airhop-signaling.e-rastegarpanah1.workers.dev',
-  ];
+  /// (فعلاً خالی — فقط سرور اختصاصی استفاده می‌شود.)
+  static const fallbackSignalingServers = <String>[];
 
   /// TURN server (برای عبور از NAT سخت).
   static const turnUrl = 'turn:181.41.194.56:3478';
