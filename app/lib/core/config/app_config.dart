@@ -2,8 +2,8 @@
 class AppConfig {
   AppConfig._();
 
-  /// آدرس سرور سیگنالینگ اصلی (سرور ایران).
-  static const signalingServer = 'https://45.156.186.140:8787';
+  /// آدرس سرور سیگنالینگ اصلی (سرور deployment).
+  static const signalingServer = 'https://181.41.194.56:8787';
 
   /// سرورهای سیگنالینگ جایگزین (اولویت بعد از سرور اصلی).
   static const fallbackSignalingServers = [
@@ -11,9 +11,9 @@ class AppConfig {
   ];
 
   /// TURN server (برای عبور از NAT سخت).
-  static const turnUrl = 'turn:45.156.186.140:3478';
+  static const turnUrl = 'turn:181.41.194.56:3478';
   static const turnUsername = 'airhop';
-  static const turnCredential = 'CHANGE_ME_TURN_PASSWORD';
+  static const turnCredential = 'AirhopTurn2026!';
 
   static const pairingCodeLength = 6;
   static const chunkSize = 64 * 1024; // 64 KB
