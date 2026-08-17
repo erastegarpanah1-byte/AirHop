@@ -5,7 +5,7 @@ import 'data/signaling_service.dart';
 import 'data/webrtc_service.dart';
 import 'domain/models.dart';
 
-/// State سراسری جلسه‌ی جفت‌سازی/انتقال.
+/// State سراسری جلسه ی جفت ساز/انتقال.
 class SessionState {
   const SessionState({
     this.pairingCode = '',
@@ -21,10 +21,10 @@ class SessionState {
   final TransferProgress progress;
   final FileMetadata? currentFile;
 
-  /// نام/پلتفرم دستگاه مقصد (برای نمایش «داری به [نام] می‌فرستی»).
+  /// نام/پلتفرم دستگاه مقصد (برای نمایش «داری به [نام] می فرستی»).
   final DeviceInfo? peerDevice;
 
-  /// فایل‌های انتخاب‌شده برای ارسال (multi-file).
+  /// فایل های انتخاب شده برای ارسال (multi-file).
   final List<FileMetadata> files;
 
   SessionState copyWith({
@@ -51,7 +51,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
   SignalingService? _signaling;
   WebRtcService? _webrtc;
 
-  /// شروع جلسه‌ی ارسال: ساخت room + منتظر ماندن برای peer.
+  /// شروع جلسه ی ارسال: ساخت room + منتظر ماندن برای peer.
   Future<void> startSending(DeviceInfo myDevice) async {
     state = state.copyWith(status: PairingStatus.creating);
 
@@ -63,6 +63,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
       pairingCode: code,
       status: PairingStatus.waiting,
     );
+
+    // تصحیح مهم: sender باید WebRTC را فوراً راه اندازی کند
+    // تا وقتی peer وصل شد و پیام ready رسید، بتواند offer بسازد.
+    await initializeWebRtc(PeerRole.sender);
 
     // معرفی خودمان به peer (وقتی وصل شد)
     _signaling!.events.listen((info) {
@@ -77,7 +81,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     });
   }
 
-  /// شروع جلسه‌ی دریافت: همان کد را وارد/اسکن می‌کند.
+  /// شروع جلسه ی دریافت: همان کد را وارد/اسکن می کند.
   Future<void> startReceiving(String code, DeviceInfo myDevice) async {
     state = state.copyWith(status: PairingStatus.creating, pairingCode: code);
 
@@ -85,6 +89,9 @@ class SessionNotifier extends StateNotifier<SessionState> {
     await _signaling!.joinRoom(code, role: 'receiver');
 
     state = state.copyWith(status: PairingStatus.waiting);
+
+    // تصحیح مهم: receiver باید WebRTC را قبل از peer (sender) وصل شود راه اندازی کند.
+    await initializeWebRtc(PeerRole.receiver);
 
     _signaling!.events.listen((info) {
       if (info.roomReady) {
@@ -96,19 +103,17 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _signaling!.peerDevice.listen((device) {
       state = state.copyWith(peerDevice: device);
     });
-
-    // راه‌اندازی WebRTC برای دریافت
-    await initializeWebRtc(PeerRole.receiver);
   }
 
-  /// بعد از اتصال، سرویس WebRTC را راه‌اندازی کن.
+  /// بعد از اتصال، سرویس WebRTC را راه اندازی کن.
   Future<void> initializeWebRtc(PeerRole role) async {
+    if (_webrtc != null) return; // جلوگیری از دوباره ساخته شدن
+
     _webrtc = WebRtcService(signaling: _signaling!, role: role);
     await _webrtc!.initialize();
 
     if (role == PeerRole.receiver) {
       _webrtc!.fileReceived.listen((received) async {
-        // ذخیره‌ی فایل در Downloads/AirHop
         final savedPath = await const ReceiveService().saveFile(
           fileName: received.fileName,
           bytes: received.bytes,
@@ -133,7 +138,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     });
   }
 
-  /// انتخاب فایل‌ها و شروع ارسال (multi-file).
+  /// انتخاب فایل ها و شروع ارسال (multi-file).
   Future<void> sendFiles(List<FileMetadata> files) async {
     state = state.copyWith(files: files, status: PairingStatus.transferring);
 
@@ -150,7 +155,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     state = state.copyWith(status: PairingStatus.completed);
   }
 
-  /// (سازگاری با کد قبلی) ارسال تک‌فایل.
+  /// (سازگاری با کد قبلی) ارسال تک فایل.
   Future<void> sendFile(FileMetadata metadata, List<int> content) async {
     await sendFiles([
       FileMetadata(
