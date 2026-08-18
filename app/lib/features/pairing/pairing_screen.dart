@@ -213,6 +213,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
           child: TextField(
             controller: _codeController,
             textAlign: TextAlign.center,
+            textDirection: TextDirection.ltr,
             style: const TextStyle(
               color: AppColors.textPrimary,
               fontSize: 26,
@@ -511,9 +512,11 @@ class _CodeBoxes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final digits = code.padRight(6, '·').split('');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
         for (var i = 0; i < 6; i++) ...[
           Container(
             width: 40,
@@ -541,18 +544,47 @@ class _CodeBoxes extends StatelessWidget {
                     ),
                   ),
           ),
-          if (i < 5) const SizedBox(width: 7),
+            if (i < 5) const SizedBox(width: 7),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
 
 /// اسکنر بارکد (QR) برای بخش دریافت.
-class _BarcodeScanner extends StatelessWidget {
+class _BarcodeScanner extends StatefulWidget {
   const _BarcodeScanner({required this.onScanned});
 
   final ValueChanged<String> onScanned;
+
+  @override
+  State<_BarcodeScanner> createState() => _BarcodeScannerState();
+}
+
+class _BarcodeScannerState extends State<_BarcodeScanner> {
+  final MobileScannerController _controller = MobileScannerController(
+    formats: const [BarcodeFormat.qrCode],
+    detectionSpeed: DetectionSpeed.normal,
+  );
+  String? _lastScanned;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onDetect(BarcodeCapture capture) {
+    for (final barcode in capture.barcodes) {
+      final raw = barcode.rawValue;
+      if (raw == null || raw.isEmpty) continue;
+      // جلوگیری از فراخوانی تکراری برای یک کد
+      if (raw == _lastScanned) continue;
+      _lastScanned = raw;
+      widget.onScanned(raw);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -565,11 +597,29 @@ class _BarcodeScanner extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             MobileScanner(
-              onDetect: (capture) {
-                final codes = capture.barcodes;
-                if (codes.isNotEmpty && codes.first.rawValue != null) {
-                  onScanned(codes.first.rawValue!);
-                }
+              controller: _controller,
+              onDetect: _onDetect,
+              errorBuilder: (context, error) {
+                return Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.camera_alt_outlined,
+                          color: AppColors.textMuted, size: 28),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'دوربین در دسترس نیست',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.textMuted,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
             IgnorePointer(
