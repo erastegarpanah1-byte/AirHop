@@ -72,6 +72,8 @@ class SignalingService {
 
   bool get isConnected => _channel != null;
 
+  bool _closedIntentionally = false;
+
   final StreamController<SignalMessage> _messages =
       StreamController<SignalMessage>.broadcast();
   Stream<SignalMessage> get messages => _messages.stream;
@@ -175,7 +177,7 @@ class SignalingService {
 
     // با WebSocket.connect از dart:io — خطا را به درستی throw می‌کند (برای fallback).
     final socket = await WebSocket.connect(wsUri.toString(), customClient: httpClient)
-        .timeout(const Duration(seconds: 8));
+        .timeout(const Duration(seconds: 15));
 
     _channel = IOWebSocketChannel(socket);
     _role = role;
@@ -196,7 +198,11 @@ class SignalingService {
         _messages.addError(e);
       },
       onDone: () {
-        _log('ws done (closed)');
+        if (_closedIntentionally) {
+          _log('ws closed (intentional)');
+          return;
+        }
+        _log('ws done (closed unexpectedly)');
         _errors.add('اتصال قطع شد');
         _events.add(const RoomInfo(
           code: '', peerId: '', role: '', peerCount: 0, roomReady: false,
@@ -251,6 +257,7 @@ class SignalingService {
   }
 
   void dispose() {
+    _closedIntentionally = true;
     _sub?.cancel();
     _channel?.sink.close();
     _messages.close();
