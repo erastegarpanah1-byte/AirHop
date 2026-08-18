@@ -73,6 +73,10 @@ class SessionNotifier extends StateNotifier<SessionState> {
         if (role == PeerRole.receiver) {
           _log('[$role] -> status connected');
           state = state.copyWith(status: PairingStatus.connected);
+        } else {
+          // sender: مستقیم به حالت آماده ارسال برو (بدون انتظار deviceInfo)
+          _log('[$role] -> status readyToSend');
+          state = state.copyWith(status: PairingStatus.readyToSend);
         }
       }
     });
