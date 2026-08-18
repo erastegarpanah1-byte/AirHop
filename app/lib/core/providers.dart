@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'data/receive_service.dart';
 import 'data/signaling_service.dart';
 import 'data/webrtc_service.dart';
+import 'data/history_provider.dart';
 import 'domain/models.dart';
 
 /// State سراسری جلسه ی جفت ساز/انتقال.
@@ -48,7 +49,9 @@ class SessionState {
 }
 
 class SessionNotifier extends StateNotifier<SessionState> {
-  SessionNotifier() : super(const SessionState());
+  SessionNotifier(this._ref) : super(const SessionState());
+
+  final Ref _ref;
 
   SignalingService? _signaling;
   WebRtcService? _webrtc;
@@ -150,6 +153,12 @@ class SessionNotifier extends StateNotifier<SessionState> {
           bytes: received.bytes,
         );
         _log('saved to: $savedPath');
+        _recordHistory(
+          fileName: received.fileName,
+          fileSize: received.bytes.length,
+          direction: false,
+          success: true,
+        );
         state = state.copyWith(
           status: PairingStatus.completed,
           currentFile: FileMetadata(
@@ -167,6 +176,26 @@ class SessionNotifier extends StateNotifier<SessionState> {
     });
   }
 
+  void _recordHistory({
+    required String fileName,
+    required int fileSize,
+    required bool direction, // true=sent, false=received
+    required bool success,
+  }) {
+    try {
+      _ref.read(historyProvider.notifier).add(TransferRecord(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        fileName: fileName,
+        fileSize: fileSize,
+        direction: direction,
+        completedAt: DateTime.now(),
+        success: success,
+      ));
+    } catch (e) {
+      _log('history add failed: $e');
+    }
+  }
+
   Future<void> sendFiles(List<FileMetadata> files) async {
     state = state.copyWith(files: files, status: PairingStatus.transferring);
 
@@ -180,6 +209,15 @@ class SessionNotifier extends StateNotifier<SessionState> {
       await _webrtc!.sendFile(f, f.bytes ?? const <int>[]);
     }
 
+    // ثبت تاریخچه برای هر فایل ارسال‌شده
+    for (final f in files) {
+      _recordHistory(
+        fileName: f.name,
+        fileSize: f.size,
+        direction: true,
+        success: true,
+      );
+    }
     state = state.copyWith(status: PairingStatus.completed);
   }
 
@@ -212,5 +250,5 @@ class SessionNotifier extends StateNotifier<SessionState> {
 }
 
 final sessionProvider = StateNotifierProvider<SessionNotifier, SessionState>((ref) {
-  return SessionNotifier();
+  return SessionNotifier(ref);
 });

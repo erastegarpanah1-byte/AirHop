@@ -120,7 +120,8 @@ class WebRtcService {
 
   bool get _p2pReady =>
       _channel != null &&
-      _pc?.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateConnected;
+      _pc?.connectionState == RTCPeerConnectionState.RTCPeerConnectionStateConnected &&
+      _channel!.state == RTCDataChannelState.RTCDataChannelOpen;
 
   Future<void> sendFile(FileMetadata metadata, List<int> content) async {
     if (_p2pReady) {
