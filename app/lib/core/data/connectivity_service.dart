@@ -5,12 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../config/app_config.dart';
 
+/// نتیجه‌ی بررسی اتصال اینترنت.
 enum ConnectivityStatus {
   checking,
   online,
   offline,
 }
 
+/// بررسی و پایش اتصال اینترنت.
 class ConnectivityNotifier extends StateNotifier<ConnectivityStatus> {
   ConnectivityNotifier() : super(ConnectivityStatus.checking) {
     _init();
