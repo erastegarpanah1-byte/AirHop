@@ -7,6 +7,8 @@ import '../../core/widgets/gradient_background.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_text.dart';
 
+/// صفحه‌ی آفلاین — وقتی به اینترنت (سرور سیگنالینگ) وصل نیستیم نمایش داده می‌شود
+/// و به محض برقراری اتصال، کاربر به داخل برنامه هدایت می‌شود.
 class OfflineScreen extends ConsumerWidget {
   const OfflineScreen({super.key, required this.onConnected});
 
@@ -60,6 +62,7 @@ class OfflineScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
+
                   GradientText(
                     reconnect ? 'در حال اتصال...' : 'اتصال اینترنت برقرار نیست',
                     gradient: AppColors.textGradient,
@@ -70,6 +73,7 @@ class OfflineScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
+
                   Text(
                     reconnect
                         ? 'اتصال برقرار شد، در حال ورود به برنامه...'
@@ -82,6 +86,7 @@ class OfflineScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 32),
+
                   GlassCard(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 18),
@@ -110,6 +115,7 @@ class OfflineScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 18),
+
                   Text(
                     'AirHop — انتقال فایل سریع و امن',
                     style: TextStyle(
