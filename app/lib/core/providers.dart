@@ -10,7 +10,6 @@ import 'data/webrtc_service.dart';
 import 'data/history_provider.dart';
 import 'domain/models.dart';
 
-/// State سیستم صدا و وضعیت صدا و کد.
 class SessionState {
   const SessionState({
     this.pairingCode = '',
@@ -60,12 +59,14 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription? _eventsSub;
   StreamSubscription? _peerDeviceSub;
   StreamSubscription? _messagesSub;
+  StreamSubscription? _progressSub;
 
   DeviceInfo _myDevice = const DeviceInfo(name: 'کنند', platform: 'unknown');
 
+  PeerRole? _role;
+
   void _log(String msg) => print('[AirHop] $msg');
 
-  /// اتک listener روی signaling. برای استماع roomReady و deviceInfo باید در نظر بگیرید.
   void _attachSignalingListeners(PeerRole role) {
     _eventsSub ??= _signaling!.events.listen((info) {
       _log('[$role] event: roomReady=${info.roomReady} peerCount=${info.peerCount}');
@@ -76,7 +77,6 @@ class SessionNotifier extends StateNotifier<SessionState> {
           _log('[$role] -> status connected');
           state = state.copyWith(status: PairingStatus.connected);
         } else {
-          // sender: منتظر ماندن تا دریافت deviceInfo ای (ابتدا منتظر بمانید)
           _log('[$role] -> status readyToSend');
           state = state.copyWith(status: PairingStatus.readyToSend);
         }
@@ -104,6 +104,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> startSending(DeviceInfo myDevice) async {
     _myDevice = myDevice;
+    _role = PeerRole.sender;
     _log('=== startSending (sender) ===');
     state = state.copyWith(status: PairingStatus.creating);
 
@@ -127,6 +128,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
   Future<void> startReceiving(String code, DeviceInfo myDevice) async {
     _myDevice = myDevice;
+    _role = PeerRole.receiver;
     _log('=== startReceiving (receiver) code=$code ===');
     state = state.copyWith(status: PairingStatus.creating, pairingCode: code);
 
@@ -158,14 +160,12 @@ class SessionNotifier extends StateNotifier<SessionState> {
         final int fileSize;
 
         if (received.tempFilePath != null) {
-          // فایل بزرگ: منتظر ماندن که temp فایل موقت ذخیره شود تا بدون استفاده حافظه
           fileSize = await File(received.tempFilePath!).length();
           _log('file received (streamed): ${received.fileName} ($fileSize bytes)');
           savedPath = await svc.saveFromTempFile(
             fileName: received.fileName,
             tempFilePath: received.tempFilePath!,
           );
-          // پاکسازی فایل موقت برای جلوگیری از حافظه
           try {
             await File(received.tempFilePath!).delete();
           } catch (_) {}
@@ -197,26 +197,31 @@ class SessionNotifier extends StateNotifier<SessionState> {
       });
     }
 
-    _webrtc!.progress.listen((p) {
+    _progressSub = _webrtc!.progress.listen((p) {
       state = state.copyWith(status: PairingStatus.transferring, progress: p);
+      if (_role == PeerRole.sender &&
+          p.totalBytes > 0 &&
+          p.receivedBytes >= p.totalBytes) {
+        _log('sender: transfer complete (ack received)');
+      }
     });
   }
 
   void _recordHistory({
     required String fileName,
     required int fileSize,
-    required bool direction, // true=sent, false=received
+    required bool direction,
     required bool success,
   }) {
     try {
       _ref.read(historyProvider.notifier).add(TransferRecord(
-        id: DateTime.now().microsecondsSinceEpoch.toString(),
-        fileName: fileName,
-        fileSize: fileSize,
-        direction: direction,
-        completedAt: DateTime.now(),
-        success: success,
-      ));
+            id: DateTime.now().microsecondsSinceEpoch.toString(),
+            fileName: fileName,
+            fileSize: fileSize,
+            direction: direction,
+            completedAt: DateTime.now(),
+            success: success,
+          ));
     } catch (e) {
       _log('history add failed: $e');
     }
@@ -231,12 +236,21 @@ class SessionNotifier extends StateNotifier<SessionState> {
 
     for (var i = 0; i < files.length; i++) {
       final f = files[i];
+      if (f.size <= 0) {
+        _log('SKIP file (empty): ${f.name}');
+        state = state.copyWith(
+          status: PairingStatus.failed,
+          error: 'فایل «${f.name}» خالی است',
+        );
+        return;
+      }
+
       state = state.copyWith(currentFile: f);
-      final content = f.bytes;
-      // اگر مسیر داریم فایل را از دیسک ارسال کن تا حافظه (clamp) پر نشود
-      if (f.path != null) {
-        await _webrtc!.sendFile(f, const []);
+
+      if (f.path != null && f.path!.isNotEmpty) {
+        await _webrtc!.sendFile(f, path: f.path);
       } else {
+        final content = f.bytes;
         if (content == null || content.isEmpty) {
           _log('SKIP file (empty bytes): ${f.name}');
           state = state.copyWith(
@@ -245,20 +259,20 @@ class SessionNotifier extends StateNotifier<SessionState> {
           );
           return;
         }
-        await _webrtc!.sendFile(f, content);
+        await _webrtc!.sendFile(f, content: content);
       }
-    }
 
-    // اتک تمام فایل‌ها ارسال شد
-    for (final f in files) {
       _recordHistory(
         fileName: f.name,
         fileSize: f.size,
         direction: true,
         success: true,
       );
+
+      if (i == files.length - 1) {
+        state = state.copyWith(status: PairingStatus.completed);
+      }
     }
-    state = state.copyWith(status: PairingStatus.completed);
   }
 
   Future<void> sendFile(FileMetadata metadata, List<int> content) async {
@@ -278,13 +292,16 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _eventsSub?.cancel();
     _peerDeviceSub?.cancel();
     _messagesSub?.cancel();
+    _progressSub?.cancel();
     _eventsSub = null;
     _peerDeviceSub = null;
     _messagesSub = null;
+    _progressSub = null;
 
     _webrtc = null;
     _signaling?.dispose();
     _signaling = null;
+    _role = null;
 
     state = const SessionState();
   }
