@@ -10,7 +10,7 @@ import 'data/webrtc_service.dart';
 import 'data/history_provider.dart';
 import 'domain/models.dart';
 
-/// State سراسری جلسه ی جفت ساز/انتقال.
+/// State سیستم صدا و وضعیت صدا و کد.
 class SessionState {
   const SessionState({
     this.pairingCode = '',
@@ -61,11 +61,11 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription? _peerDeviceSub;
   StreamSubscription? _messagesSub;
 
-  DeviceInfo _myDevice = const DeviceInfo(name: 'دستگاه', platform: 'unknown');
+  DeviceInfo _myDevice = const DeviceInfo(name: 'کنند', platform: 'unknown');
 
   void _log(String msg) => print('[AirHop] $msg');
 
-  /// ثبت listener های signaling. بعد از این، roomReady و deviceInfo درست مدیریت می‌شوند.
+  /// اتک listener روی signaling. برای استماع roomReady و deviceInfo باید در نظر بگیرید.
   void _attachSignalingListeners(PeerRole role) {
     _eventsSub ??= _signaling!.events.listen((info) {
       _log('[$role] event: roomReady=${info.roomReady} peerCount=${info.peerCount}');
@@ -76,7 +76,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
           _log('[$role] -> status connected');
           state = state.copyWith(status: PairingStatus.connected);
         } else {
-          // sender: مستقیم به حالت آماده ارسال برو (بدون انتظار deviceInfo)
+          // sender: منتظر ماندن تا دریافت deviceInfo ای (ابتدا منتظر بمانید)
           _log('[$role] -> status readyToSend');
           state = state.copyWith(status: PairingStatus.readyToSend);
         }
@@ -158,14 +158,14 @@ class SessionNotifier extends StateNotifier<SessionState> {
         final int fileSize;
 
         if (received.tempFilePath != null) {
-          // فایل بزرگ: مستقیم از فایل موقت روی دیسک ذخیره می‌شود
+          // فایل بزرگ: منتظر ماندن که temp فایل موقت ذخیره شود تا بدون استفاده حافظه
           fileSize = await File(received.tempFilePath!).length();
           _log('file received (streamed): ${received.fileName} ($fileSize bytes)');
           savedPath = await svc.saveFromTempFile(
             fileName: received.fileName,
             tempFilePath: received.tempFilePath!,
           );
-          // پاک‌سازی فایل موقت بعد از ذخیره
+          // پاکسازی فایل موقت برای جلوگیری از حافظه
           try {
             await File(received.tempFilePath!).delete();
           } catch (_) {}
@@ -233,7 +233,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       final f = files[i];
       state = state.copyWith(currentFile: f);
       final content = f.bytes;
-      // اگر مسیر فایل وجود دارد، دیگر نیازی به بررسی بایت‌های خالی نیست (چون مستقیماً استریم می‌شود)
+      // اگر مسیر داریم فایل را از دیسک ارسال کن تا حافظه (clamp) پر نشود
       if (f.path != null) {
         await _webrtc!.sendFile(f, const []);
       } else {
@@ -241,7 +241,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
           _log('SKIP file (empty bytes): ${f.name}');
           state = state.copyWith(
             status: PairingStatus.failed,
-            error: 'فایل «${f.name}» قابل خواندن نبود',
+            error: 'فایل «${f.name}» تهی بدون محتوا',
           );
           return;
         }
@@ -249,7 +249,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
       }
     }
 
-    // ثبت تاریخچه برای هر فایل ارسال‌شده
+    // اتک تمام فایل‌ها ارسال شد
     for (final f in files) {
       _recordHistory(
         fileName: f.name,
@@ -283,7 +283,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
     _messagesSub = null;
 
     _webrtc = null;
-    _signaling?.close();
+    _signaling?.dispose();
     _signaling = null;
 
     state = const SessionState();
