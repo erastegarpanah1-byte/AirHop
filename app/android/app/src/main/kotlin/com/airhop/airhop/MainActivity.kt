@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileOutputStream
+import java.io.FileInputStream
 
 class MainActivity : FlutterActivity() {
 
@@ -23,6 +24,7 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "saveFile" -> saveFile(call, result)
+                    "saveStreamedFile" -> saveStreamedFile(call, result)
                     "scanFileOnly" -> {
                         val path = call.argument<String>("path") ?: ""
                         val mimeType = call.argument<String>("mimeType") ?: "application/octet-stream"
@@ -44,12 +46,11 @@ class MainActivity : FlutterActivity() {
             val bytes = call.argument<ByteArray>("bytes") ?: throw IllegalArgumentException("no bytes")
 
             val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                saveViaMediaStore(fileName, mimeType, category, bytes)
+                saveViaMediaStore(fileName, mimeType, category) { os -> os.write(bytes) }
             } else {
-                saveLegacy(fileName, mimeType, category, bytes)
+                saveLegacy(fileName, mimeType, category) { os -> os.write(bytes) }
             }
 
-            // حتماً گالری را وادار به اسکن فایل تازه کن (برای اندروید 7 و همه نسخه‌ها)
             scanFile(path, mimeType)
 
             result.success(path)
@@ -58,12 +59,54 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    // Android 10+ → MediaStore (بدون نیاز به permission، در گالری نمایش داده می‌شود)
+    private fun saveStreamedFile(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            val fileName = call.argument<String>("fileName") ?: "file"
+            val mimeType = call.argument<String>("mimeType") ?: "application/octet-stream"
+            val category = call.argument<String>("category") ?: "فایل‌ها"
+            val sourcePath = call.argument<String>("sourcePath")
+                ?: throw IllegalArgumentException("no sourcePath")
+
+            val source = File(sourcePath)
+            if (!source.exists()) throw IllegalArgumentException("source not found")
+
+            val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                saveViaMediaStore(fileName, mimeType, category) { os ->
+                    source.inputStream().use { ins ->
+                        val buf = ByteArray(64 * 1024)
+                        var n = ins.read(buf)
+                        while (n > 0) {
+                            os.write(buf, 0, n)
+                            n = ins.read(buf)
+                        }
+                    }
+                }
+            } else {
+                saveLegacy(fileName, mimeType, category) { os ->
+                    FileInputStream(source).use { ins ->
+                        val buf = ByteArray(64 * 1024)
+                        var n = ins.read(buf)
+                        while (n > 0) {
+                            os.write(buf, 0, n)
+                            n = ins.read(buf)
+                        }
+                    }
+                }
+            }
+
+            scanFile(path, mimeType)
+
+            result.success(path)
+        } catch (e: Exception) {
+            result.error("SAVE_FAILED", e.message ?: "unknown", null)
+        }
+    }
+
     private fun saveViaMediaStore(
         name: String,
         mime: String,
         category: String,
-        bytes: ByteArray
+        write: (java.io.OutputStream) -> Unit
     ): String {
         val resolver = contentResolver
         val collection = when {
@@ -84,7 +127,7 @@ class MainActivity : FlutterActivity() {
             ?: throw IllegalStateException("insert returned null")
 
         resolver.openOutputStream(uri)?.use { os ->
-            os.write(bytes)
+            write(os)
             os.flush()
         } ?: run {
             resolver.delete(uri, null, null)
@@ -98,12 +141,11 @@ class MainActivity : FlutterActivity() {
         return "AirHop/$category/$name"
     }
 
-    // Android 7-9 → فایل مستقیم + index گالری
     private fun saveLegacy(
         name: String,
         mime: String,
         category: String,
-        bytes: ByteArray
+        write: (java.io.OutputStream) -> Unit
     ): String {
         val root = Environment.getExternalStorageDirectory().absolutePath
         val dir = File(root, "AirHop/$category")
@@ -121,20 +163,17 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        FileOutputStream(target).use { it.write(bytes) }
+        FileOutputStream(target).use { write(it) }
         return target.absolutePath
     }
 
-    // وادار کردن گالری به اسکن فایل (مخصوص اندروید 7 که MediaStore خودکار آپدیت نمی‌شود)
     private fun scanFile(path: String, mime: String) {
         try {
-            // راه اول: MediaScannerConnection
             MediaScannerConnection.scanFile(
                 this,
                 arrayOf(path),
                 arrayOf(mime)
             ) { actualPath, uri ->
-                // راه دوم: ارسال Broadcast قدیمی مخصوص اندروید ۷ و زیر ۱۰ جهت ثبت سریع در گالری
                 try {
                     val file = File(actualPath)
                     val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
@@ -143,7 +182,7 @@ class MainActivity : FlutterActivity() {
                 } catch (_: Exception) {}
             }
         } catch (_: Exception) {
-            // ignore — scan is best-effort
+            // ignore
         }
     }
 }
