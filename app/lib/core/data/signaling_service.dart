@@ -10,14 +10,13 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../config/app_config.dart';
 import '../domain/models.dart';
 
-/// نوع پیام‌های سیگنالینگ بین دو peer.
 enum SignalType {
-  offer, answer, ice, ready, welcome, peerLeft, error, deviceInfo, relayHeader, relayEnd,
+  offer, answer, ice, ready, welcome, peerLeft, error, deviceInfo, relayHeader, relayEnd, fileAck,
 }
 
-/// یک پیام سیگنالینگ.
 class SignalMessage {
-  const SignalMessage({required this.type, this.sdp, this.candidate, this.payload});
+  const SignalMessage(
+      {required this.type, this.sdp, this.candidate, this.payload});
 
   final SignalType type;
   final String? sdp;
@@ -25,24 +24,23 @@ class SignalMessage {
   final Map<String, dynamic>? payload;
 
   Map<String, dynamic> toJson() => {
-    'type': type.name,
-    if (sdp != null) 'sdp': sdp,
-    if (candidate != null) 'candidate': candidate,
-    if (payload != null) 'payload': payload,
-  };
+        'type': type.name,
+        if (sdp != null) 'sdp': sdp,
+        if (candidate != null) 'candidate': candidate,
+        if (payload != null) 'payload': payload,
+      };
 
   factory SignalMessage.fromJson(Map<String, dynamic> json) => SignalMessage(
-    type: SignalType.values.firstWhere(
-      (t) => t.name == json['type'],
-      orElse: () => SignalType.error,
-    ),
-    sdp: json['sdp'] as String?,
-    candidate: json['candidate'] as Map<String, dynamic>?,
-    payload: json['payload'] as Map<String, dynamic>?,
-  );
+        type: SignalType.values.firstWhere(
+          (t) => t.name == json['type'],
+          orElse: () => SignalType.error,
+        ),
+        sdp: json['sdp'] as String?,
+        candidate: json['candidate'] as Map<String, dynamic>?,
+        payload: json['payload'] as Map<String, dynamic>?,
+      );
 }
 
-/// نتایج اتصال به سرور سیگنالینگ.
 class RoomInfo {
   const RoomInfo({
     required this.code,
@@ -59,7 +57,6 @@ class RoomInfo {
   final bool roomReady;
 }
 
-/// وب‌سوکت کلاینت به سرور سیگنالینگ، با پشتیبانی از چند سرور (fallback).
 class SignalingService {
   SignalingService({this.server = AppConfig.signalingServer});
 
@@ -73,6 +70,8 @@ class SignalingService {
   bool get isConnected => _channel != null;
 
   bool _closedIntentionally = false;
+
+  final List<SignalMessage> _replayed = [];
 
   final StreamController<SignalMessage> _messages =
       StreamController<SignalMessage>.broadcast();
@@ -130,11 +129,11 @@ class SignalingService {
 
   IOClient _buildClient() {
     final io = HttpClient()
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
     return IOClient(io);
   }
 
-  /// اتصال وب‌سوکت به اتاق — با fallback بین سرورها.
   Future<void> joinRoom(String code, {required String role}) async {
     final bases = <String>[
       if (_activeServer != null) _activeServer!,
@@ -175,9 +174,9 @@ class SignalingService {
         return true;
       };
 
-    // با WebSocket.connect از dart:io — خطا را به درستی throw می‌کند (برای fallback).
-    final socket = await WebSocket.connect(wsUri.toString(), customClient: httpClient)
-        .timeout(const Duration(seconds: 15));
+    final socket =
+        await WebSocket.connect(wsUri.toString(), customClient: httpClient)
+            .timeout(const Duration(seconds: 15));
 
     _channel = IOWebSocketChannel(socket);
     _role = role;
@@ -205,7 +204,11 @@ class SignalingService {
         _log('ws done (closed unexpectedly)');
         _errors.add('اتصال قطع شد');
         _events.add(const RoomInfo(
-          code: '', peerId: '', role: '', peerCount: 0, roomReady: false,
+          code: '',
+          peerId: '',
+          role: '',
+          peerCount: 0,
+          roomReady: false,
         ));
       },
     );
@@ -238,7 +241,9 @@ class SignalingService {
         peerCount: 2,
         roomReady: true,
       ));
-      _messages.add(const SignalMessage(type: SignalType.ready));
+      final ready = const SignalMessage(type: SignalType.ready);
+      _messages.add(ready);
+      _replayed.add(ready);
       return;
     }
 
@@ -250,6 +255,14 @@ class SignalingService {
     }
 
     _messages.add(signal);
+    _replayed.add(signal);
+  }
+
+  Stream<SignalMessage> replayMessages() async* {
+    for (final m in _replayed) {
+      yield m;
+    }
+    yield* _messages.stream;
   }
 
   void send(SignalMessage message) {
