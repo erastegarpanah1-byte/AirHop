@@ -515,10 +515,11 @@ class _CodeBoxes extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: Row(
+        textDirection: TextDirection.ltr,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-        for (var i = 0; i < 6; i++) ...[
-          Container(
+          for (var i = 0; i < 6; i++) ...[
+            Container(
             width: 40,
             height: 48,
             alignment: Alignment.center,
@@ -544,11 +545,11 @@ class _CodeBoxes extends StatelessWidget {
                     ),
                   ),
           ),
-            if (i < 5) const SizedBox(width: 7),
+              if (i < 5) const SizedBox(width: 7),
+            ],
           ],
-        ],
-      ),
-    );
+        ),
+      );
   }
 }
 
