@@ -13,6 +13,7 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../../core/widgets/gradient_text.dart';
 
+/// صفحه انتقال فایل.
 class TransferScreen extends ConsumerWidget {
   const TransferScreen({super.key});
 
