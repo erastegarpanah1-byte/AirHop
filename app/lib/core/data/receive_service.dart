@@ -5,20 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// ذخیره‌سازی فایل‌های دریافتی.
-///
-/// - اندروید ۱۰+ (API 29+): از طریق MethodChannel (`airhop/file_storage`)
-///   در MediaStore ذخیره می‌کند — بدون نیاز به مجوز، در گالری و
-///   File Manager نشان داده می‌شود.
-/// - اندروید ۹- (API 28-): مسیر مستقیم `/storage/emulated/0/AirHop/...` با مجوز
-///   WRITE_EXTERNAL_STORAGE (همراه با اسکن گالری).
-/// - دسکتاپ: Downloads/AirHop.
 class ReceiveService {
   const ReceiveService();
 
   static const _channel = MethodChannel('airhop/file_storage');
-
-  // ---------------------------------------------------------------- دسته‌بندی
 
   String _categoryFor(String fileName, String? mimeType) {
     final mime = (mimeType ?? '').toLowerCase();
@@ -64,9 +54,6 @@ class ReceiveService {
     return map[ext] ?? 'application/octet-stream';
   }
 
-  // ---------------------------------------------------------------- ذخیره از بایت‌ها
-
-  /// فایل را از [bytes] ذخیره کن و مسیر نهایی را برگردان.
   Future<String> saveFile({
     required String fileName,
     required Uint8List bytes,
@@ -76,7 +63,6 @@ class ReceiveService {
     final mime = mimeType ?? _mimeFor(fileName);
 
     if (Platform.isAndroid) {
-      // راه اصلی: MethodChannel → MediaStore (اندروید ۱۰+) یا فایل مستقیم (اندروید ≤۹)
       try {
         final path = await _channel.invokeMethod<String>('saveFile', {
           'fileName': fileName,
@@ -85,19 +71,13 @@ class ReceiveService {
           'bytes': bytes,
         });
         if (path != null && path.isNotEmpty) return path;
-      } catch (_) {
-        // fallback زیر
-      }
-
-      // fallback: مسیر مستقیم (اگر مجوز داشته باشیم)
+      } catch (_) {}
       return _saveLegacyDart(fileName: fileName, bytes: bytes, category: category);
     }
 
     return _saveToDownloads(fileName: fileName, bytes: bytes, category: category);
   }
 
-  /// فایل را از یک مسیر موقت (فایل روی دیسک) با stream-copy ذخیره کن.
-  /// برای فایل‌های بزرگ به کار می‌رود تا کل فایل در RAM بارگذاری نشود.
   Future<String> saveFromTempFile({
     required String fileName,
     required String tempFilePath,
@@ -107,76 +87,86 @@ class ReceiveService {
     final mime = mimeType ?? _mimeFor(fileName);
 
     if (Platform.isAndroid) {
-      // برای اندروید ۷، ۸، ۹ کپی مستقیم با بافر انجام می‌دهیم تا رم پر نشود و کرش نکند
       final status = await Permission.storage.request();
       if (status.isGranted) {
         final extDir = await getExternalStorageDirectory();
-        final root = extDir != null ? extDir.path.split('Android')[0] : '/storage/emulated/0';
+        final root =
+            extDir != null ? extDir.path.split('Android')[0] : '/storage/emulated/0';
         final dir = Directory('$root/AirHop/$category');
         if (!await dir.exists()) await dir.create(recursive: true);
-        var path = '${dir.path}/$fileName';
-
-        final file = File(path);
-        if (await file.exists()) {
-          final dot = fileName.lastIndexOf('.');
-          final ext = dot >= 0 ? fileName.substring(dot) : '';
-          final base = dot >= 0 ? fileName.substring(0, dot) : fileName;
-          var i = 1;
-          while (await File(path).exists()) {
-            path = '${dir.path}/${base}_($i)$ext';
-            i++;
-          }
-        }
-        
-        // کپی استریمی با بافر بسیار کوچک (۶۴ کیلوبایت) برای جلوگیری از کرش رم (OOM) در فایل‌های بزرگ روی اندروید ۷
-        final source = File(tempFilePath);
-        final dest = File(path);
-        final ios = source.openRead();
-        final iosSink = dest.openWrite();
-        await ios.pipe(iosSink);
-        
-        // فراخوانی کانال بومی صرفاً برای اسکن گالری (بدون انتقال بایت‌های سنگین از حافظه Dart به Java)
+        final path = await _uniquePath(dir.path, fileName);
+        await _streamCopy(tempFilePath, path);
         try {
           await _channel.invokeMethod<String>('scanFileOnly', {
             'path': path,
             'mimeType': mime,
           });
         } catch (_) {}
-        
         return path;
       }
 
-      // اندروید ۱۰+ (از طریق مدیااستور اگر فایل کوچک باشد یا کانال استریمی)
       try {
-        final bytes = await File(tempFilePath).readAsBytes();
-        final path = await _channel.invokeMethod<String>('saveFile', {
+        final path = await _channel.invokeMethod<String>('saveStreamedFile', {
           'fileName': fileName,
           'mimeType': mime,
           'category': category,
-          'bytes': bytes,
+          'sourcePath': tempFilePath,
         });
         if (path != null && path.isNotEmpty) return path;
       } catch (_) {}
+
+      return await _copyStreamingToAppDir(
+        fileName: fileName,
+        tempFilePath: tempFilePath,
+        category: category,
+      );
     }
-    // دسکتاپ: کپی مستقیم بدون بارگذاری کل فایل
+
+    return await _copyStreamingToAppDir(
+      fileName: fileName,
+      tempFilePath: tempFilePath,
+      category: category,
+    );
+  }
+
+  Future<String> _copyStreamingToAppDir({
+    required String fileName,
+    required String tempFilePath,
+    required String category,
+  }) async {
     final downloads = await getDownloadsDirectory();
     final base = downloads?.path ?? (await getApplicationDocumentsDirectory()).path;
-    final dir = Directory('$base${Platform.pathSeparator}AirHop${Platform.pathSeparator}$category');
+    final dir = Directory(
+        '$base${Platform.pathSeparator}AirHop${Platform.pathSeparator}$category');
     if (!await dir.exists()) await dir.create(recursive: true);
-    var path = '${dir.path}${Platform.pathSeparator}$fileName';
-    var i = 1;
-    while (await File(path).exists()) {
-      final dot = fileName.lastIndexOf('.');
-      final ext = dot >= 0 ? fileName.substring(dot) : '';
-      final baseN = dot >= 0 ? fileName.substring(0, dot) : fileName;
-      path = '${dir.path}${Platform.pathSeparator}${baseN}_($i)$ext';
-      i++;
-    }
-    await File(tempFilePath).copy(path);
+
+    final path = await _uniquePath(dir.path, fileName);
+    await _streamCopy(tempFilePath, path);
     return path;
   }
 
-  // ---------------------------------------------------------------- legacy (Dart fallback)
+  Future<void> _streamCopy(String source, String dest) async {
+    final sourceFile = File(source);
+    final destFile = File(dest);
+    final input = sourceFile.openRead();
+    final output = destFile.openWrite();
+    await input.pipe(output);
+  }
+
+  Future<String> _uniquePath(String dirPath, String fileName) async {
+    var path = '$dirPath${Platform.pathSeparator}$fileName';
+    if (!await File(path).exists()) return path;
+
+    final dot = fileName.lastIndexOf('.');
+    final ext = dot >= 0 ? fileName.substring(dot) : '';
+    final base = dot >= 0 ? fileName.substring(0, dot) : fileName;
+    var i = 1;
+    while (await File(path).exists()) {
+      path = '$dirPath${Platform.pathSeparator}${base}_($i)$ext';
+      i++;
+    }
+    return path;
+  }
 
   Future<String> _saveLegacyDart({
     required String fileName,
@@ -186,31 +176,16 @@ class ReceiveService {
     final status = await Permission.storage.request();
     if (status.isGranted) {
       final extDir = await getExternalStorageDirectory();
-      final root = extDir != null ? extDir.path.split('Android')[0] : '/storage/emulated/0';
+      final root =
+          extDir != null ? extDir.path.split('Android')[0] : '/storage/emulated/0';
       final dir = Directory('$root/AirHop/$category');
       if (!await dir.exists()) await dir.create(recursive: true);
-      var path = '${dir.path}/$fileName';
-
-      final file = File(path);
-      if (await file.exists()) {
-        final dot = fileName.lastIndexOf('.');
-        final ext = dot >= 0 ? fileName.substring(dot) : '';
-        final base = dot >= 0 ? fileName.substring(0, dot) : fileName;
-        var i = 1;
-        while (await File(path).exists()) {
-          path = '${dir.path}/${base}_($i)$ext';
-          i++;
-        }
-      }
+      final path = await _uniquePath(dir.path, fileName);
       await File(path).writeAsBytes(bytes);
       return path;
     }
-
-    // آخرین راه: داخل دایرکتوری خصوصی اپ
     return _saveToDownloads(fileName: fileName, bytes: bytes, category: category);
   }
-
-  // ---------------------------------------------------------------- دسکتاپ
 
   Future<String> _saveToDownloads({
     required String fileName,
@@ -219,26 +194,15 @@ class ReceiveService {
   }) async {
     final downloads = await getDownloadsDirectory();
     final base = downloads?.path ?? (await getApplicationDocumentsDirectory()).path;
-    final dir = Directory('$base${Platform.pathSeparator}AirHop${Platform.pathSeparator}$category');
+    final dir = Directory(
+        '$base${Platform.pathSeparator}AirHop${Platform.pathSeparator}$category');
     if (!await dir.exists()) await dir.create(recursive: true);
 
-    var path = '${dir.path}${Platform.pathSeparator}$fileName';
-    final file = File(path);
-    if (await file.exists()) {
-      final dot = fileName.lastIndexOf('.');
-      final ext = dot >= 0 ? fileName.substring(dot) : '';
-      final baseN = dot >= 0 ? fileName.substring(0, dot) : fileName;
-      var i = 1;
-      while (await File(path).exists()) {
-        path = '${dir.path}${Platform.pathSeparator}${baseN}_($i)$ext';
-        i++;
-      }
-    }
+    final path = await _uniquePath(dir.path, fileName);
     await File(path).writeAsBytes(bytes);
     return path;
   }
 
-  /// پیام خوانا برای نمایش مقصد ذخیره.
   Future<String> get targetDirectoryPath async {
     if (Platform.isAndroid) return 'حافظه داخلی/AirHop';
     final downloads = await getDownloadsDirectory();
