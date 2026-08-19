@@ -10,6 +10,7 @@ import 'data/webrtc_service.dart';
 import 'data/history_provider.dart';
 import 'domain/models.dart';
 
+/// State سیستم جلسه.
 class SessionState {
   const SessionState({
     this.pairingCode = '',
@@ -61,7 +62,7 @@ class SessionNotifier extends StateNotifier<SessionState> {
   StreamSubscription? _messagesSub;
   StreamSubscription? _progressSub;
 
-  DeviceInfo _myDevice = const DeviceInfo(name: 'کنند', platform: 'unknown');
+  DeviceInfo _myDevice = const DeviceInfo(name: 'دستگاه', platform: 'unknown');
 
   PeerRole? _role;
 
@@ -74,10 +75,8 @@ class SessionNotifier extends StateNotifier<SessionState> {
         _log('[$role] room ready');
         _signaling!.sendDeviceInfo(_myDevice);
         if (role == PeerRole.receiver) {
-          _log('[$role] -> status connected');
           state = state.copyWith(status: PairingStatus.connected);
         } else {
-          _log('[$role] -> status readyToSend');
           state = state.copyWith(status: PairingStatus.readyToSend);
         }
       }
@@ -87,7 +86,6 @@ class SessionNotifier extends StateNotifier<SessionState> {
       _log('[$role] peer device: ${device.name} (${device.platform})');
       state = state.copyWith(peerDevice: device);
       if (role == PeerRole.sender) {
-        _log('[$role] -> status readyToSend');
         state = state.copyWith(status: PairingStatus.readyToSend);
       }
     });
