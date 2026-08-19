@@ -75,7 +75,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       });
     }
 
-    // نمایش خطا در صورت fail
+    // نمایش خطا در صورت روبرو شدن با fail
     if (session.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -122,7 +122,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       children: [
         const SizedBox(height: 6),
         const Text(
-          'برای اتصال اسکن کنید',
+          'آماده انتقال اسناد و کلیپ‌ها',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: AppColors.textPrimary,
@@ -132,7 +132,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         ),
         const SizedBox(height: 4),
         const Text(
-          'کد QR را در دستگاه مقابل اسکن کنید',
+          'کد QR زیر را با دستگاه دریافت‌کننده اسکن کنید',
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
@@ -156,7 +156,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         _CodeBoxes(code: session.pairingCode),
         const SizedBox(height: 10),
         const Text(
-          'یا کد را وارد کنید',
+          'یا کد بالا را وارد کلاینت کنید',
           style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
         const SizedBox(height: 8),
@@ -203,7 +203,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 14),
 
         const Text(
-          'یا کد را به صورت دستی وارد کنید',
+          'یا کد را به طور دستی وارد کلاینت کنید',
           textAlign: TextAlign.center,
           style: TextStyle(color: AppColors.textMuted, fontSize: 12),
         ),
@@ -246,7 +246,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   }
 }
 
-/// فریم QR با لوگو وسط + حلقه‌های رادار پالس‌دار + گوشه‌های اسکنر.
+/// انیمیشن QR با رادار مانیتورینگ برای پیوستن گیرنده.
 class _QrWithRadar extends StatefulWidget {
   const _QrWithRadar({required this.code});
 
@@ -374,7 +374,7 @@ class _QrWithRadarState extends State<_QrWithRadar>
         Align(
           alignment: pos,
           child: Container(
-            margin: EdgeInsets.all(offset),
+            margin: const EdgeInsets.all(offset),
             width: length,
             height: length,
             decoration: BoxDecoration(
@@ -401,7 +401,7 @@ class _QrWithRadarState extends State<_QrWithRadar>
   }
 }
 
-/// نقاش حلقه‌های رادار.
+/// نقاش رادار مانیتورینگ کاراکترها.
 class _RadarPainter extends CustomPainter {
   _RadarPainter({required this.progress});
 
@@ -427,7 +427,7 @@ class _RadarPainter extends CustomPainter {
       oldDelegate.progress != progress;
 }
 
-/// آیکون «منتظر اتصال...» با نقطه پالس‌دار.
+/// آیتم «منتظر تایید...» با انیمیشن پالس دات.
 class _WaitingIndicator extends StatefulWidget {
   const _WaitingIndicator();
 
@@ -468,7 +468,7 @@ class _WaitingIndicatorState extends State<_WaitingIndicator>
         ),
         const SizedBox(width: 10),
         const Text(
-          'منتظر اتصال...',
+          'منتظر تایید...',
           style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
       ],
@@ -503,7 +503,7 @@ class _PulseDotPainter extends CustomPainter {
       oldDelegate.progress != progress;
 }
 
-/// نمایش کد ۶ رقمی در box های جدا با گرادیان.
+/// نمایش کد جفت‌سازی به صورت جدا در باکس‌های جذاب.
 class _CodeBoxes extends StatelessWidget {
   const _CodeBoxes({required this.code});
 
@@ -520,40 +520,40 @@ class _CodeBoxes extends StatelessWidget {
         children: [
           for (var i = 0; i < 6; i++) ...[
             Container(
-            width: 40,
-            height: 48,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AppColors.glassBg,
-              borderRadius: BorderRadius.circular(11),
-              border: Border.all(color: AppColors.glassBorder),
+              width: 40,
+              height: 48,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: AppColors.glassBg,
+                borderRadius: BorderRadius.circular(11),
+                border: Border.all(color: AppColors.glassBorder),
+              ),
+              child: code.isEmpty
+                  ? Text(
+                      digits[i],
+                      style: const TextStyle(
+                        color: AppColors.textMuted,
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )
+                  : GradientText(
+                      digits[i],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
             ),
-            child: code.isEmpty
-                ? Text(
-                    digits[i],
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  )
-                : GradientText(
-                    digits[i],
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-          ),
-              if (i < 5) const SizedBox(width: 7),
-            ],
+            if (i < 5) const SizedBox(width: 7),
           ],
-        ),
-      );
+        ],
+      ),
+    );
   }
 }
 
-/// اسکنر بارکد (QR) برای بخش دریافت.
+/// اسکنر بارکد (QR) با استفاده از موبایل اسکنر.
 class _BarcodeScanner extends StatefulWidget {
   const _BarcodeScanner({required this.onScanned});
 
@@ -566,7 +566,7 @@ class _BarcodeScanner extends StatefulWidget {
 class _BarcodeScannerState extends State<_BarcodeScanner> {
   final MobileScannerController _controller = MobileScannerController(
     formats: const [BarcodeFormat.qrCode],
-    detectionSpeed: DetectionSpeed.noDuplicates,
+    detectionSpeed: DetectionSpeed.normal,
     torchEnabled: false,
   );
   bool _joined = false;
@@ -582,7 +582,6 @@ class _BarcodeScannerState extends State<_BarcodeScanner> {
     for (final barcode in capture.barcodes) {
       final raw = barcode.rawValue;
       if (raw == null || raw.isEmpty) continue;
-      // به محض دیدن کد، متوقف و وصل شو (بدون نیاز به دکمه)
       _joined = true;
       try {
         _controller.stop();
@@ -609,10 +608,10 @@ class _BarcodeScannerState extends State<_BarcodeScanner> {
                 return Container(
                   alignment: Alignment.center,
                   padding: const EdgeInsets.all(12),
-                  child: Column(
+                  child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.camera_alt_outlined,
+                      Icon(Icons.camera_alt_outlined,
                           color: AppColors.textMuted, size: 28),
                       const SizedBox(height: 8),
                       const Text(
