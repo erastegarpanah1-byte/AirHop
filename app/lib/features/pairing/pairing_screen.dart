@@ -75,7 +75,6 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       });
     }
 
-    // نمایش خطا در صورت fail
     if (session.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -566,9 +565,10 @@ class _BarcodeScanner extends StatefulWidget {
 class _BarcodeScannerState extends State<_BarcodeScanner> {
   final MobileScannerController _controller = MobileScannerController(
     formats: const [BarcodeFormat.qrCode],
-    detectionSpeed: DetectionSpeed.normal,
+    detectionSpeed: DetectionSpeed.noDuplicates,
+    torchEnabled: false,
   );
-  String? _lastScanned;
+  bool _joined = false;
 
   @override
   void dispose() {
@@ -577,13 +577,17 @@ class _BarcodeScannerState extends State<_BarcodeScanner> {
   }
 
   void _onDetect(BarcodeCapture capture) {
+    if (_joined) return;
     for (final barcode in capture.barcodes) {
       final raw = barcode.rawValue;
       if (raw == null || raw.isEmpty) continue;
-      // جلوگیری از فراخوانی تکراری برای یک کد
-      if (raw == _lastScanned) continue;
-      _lastScanned = raw;
+      // به محض دیدن کد، متوقف و وصل شو (بدون نیاز به دکمه)
+      _joined = true;
+      try {
+        _controller.stop();
+      } catch (_) {}
       widget.onScanned(raw);
+      break;
     }
   }
 
