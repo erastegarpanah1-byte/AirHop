@@ -5,18 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// سرویس ذخیره‌سازی فایل‌های دریافتی.
+/// ذخیره‌سازی فایل‌های دریافتی.
 ///
-/// فایل‌ها در حافظه‌ی داخلی مشترک (قابل مشاهده با File Manager) زیر پوشه‌ی
-/// `AirHop/` ذخیره می‌شوند و بر اساس نوع فایل در زیرپوشه‌های
-/// `تصاویر` / `ویدیوها` / `صدا` / `فایلها` طبقه‌بندی می‌شوند.
-///
-/// - اندروید ۱۰+ (API 29+): MediaStore از طریق MethodChannel بومی
-///   (`airhop/file_storage`) ذخیره می‌کند — بدون نیاز به مجوز، در گالری و
-///   File Manager دیده می‌شود.
+/// - اندروید ۱۰+ (API 29+): از طریق MethodChannel (`airhop/file_storage`)
+///   در MediaStore ذخیره می‌کند — بدون نیاز به مجوز، در گالری و
+///   File Manager نشان داده می‌شود.
 /// - اندروید ۹- (API 28-): مسیر مستقیم `/storage/emulated/0/AirHop/...` با مجوز
-///   WRITE_EXTERNAL_STORAGE (همان MethodChannel بومی).
-/// - دسکتاپ/سایر: Downloads/AirHop.
+///   WRITE_EXTERNAL_STORAGE (همراه با اسکن گالری).
+/// - دسکتاپ: Downloads/AirHop.
 class ReceiveService {
   const ReceiveService();
 
@@ -32,16 +28,16 @@ class ReceiveService {
 
     if (mime.startsWith('image/')) return 'تصاویر';
     if (mime.startsWith('video/')) return 'ویدیوها';
-    if (mime.startsWith('audio/')) return 'صدا';
-    if (mime.isNotEmpty) return 'فایلها';
+    if (mime.startsWith('audio/')) return 'آهنگ';
+    if (mime.isNotEmpty) return 'فایل‌ها';
 
     const images = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'heic', 'heif', 'svg'];
     const videos = ['mp4', 'mkv', 'mov', 'avi', 'webm', '3gp', 'flv', 'm4v', 'ts'];
     const audio = ['mp3', 'wav', 'aac', 'ogg', 'm4a', 'flac', 'opus', 'amr', 'wma'];
     if (images.contains(ext)) return 'تصاویر';
     if (videos.contains(ext)) return 'ویدیوها';
-    if (audio.contains(ext)) return 'صدا';
-    return 'فایلها';
+    if (audio.contains(ext)) return 'آهنگ';
+    return 'فایل‌ها';
   }
 
   String _mimeFor(String fileName) {
@@ -68,9 +64,9 @@ class ReceiveService {
     return map[ext] ?? 'application/octet-stream';
   }
 
-  // ---------------------------------------------------------------- نقطه ورود
+  // ---------------------------------------------------------------- ذخیره از بایت‌ها
 
-  /// ذخیرهٔ فایل دریافتی و برگرداندن مسیر/توضیح مکان.
+  /// فایل را از [bytes] ذخیره کن و مسیر نهایی را برگردان.
   Future<String> saveFile({
     required String fileName,
     required Uint8List bytes,
@@ -80,7 +76,7 @@ class ReceiveService {
     final mime = mimeType ?? _mimeFor(fileName);
 
     if (Platform.isAndroid) {
-      // تلاش از طریق MethodChannel بومی (MediaStore یا مسیر مستقیم)
+      // راه اصلی: MethodChannel → MediaStore (اندروید ۱۰+) یا فایل مستقیم (اندروید ≤۹)
       try {
         final path = await _channel.invokeMethod<String>('saveFile', {
           'fileName': fileName,
@@ -90,7 +86,7 @@ class ReceiveService {
         });
         if (path != null && path.isNotEmpty) return path;
       } catch (_) {
-        // fallback در صورت خطای channel
+        // fallback زیر
       }
 
       // fallback: مسیر مستقیم (اگر مجوز داشته باشیم)
@@ -98,6 +94,54 @@ class ReceiveService {
     }
 
     return _saveToDownloads(fileName: fileName, bytes: bytes, category: category);
+  }
+
+  /// فایل را از یک مسیر موقت (فایل روی دیسک) ذخیره کن.
+  /// برای فایل‌های بزرگ به کار می‌رود تا تا حد امکان از بارگذاری کل فایل در RAM اجتناب شود.
+  Future<String> saveFromTempFile({
+    required String fileName,
+    required String tempFilePath,
+    String? mimeType,
+  }) async {
+    final category = _categoryFor(fileName, mimeType);
+    final mime = mimeType ?? _mimeFor(fileName);
+
+    if (Platform.isAndroid) {
+      try {
+        final bytes = await File(tempFilePath).readAsBytes();
+        final path = await _channel.invokeMethod<String>('saveFile', {
+          'fileName': fileName,
+          'mimeType': mime,
+          'category': category,
+          'bytes': bytes,
+        });
+        if (path != null && path.isNotEmpty) return path;
+      } catch (_) {
+        // fallback
+      }
+      return _saveLegacyDart(
+        fileName: fileName,
+        bytes: await File(tempFilePath).readAsBytes(),
+        category: category,
+      );
+    }
+
+    // دسکتاپ: کپی مستقیم بدون بارگذاری کل فایل
+    final downloads = await getDownloadsDirectory();
+    final base = downloads?.path ?? (await getApplicationDocumentsDirectory()).path;
+    final dir = Directory('$base${Platform.pathSeparator}AirHop${Platform.pathSeparator}$category');
+    if (!await dir.exists()) await dir.create(recursive: true);
+    var path = '${dir.path}${Platform.pathSeparator}$fileName';
+    var i = 1;
+    while (await File(path).exists()) {
+      final dot = fileName.lastIndexOf('.');
+      final ext = dot >= 0 ? fileName.substring(dot) : '';
+      final baseN = dot >= 0 ? fileName.substring(0, dot) : fileName;
+      path = '${dir.path}${Platform.pathSeparator}${baseN}_($i)$ext';
+      i++;
+    }
+    await File(tempFilePath).copy(path);
+    return path;
   }
 
   // ---------------------------------------------------------------- legacy (Dart fallback)
@@ -162,7 +206,7 @@ class ReceiveService {
     return path;
   }
 
-  /// مسیر پوشه‌ی مقصد (برای نمایش).
+  /// پیام خوانا برای نمایش مقصد ذخیره.
   Future<String> get targetDirectoryPath async {
     if (Platform.isAndroid) return 'حافظه داخلی/AirHop';
     final downloads = await getDownloadsDirectory();
