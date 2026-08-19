@@ -9,7 +9,7 @@ import '../config/app_config.dart';
 import '../domain/models.dart';
 import 'signaling_service.dart';
 
-/// سرویس WebRTC — انتقال P2P از طریق DataChannel + fallback به relay سرور.
+/// سرویس وب‌رتی‌سی — اتصال P2P از طریق DataChannel + fallback به relay در صورت بسته بودن.
 class WebRtcService {
   WebRtcService({required this.signaling, this.role = PeerRole.sender});
 
@@ -26,6 +26,10 @@ class WebRtcService {
   int _receivedBytes = 0;
   IOSink? _sink;
   File? _tempFile;
+
+  // متغیرهای کمکی جدید برای پیگیری و محاسبه واقعی پیشرفت فرستنده از طریق بافر شبکه
+  int _currentFileTotalBytes = 0;
+  int _currentFileSentToBuffer = 0;
 
   final StreamController<TransferProgress> _progress =
       StreamController<TransferProgress>.broadcast();
@@ -79,6 +83,22 @@ class WebRtcService {
         _onTextMessage(message.text);
       }
     };
+
+    // اصلاح درصد پیشرفت واقعی فرستنده بر اساس بایت‌های ارسال شده واقعی روی کارت شبکه (نه صرفاً بایت‌های کپی شده در رم)
+    if (role == PeerRole.sender) {
+      _channel!.onBufferedAmountChange = (int currentBufferedAmount) {
+        if (_currentFileTotalBytes > 0) {
+          int actualSentOnNetwork = _currentFileSentToBuffer - currentBufferedAmount;
+          if (actualSentOnNetwork < 0) actualSentOnNetwork = 0;
+          if (actualSentOnNetwork > _currentFileTotalBytes) actualSentOnNetwork = _currentFileTotalBytes;
+
+          _progress.add(TransferProgress(
+            receivedBytes: actualSentOnNetwork,
+            totalBytes: _currentFileTotalBytes,
+          ));
+        }
+      };
+    }
   }
 
   Future<void> _handleSignal(SignalMessage message) async {
@@ -131,8 +151,7 @@ class WebRtcService {
         await _sendP2P(metadata, content);
         return;
       } catch (e) {
-        // اگر P2P وسط کار از بین رفت، به relay برگرد و دوباره ارسال کن
-        // (به جای اینکه sender به اشتباه 100% نشان دهد یا ارسال fail شود).
+        // اگر در حین ارسال P2P قطع شد، فوراً فالبک کند به relay سرور تا ارسال قطع نشود
       }
     }
     await _sendRelay(metadata, content);
@@ -141,94 +160,70 @@ class WebRtcService {
   Future<void> _sendP2P(FileMetadata metadata, List<int> content) async {
     if (_channel == null ||
         _channel!.state != RTCDataChannelState.RTCDataChannelOpen) {
-      throw StateError('DataChannel باز نیست — ارسال P2P ممکن نیست');
+      throw StateError('DataChannel باز نیست — انتقال P2P ممکن نیست');
     }
+
+    _currentFileTotalBytes = content.length;
+    _currentFileSentToBuffer = 0;
 
     _channel!.send(RTCDataChannelMessage(
       jsonEncode({'type': 'file-header', 'metadata': metadata.toJson()}),
     ));
 
     final chunkSize = AppConfig.chunkSize;
-    final total = metadata.size;
     int sent = 0;
-
-    // استریم فایل بزرگ از روی دیسک به جای بارگذاری کامل در رم (رفع کرش رم)
-    if (metadata.path != null && File(metadata.path!).existsSync()) {
-      final file = File(metadata.path!);
-      final stream = file.openRead();
-      await for (final chunk in stream) {
-        // اگر چانک بزرگتر از سایز بافر ما بود، آن را تکه تکه می‌فرستیم
-        int chunkOffset = 0;
-        while (chunkOffset < chunk.length) {
-          final take = (chunkOffset + chunkSize < chunk.length) ? chunkSize : (chunk.length - chunkOffset);
-          final subChunk = Uint8List.view(Uint8List.fromList(chunk).buffer, chunkOffset, take);
-          await _sendChunk(subChunk);
-          chunkOffset += take;
-          sent += take;
-          _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total, currentFileName: metadata.name));
-        }
-      }
-    } else {
-      // ارسال از بایت‌های موجود در حافظه (برای فایل‌های کوچک)
-      while (sent < total) {
-        final end = (sent + chunkSize < total) ? sent + chunkSize : total;
-        final chunk = Uint8List.fromList(content.sublist(sent, end));
-        await _sendChunk(chunk);
-        sent = end;
-        _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total, currentFileName: metadata.name));
-      }
+    final total = content.length;
+    while (sent < total) {
+      final end = (sent + chunkSize < total) ? sent + chunkSize : total;
+      final chunk = Uint8List.fromList(content.sublist(sent, end));
+      await _sendChunk(chunk);
+      sent = end;
+      _currentFileSentToBuffer = sent;
+      
+      // بروزرسانی موقت محلی در صورت بروز هرگونه تغییرات سریع یا تاخیر رویداد بافر
+      final buffered = _channel!.bufferedAmount ?? 0;
+      int actualSent = sent - buffered;
+      if (actualSent < 0) actualSent = 0;
+      if (actualSent > total) actualSent = total;
+      
+      _progress.add(TransferProgress(receivedBytes: actualSent, totalBytes: total));
     }
     _channel!.send(RTCDataChannelMessage(jsonEncode({'type': 'file-end'})));
   }
 
   Future<void> _sendRelay(FileMetadata metadata, List<int> content) async {
+    _currentFileTotalBytes = content.length;
+    _currentFileSentToBuffer = 0;
+
     signaling.send(SignalMessage(
       type: SignalType.relayHeader,
       payload: metadata.toJson(),
     ));
 
     final chunkSize = AppConfig.chunkSize;
-    final total = metadata.size;
     int sent = 0;
-
-    if (metadata.path != null && File(metadata.path!).existsSync()) {
-      final file = File(metadata.path!);
-      final stream = file.openRead();
-      await for (final chunk in stream) {
-        int chunkOffset = 0;
-        while (chunkOffset < chunk.length) {
-          final take = (chunkOffset + chunkSize < chunk.length) ? chunkSize : (chunk.length - chunkOffset);
-          final subChunk = Uint8List.view(Uint8List.fromList(chunk).buffer, chunkOffset, take);
-          signaling.sendRelayChunk(subChunk);
-          chunkOffset += take;
-          sent += take;
-          _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total, currentFileName: metadata.name));
-          await Future<void>.delayed(const Duration(milliseconds: 1));
-        }
-      }
-    } else {
-      while (sent < total) {
-        final end = (sent + chunkSize < total) ? sent + chunkSize : total;
-        final chunk = Uint8List.fromList(content.sublist(sent, end));
-        signaling.sendRelayChunk(chunk);
-        sent = end;
-        _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total, currentFileName: metadata.name));
-        await Future<void>.delayed(const Duration(milliseconds: 1));
-      }
+    final total = content.length;
+    while (sent < total) {
+      final end = (sent + chunkSize < total) ? sent + chunkSize : total;
+      final chunk = Uint8List.fromList(content.sublist(sent, end));
+      signaling.sendRelayChunk(chunk);
+      sent = end;
+      _currentFileSentToBuffer = sent;
+      _progress.add(TransferProgress(receivedBytes: sent, totalBytes: total));
+      await Future<void>.delayed(const Duration(milliseconds: 1));
     }
     signaling.send(const SignalMessage(type: SignalType.relayEnd));
   }
 
   Future<void> _sendChunk(Uint8List data) async {
-    // Backpressure: اگر بافر ارسال پر است، صبر کن تا peer داده را بخواند.
-    // این کار از گم شدن داده و کرش شدن receiver جلوگیری می‌کند.
+    // Backpressure: جلوگیری از کرش کلاینت در صورتی که بافر وب‌رتی‌سی پر از دیتا شده باشد
     while (_channel!.state == RTCDataChannelState.RTCDataChannelOpen) {
       final buffered = _channel!.bufferedAmount;
       if (buffered == null || buffered <= 4 * 1024 * 1024) break;
       await Future<void>.delayed(const Duration(milliseconds: 5));
     }
     if (_channel!.state != RTCDataChannelState.RTCDataChannelOpen) {
-      throw StateError('DataChannel هنگام ارسال بسته شد');
+      throw StateError('DataChannel بسته شد — ارسال بایت‌ها لغو گردید');
     }
     _channel!.send(RTCDataChannelMessage.fromBinary(data));
     await Future<void>.delayed(Duration.zero);
@@ -236,4 +231,72 @@ class WebRtcService {
 
   void _onTextMessage(String text) {
     final Map<String, dynamic> json = jsonDecode(text) as Map<String, dynamic>;
-    final type = json['type'] as String?;\n    if (type == 'file-header') {\n      final metadata = FileMetadata.fromJson(json['metadata'] as Map<String, dynamic>);\n      _currentFilePath = metadata.name;\n      _currentFileSize = metadata.size;\n      _receivedBytes = 0;\n      _openTempFile();\n    } else if (type == 'file-end') {\n      _finalizeFile();\n    }\n  }\n\n  void _onRelayHeader(Map<String, dynamic>? payload) {\n    if (payload == null) return;\n    final metadata = FileMetadata.fromJson(payload);\n    _currentFilePath = metadata.name;\n    _currentFileSize = metadata.size;\n    _receivedBytes = 0;\n    _openTempFile();\n  }\n\n  void _onBinaryChunk(Uint8List bytes) => _appendChunk(bytes);\n\n  void _onRelayChunk(Uint8List bytes) => _appendChunk(bytes);\n\n  void _openTempFile() {\n    _sink?.close();\n    _tempFile = File(\n      '${Directory.systemTemp.path}/airhop_recv_${DateTime.now().microsecondsSinceEpoch}.tmp',\n    );\n    _sink = _tempFile!.openWrite();\n  }\n\n  void _appendChunk(Uint8List bytes) {\n    // مستقیم روی دیسک بنویس؛ فایل بزرگ را در RAM نگه نمی‌داریم\n    // (از کرش شدن گوشی‌های قدیمی مثل اندروید 7 جلوگیری می‌کند).\n    _sink?.add(bytes);\n    _receivedBytes += bytes.length;\n    _progress.add(TransferProgress(\n      receivedBytes: _receivedBytes,\n      totalBytes: _currentFileSize,\n    ));\n  }\n\n  Future<void> _finalizeFile() async {\n    await _sink?.flush();\n    await _sink?.close();\n    _sink = null;\n\n    final f = _tempFile;\n    _tempFile = null;\n    if (f == null) return;\n\n    final name = _currentFilePath ?? 'received-file';\n\n    _fileReceived.add(ReceivedFile(\n      fileName: name,\n      tempFilePath: f.path,\n    ));\n  }\n}
+    final type = json['type'] as String?;
+    if (type == 'file-header') {
+      final metadata = FileMetadata.fromJson(json['metadata'] as Map<String, dynamic>);
+      _currentFilePath = metadata.name;
+      _currentFileSize = metadata.size;
+      _receivedBytes = 0;
+      _openTempFile();
+    } else if (type == 'file-end') {
+      _finalizeFile();
+    }
+  }
+
+  void _onRelayHeader(Map<String, dynamic>? payload) {
+    if (payload == null) return;
+    final metadata = FileMetadata.fromJson(payload);
+    _currentFilePath = metadata.name;
+    _currentFileSize = metadata.size;
+    _receivedBytes = 0;
+    _openTempFile();
+  }
+
+  void _onBinaryChunk(Uint8List bytes) => _appendChunk(bytes);
+
+  void _onRelayChunk(Uint8List bytes) => _appendChunk(bytes);
+
+  void _openTempFile() {
+    _sink?.close();
+    _tempFile = File(
+      '${Directory.systemTemp.path}/airhop_recv_${DateTime.now().microsecondsSinceEpoch}.tmp',
+    );
+    _sink = _tempFile!.openWrite();
+  }
+
+  void _appendChunk(Uint8List bytes) {
+    _sink?.add(bytes);
+    _receivedBytes += bytes.length;
+    _progress.add(TransferProgress(
+      receivedBytes: _receivedBytes,
+      totalBytes: _currentFileSize,
+    ));
+  }
+
+  Future<void> _finalizeFile() async {
+    await _sink?.flush();
+    await _sink?.close();
+    _sink = null;
+
+    final f = _tempFile;
+    _tempFile = null;
+    if (f == null) return;
+
+    final name = _currentFilePath ?? 'received-file';
+
+    _fileReceived.add(ReceivedFile(fileName: name, tempFilePath: f.path));
+  }
+
+  Future<void> dispose() async {
+    _signalSub?.cancel();
+    _relaySub?.cancel();
+    await _sink?.close();
+    try {
+      if (_tempFile != null) await _tempFile!.delete();
+    } catch (_) {}
+    await _channel?.close();
+    await _pc?.close();
+    await _progress.close();
+    await _fileReceived.close();
+  }
+}
