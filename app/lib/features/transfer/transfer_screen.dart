@@ -13,7 +13,6 @@ import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../../core/widgets/gradient_text.dart';
 
-/// صفحه انتقال فایل.
 class TransferScreen extends ConsumerWidget {
   const TransferScreen({super.key});
 
@@ -64,7 +63,7 @@ class TransferScreen extends ConsumerWidget {
                       if (!isDone) ...[
                         const SizedBox(height: 4),
                         const Text(
-                          'لطفاً دستگاه‌ها را نزدیک نگه دارید',
+                          'انتقال مستقیم و پرسرعت — بدون محدودیت فاصله',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: AppColors.textSecondary,
@@ -166,7 +165,6 @@ class TransferScreen extends ConsumerWidget {
   }
 }
 
-/// دو دستگاه + جریان ذرات نورانی.
 class _DeviceStream extends StatefulWidget {
   const _DeviceStream();
 
@@ -287,7 +285,6 @@ class _ParticleStreamPainter extends CustomPainter {
       oldDelegate.progress != progress;
 }
 
-/// رینگ پیشرفت دایره‌ای زیبا با شتاب ملایم.
 class _ProgressRing extends StatelessWidget {
   const _ProgressRing({
     required this.percent,
