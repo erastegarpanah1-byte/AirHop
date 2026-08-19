@@ -44,7 +44,23 @@ class ReceiveService {
     final ext = fileName.contains('.')
         ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
         : '';
-    const map = <String, String>{\n      'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',\n      'gif': 'image/gif', 'webp': 'image/webp', 'bmp': 'image/bmp',\n      'heic': 'image/heic', 'heif': 'image/heif', 'svg': 'image/svg+xml',\n      'mp4': 'video/mp4', 'mkv': 'video/x-matroska', 'mov': 'video/quicktime',\n      'avi': 'video/x-msvideo', 'webm': 'video/webm', '3gp': 'video/3gpp',\n      'm4v': 'video/x-m4v', 'mp3': 'audio/mpeg', 'wav': 'audio/wav',\n      'aac': 'audio/aac', 'ogg': 'audio/ogg', 'm4a': 'audio/mp4',\n      'flac': 'audio/flac', 'opus': 'audio/opus', 'amr': 'audio/amr',\n      'pdf': 'application/pdf', 'zip': 'application/zip',\n      'txt': 'text/plain', 'doc': 'application/msword',\n      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n      'xls': 'application/vnd.ms-excel',\n      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      'apk': 'application/vnd.android.package-archive',\n      'json': 'application/json', 'csv': 'text/csv', 'html': 'text/html',\n    };
+    const map = <String, String>{
+      'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
+      'gif': 'image/gif', 'webp': 'image/webp', 'bmp': 'image/bmp',
+      'heic': 'image/heic', 'heif': 'image/heif', 'svg': 'image/svg+xml',
+      'mp4': 'video/mp4', 'mkv': 'video/x-matroska', 'mov': 'video/quicktime',
+      'avi': 'video/x-msvideo', 'webm': 'video/webm', '3gp': 'video/3gpp',
+      'm4v': 'video/x-m4v', 'mp3': 'audio/mpeg', 'wav': 'audio/wav',
+      'aac': 'audio/aac', 'ogg': 'audio/ogg', 'm4a': 'audio/mp4',
+      'flac': 'audio/flac', 'opus': 'audio/opus', 'amr': 'audio/amr',
+      'pdf': 'application/pdf', 'zip': 'application/zip',
+      'txt': 'text/plain', 'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'xls': 'application/vnd.ms-excel',
+      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'apk': 'application/vnd.android.package-archive',
+      'json': 'application/json', 'csv': 'text/csv', 'html': 'text/html',
+    };
     return map[ext] ?? 'application/octet-stream';
   }
 
