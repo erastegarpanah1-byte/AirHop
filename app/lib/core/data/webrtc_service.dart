@@ -27,7 +27,6 @@ class WebRtcService {
   IOSink? _sink;
   File? _tempFile;
 
-  // پیشرفت واقعی فرستنده: تنها معیار درست میزان بایت‌هایی است که از بافر شبکه خارج شده‌اند.
   int _senderTotalBytes = 0;
   int _senderPushedToBuffer = 0;
   bool _senderFileActive = false;
@@ -211,7 +210,7 @@ class WebRtcService {
         Uint8List chunk;
         if (raf != null) {
           chunk = Uint8List(len);
-          await raf.readInto(chunk, sent, 0, len);
+          await raf.readInto(chunk);
         } else {
           chunk = Uint8List.fromList(content!.sublist(sent, end));
         }
@@ -271,7 +270,7 @@ class WebRtcService {
         Uint8List chunk;
         if (raf != null) {
           chunk = Uint8List(len);
-          await raf.readInto(chunk, sent, 0, len);
+          await raf.readInto(chunk);
         } else {
           chunk = Uint8List.fromList(content!.sublist(sent, end));
         }
