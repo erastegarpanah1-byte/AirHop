@@ -75,6 +75,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       });
     }
 
+    // نمایش خطا در صورت fail
     if (session.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
