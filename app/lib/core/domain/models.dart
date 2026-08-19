@@ -117,10 +117,18 @@ class TransferProgress {
 
 /// یک فایل کامل دریافت‌شده (نام + bytes).
 class ReceivedFile {
-  const ReceivedFile({required this.fileName, required this.bytes});
+  const ReceivedFile({
+    required this.fileName,
+    this.bytes,
+    this.tempFilePath,
+  });
 
   final String fileName;
-  final Uint8List bytes;
+  final Uint8List? bytes;
+
+  /// وقتی فایل مستقیماً روی دیسک (temp) نوشته شده، این مسیر مشخص می‌شود
+  /// تا از بارگذاری کل فایل در RAM جلوگیری شود (مخصوص فایل‌های بزرگ).
+  final String? tempFilePath;
 }
 
 /// یک رکورد در تاریخچه‌ی انتقال‌ها.
