@@ -169,7 +169,6 @@ class SessionNotifier extends StateNotifier<SessionState> {
             id: received.fileName,
             name: received.fileName,
             size: received.bytes.length,
-            mimeType: savedPath,
           ),
         );
       });
