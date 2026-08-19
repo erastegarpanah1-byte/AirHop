@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+/// ذخیره‌سازی فایل‌های دریافتی.
 class ReceiveService {
   const ReceiveService();
 
