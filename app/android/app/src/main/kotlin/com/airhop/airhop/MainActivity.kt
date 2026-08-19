@@ -1,6 +1,7 @@
 package com.airhop.airhop
 
 import android.content.ContentValues
+import android.media.MediaScannerConnection
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -31,21 +32,25 @@ class MainActivity : FlutterActivity() {
         try {
             val fileName = call.argument<String>("fileName") ?: "file"
             val mimeType = call.argument<String>("mimeType") ?: "application/octet-stream"
-            val category = call.argument<String>("category") ?: "فایلها"
+            val category = call.argument<String>("category") ?: "فایل‌ها"
             val bytes = call.argument<ByteArray>("bytes") ?: throw IllegalArgumentException("no bytes")
 
             val path = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 saveViaMediaStore(fileName, mimeType, category, bytes)
             } else {
-                saveLegacy(fileName, category, bytes)
+                saveLegacy(fileName, mimeType, category, bytes)
             }
+
+            // حتماً گالری را وادار به اسکن فایل تازه کن (برای اندروید 7 و همه نسخه‌ها)
+            scanFile(path, mimeType)
+
             result.success(path)
         } catch (e: Exception) {
             result.error("SAVE_FAILED", e.message ?: "unknown", null)
         }
     }
 
-    // اندروید ۱۰+ : MediaStore
+    // Android 10+ → MediaStore (بدون نیاز به permission، در گالری نمایش داده می‌شود)
     private fun saveViaMediaStore(
         name: String,
         mime: String,
@@ -85,8 +90,13 @@ class MainActivity : FlutterActivity() {
         return "AirHop/$category/$name"
     }
 
-    // اندروید ۹- : مسیر مستقیم
-    private fun saveLegacy(name: String, category: String, bytes: ByteArray): String {
+    // Android 7-9 → فایل مستقیم + index گالری
+    private fun saveLegacy(
+        name: String,
+        mime: String,
+        category: String,
+        bytes: ByteArray
+    ): String {
         val root = Environment.getExternalStorageDirectory().absolutePath
         val dir = File(root, "AirHop/$category")
         if (!dir.exists()) dir.mkdirs()
@@ -105,5 +115,19 @@ class MainActivity : FlutterActivity() {
 
         FileOutputStream(target).use { it.write(bytes) }
         return target.absolutePath
+    }
+
+    // وادار کردن گالری به اسکن فایل (مخصوص اندروید 7 که MediaStore خودکار آپدیت نمی‌شود)
+    private fun scanFile(path: String, mime: String) {
+        try {
+            MediaScannerConnection.scanFile(
+                this,
+                arrayOf(path),
+                arrayOf(mime),
+                null
+            )
+        } catch (_: Exception) {
+            // ignore — scan is best-effort
+        }
     }
 }
