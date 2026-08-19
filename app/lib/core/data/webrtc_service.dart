@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -23,7 +24,8 @@ class WebRtcService {
   String? _currentFilePath;
   int _currentFileSize = 0;
   int _receivedBytes = 0;
-  final List<int> _buffer = [];
+  IOSink? _sink;
+  File? _tempFile;
 
   final StreamController<TransferProgress> _progress =
       StreamController<TransferProgress>.broadcast();
@@ -125,13 +127,25 @@ class WebRtcService {
 
   Future<void> sendFile(FileMetadata metadata, List<int> content) async {
     if (_p2pReady) {
-      await _sendP2P(metadata, content);
-    } else {
-      await _sendRelay(metadata, content);
+      try {
+        await _sendP2P(metadata, content);
+        return;
+      } catch (e) {
+        // اگر P2P وسط کار از بین رفت، به relay برگرد و دوباره ارسال کن
+        // (به جای اینکه sender به اشتباه 100% نشان دهد یا ارسال fail شود).
+      }
     }
+    await _sendRelay(metadata, content);
   }
 
   Future<void> _sendP2P(FileMetadata metadata, List<int> content) async {
+    // اطمینان از اینکه DataChannel واقعاً باز است؛ در غیر این صورت داده‌ها
+    // بی‌صدا از بین می‌روند و sender به اشتباه 100% نشان می‌دهد.
+    if (_channel == null ||
+        _channel!.state != RTCDataChannelState.RTCDataChannelOpen) {
+      throw StateError('DataChannel باز نیست — ارسال P2P ممکن نیست');
+    }
+
     _channel!.send(RTCDataChannelMessage(
       jsonEncode({'type': 'file-header', 'metadata': metadata.toJson()}),
     ));
@@ -170,9 +184,15 @@ class WebRtcService {
   }
 
   Future<void> _sendChunk(Uint8List data) async {
-    final buffered = _channel!.bufferedAmount;
-    if (buffered != null && buffered > 4 * 1024 * 1024) {
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+    // Backpressure: اگر بافر ارسال پر است، صبر کن تا peer داده را بخواند.
+    // این کار از گم شدن داده و کرش شدن receiver جلوگیری می‌کند.
+    while (_channel!.state == RTCDataChannelState.RTCDataChannelOpen) {
+      final buffered = _channel!.bufferedAmount;
+      if (buffered == null || buffered <= 4 * 1024 * 1024) break;
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+    }
+    if (_channel!.state != RTCDataChannelState.RTCDataChannelOpen) {
+      throw StateError('DataChannel هنگام ارسال بسته شد');
     }
     _channel!.send(RTCDataChannelMessage.fromBinary(data));
     await Future<void>.delayed(Duration.zero);
@@ -186,7 +206,7 @@ class WebRtcService {
       _currentFilePath = metadata.name;
       _currentFileSize = metadata.size;
       _receivedBytes = 0;
-      _buffer.clear();
+      _openTempFile();
     } else if (type == 'file-end') {
       _finalizeFile();
     }
@@ -198,15 +218,25 @@ class WebRtcService {
     _currentFilePath = metadata.name;
     _currentFileSize = metadata.size;
     _receivedBytes = 0;
-    _buffer.clear();
+    _openTempFile();
   }
 
   void _onBinaryChunk(Uint8List bytes) => _appendChunk(bytes);
 
   void _onRelayChunk(Uint8List bytes) => _appendChunk(bytes);
 
+  void _openTempFile() {
+    _sink?.close();
+    _tempFile = File(
+      '${Directory.systemTemp.path}/airhop_recv_${DateTime.now().microsecondsSinceEpoch}.tmp',
+    );
+    _sink = _tempFile!.openWrite();
+  }
+
   void _appendChunk(Uint8List bytes) {
-    _buffer.addAll(bytes);
+    // مستقیم روی دیسک بنویس؛ فایل بزرگ را در RAM نگه نمی‌داریم
+    // (از کرش شدن گوشی‌های قدیمی مثل اندروید 7 جلوگیری می‌کند).
+    _sink?.add(bytes);
     _receivedBytes += bytes.length;
     _progress.add(TransferProgress(
       receivedBytes: _receivedBytes,
@@ -214,16 +244,28 @@ class WebRtcService {
     ));
   }
 
-  void _finalizeFile() {
-    _fileReceived.add(ReceivedFile(
-      fileName: _currentFilePath ?? 'received-file',
-      bytes: Uint8List.fromList(_buffer),
-    ));
+  Future<void> _finalizeFile() async {
+    await _sink?.flush();
+    await _sink?.close();
+    _sink = null;
+
+    final f = _tempFile;
+    _tempFile = null;
+    if (f == null) return;
+
+    final name = _currentFilePath ?? 'received-file';
+
+    // برای فایل‌های بزرگ، مسیر temp را مستقیم عبور بده (بدون بارگذاری در RAM)
+    _fileReceived.add(ReceivedFile(fileName: name, tempFilePath: f.path));
   }
 
   Future<void> dispose() async {
     _signalSub?.cancel();
     _relaySub?.cancel();
+    await _sink?.close();
+    try {
+      if (_tempFile != null) await _tempFile!.delete();
+    } catch (_) {}
     await _channel?.close();
     await _pc?.close();
     await _progress.close();
