@@ -10,10 +10,12 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../config/app_config.dart';
 import '../domain/models.dart';
 
+/// نوع پیام‌های سیگنالینگ بین دو peer.
 enum SignalType {
   offer, answer, ice, ready, welcome, peerLeft, error, deviceInfo, relayHeader, relayEnd, fileAck,
 }
 
+/// یک پیام سیگنالینگ.
 class SignalMessage {
   const SignalMessage(
       {required this.type, this.sdp, this.candidate, this.payload});
@@ -41,6 +43,7 @@ class SignalMessage {
       );
 }
 
+/// نتایج اتصال به سرور سیگنالینگ.
 class RoomInfo {
   const RoomInfo({
     required this.code,
@@ -57,6 +60,7 @@ class RoomInfo {
   final bool roomReady;
 }
 
+/// وب‌سوکت کلاینت به سرور سیگنالینگ، با پشتیبانی از چند سرور (fallback).
 class SignalingService {
   SignalingService({this.server = AppConfig.signalingServer});
 
@@ -71,6 +75,7 @@ class SignalingService {
 
   bool _closedIntentionally = false;
 
+  // نگه‌داشتن آخرین پیام‌های مهم تا اگر مصرف‌کننده دیر subscribe کرد چیزی از دست نرود.
   final List<SignalMessage> _replayed = [];
 
   final StreamController<SignalMessage> _messages =
