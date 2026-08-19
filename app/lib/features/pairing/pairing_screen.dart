@@ -9,9 +9,7 @@ import '../../core/providers.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/airhop_footer.dart';
 import '../../core/widgets/floating_navbar.dart';
-import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/gradient_background.dart';
-import '../../core/widgets/gradient_text.dart';
 import '../send/send_screen.dart';
 import '../transfer/transfer_screen.dart';
 
