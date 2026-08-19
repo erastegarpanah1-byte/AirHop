@@ -23,6 +23,14 @@ class MainActivity : FlutterActivity() {
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "saveFile" -> saveFile(call, result)
+                    "scanFileOnly" -> {
+                        val path = call.argument<String>("path") ?: ""
+                        val mimeType = call.argument<String>("mimeType") ?: "application/octet-stream"
+                        if (path.isNotEmpty()) {
+                            scanFile(path, mimeType)
+                        }
+                        result.success(path)
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -120,12 +128,20 @@ class MainActivity : FlutterActivity() {
     // وادار کردن گالری به اسکن فایل (مخصوص اندروید 7 که MediaStore خودکار آپدیت نمی‌شود)
     private fun scanFile(path: String, mime: String) {
         try {
+            // راه اول: MediaScannerConnection
             MediaScannerConnection.scanFile(
                 this,
                 arrayOf(path),
-                arrayOf(mime),
-                null
-            )
+                arrayOf(mime)
+            ) { actualPath, uri ->
+                // راه دوم: ارسال Broadcast قدیمی مخصوص اندروید ۷ و زیر ۱۰ جهت ثبت سریع در گالری
+                try {
+                    val file = File(actualPath)
+                    val intent = android.content.Intent(android.content.Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+                    intent.data = android.net.Uri.fromFile(file)
+                    sendBroadcast(intent)
+                } catch (_: Exception) {}
+            }
         } catch (_: Exception) {
             // ignore — scan is best-effort
         }

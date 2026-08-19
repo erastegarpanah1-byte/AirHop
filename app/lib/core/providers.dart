@@ -233,17 +233,20 @@ class SessionNotifier extends StateNotifier<SessionState> {
       final f = files[i];
       state = state.copyWith(currentFile: f);
       final content = f.bytes;
-      if (content == null || content.isEmpty) {
-        // بدون بایت واقعی ارسال نکن؛ در غیر این صورت sender به اشتباه
-        // 100% نشان می‌دهد در حالی که هیچ داده‌ای منتقل نشده است.
-        _log('SKIP file (empty bytes): ${f.name}');
-        state = state.copyWith(
-          status: PairingStatus.failed,
-          error: 'فایل «${f.name}» قابل خواندن نبود',
-        );
-        return;
+      // اگر مسیر فایل وجود دارد، دیگر نیازی به بررسی بایت‌های خالی نیست (چون مستقیماً استریم می‌شود)
+      if (f.path != null) {
+        await _webrtc!.sendFile(f, const []);
+      } else {
+        if (content == null || content.isEmpty) {
+          _log('SKIP file (empty bytes): ${f.name}');
+          state = state.copyWith(
+            status: PairingStatus.failed,
+            error: 'فایل «${f.name}» قابل خواندن نبود',
+          );
+          return;
+        }
+        await _webrtc!.sendFile(f, content);
       }
-      await _webrtc!.sendFile(f, content);
     }
 
     // ثبت تاریخچه برای هر فایل ارسال‌شده
@@ -266,23 +269,30 @@ class SessionNotifier extends StateNotifier<SessionState> {
         size: metadata.size,
         mimeType: metadata.mimeType,
         bytes: content as dynamic,
+        path: metadata.path,
       ),
     ]);
   }
 
   void reset() {
-    _log('=== reset ===');
     _eventsSub?.cancel();
     _peerDeviceSub?.cancel();
     _messagesSub?.cancel();
     _eventsSub = null;
     _peerDeviceSub = null;
     _messagesSub = null;
-    state = const SessionState();
-    _signaling?.dispose();
-    _webrtc?.dispose();
-    _signaling = null;
+
     _webrtc = null;
+    _signaling?.close();
+    _signaling = null;
+
+    state = const SessionState();
+  }
+
+  @override
+  void dispose() {
+    reset();
+    super.dispose();
   }
 }
 

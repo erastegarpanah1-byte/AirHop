@@ -53,7 +53,7 @@ class TransferScreen extends ConsumerWidget {
                     children: [
                       const SizedBox(height: 8),
                       Text(
-                        isDone ? 'انتقال کامل شد' : 'در حال ارسال...',
+                        isDone ? 'ارسال شد' : 'در حال ارسال...',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           color: AppColors.textPrimary,
@@ -226,40 +226,6 @@ class _DeviceStreamState extends State<_DeviceStream>
   }
 }
 
-/// نقاش جریان ذرات بین دو دستگاه.
-class _ParticleStreamPainter extends CustomPainter {
-  _ParticleStreamPainter({required this.progress});
-
-  final double progress;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final centerY = size.height / 2;
-    final linePaint = Paint()
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round
-      ..shader = const LinearGradient(
-        colors: [AppColors.primary, AppColors.accent],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    canvas.drawLine(Offset(8, centerY), Offset(size.width - 8, centerY), linePaint);
-
-    for (var i = 0; i < 5; i++) {
-      final p = (progress + i / 5) % 1.0;
-      final x = 8 + p * (size.width - 16);
-      final opacity = math.sin(p * math.pi).clamp(0.0, 1.0);
-      canvas.drawCircle(
-        Offset(x, centerY),
-        2.5,
-        Paint()..color = AppColors.primarySoft.withOpacity(opacity),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticleStreamPainter oldDelegate) =>
-      oldDelegate.progress != progress;
-}
-
 class _DeviceIcon extends StatelessWidget {
   const _DeviceIcon({
     required this.icon,
@@ -280,7 +246,11 @@ class _DeviceIcon extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: gradient,
         boxShadow: [
-          BoxShadow(color: glow.withOpacity(0.4), blurRadius: 18),
+          BoxShadow(
+            color: glow.withOpacity(0.35),
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
         ],
       ),
       child: Icon(icon, color: Colors.white, size: 24),
@@ -288,7 +258,36 @@ class _DeviceIcon extends StatelessWidget {
   }
 }
 
-/// حلقه پیشرفت دایره‌ای گرادیانی.
+class _ParticleStreamPainter extends CustomPainter {
+  _ParticleStreamPainter({required this.progress});
+
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = AppColors.accentLight.withOpacity(0.8)
+      ..style = PaintingStyle.fill;
+
+    final r = math.Random(12345);
+
+    for (var i = 0; i < 8; i++) {
+      final speed = 0.6 + r.nextDouble() * 0.4;
+      final offset = (progress * speed + (i * 0.15)) % 1.0;
+
+      final x = size.width * offset;
+      final y = size.height / 2 + math.sin(offset * math.pi * 2 + i) * 6;
+
+      canvas.drawCircle(Offset(x, y), 2.2 + r.nextDouble() * 1.5, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ParticleStreamPainter oldDelegate) =>
+      oldDelegate.progress != progress;
+}
+
+/// رینگ پیشرفت دایره‌ای زیبا با شتاب ملایم.
 class _ProgressRing extends StatelessWidget {
   const _ProgressRing({
     required this.percent,
@@ -302,35 +301,66 @@ class _ProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = 150.0;
+    final displayPercent = done ? 100 : percent;
+
     return SizedBox(
-      width: size,
-      height: size,
+      width: 154,
+      height: 154,
       child: Stack(
         alignment: Alignment.center,
         children: [
+          ShaderMask(
+            shaderCallback: (rect) {
+              return AppColors.purpleGradient.createShader(rect);
+            },
+            child: Container(
+              width: 146,
+              height: 146,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withOpacity(0.04), width: 1.5),
+              ),
+            ),
+          ),
           SizedBox(
-            width: size,
-            height: size,
-            child: CustomPaint(
-              painter: _RingPainter(percent: percent),
+            width: 130,
+            height: 130,
+            child: CircularProgressIndicator(
+              value: displayPercent / 100.0,
+              strokeWidth: 9.0,
+              backgroundColor: Colors.white.withOpacity(0.06),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accentLight),
             ),
           ),
           Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              GradientText(
-                done ? '100%' : '$percent%',
-                style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w800),
-              ),
-              Text(
-                done ? 'کامل شد' : 'در حال ارسال',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 11.5,
+              if (done)
+                const Icon(
+                  Icons.check_circle_rounded,
+                  color: AppColors.accentLight,
+                  size: 38,
+                )
+              else ...[
+                GradientText(
+                  '$displayPercent%',
+                  gradient: AppColors.purpleGradient,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 1),
+                Text(
+                  active ? 'در حال دریافت' : 'در انتظار',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ],
           ),
         ],
@@ -339,63 +369,12 @@ class _ProgressRing extends StatelessWidget {
   }
 }
 
-class _RingPainter extends CustomPainter {
-  _RingPainter({required this.percent});
-
-  final int percent;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 10;
-    const stroke = 11.0;
-
-    final bgPaint = Paint()
-      ..color = AppColors.glassBgStrong
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = stroke;
-    canvas.drawCircle(center, radius, bgPaint);
-
-    final sweep = (percent / 100) * 2 * math.pi;
-    if (sweep > 0) {
-      final rect = Rect.fromCircle(center: center, radius: radius);
-      final progressPaint = Paint()
-        ..shader = const SweepGradient(
-          startAngle: -math.pi / 2,
-          endAngle: 3 * math.pi / 2,
-          colors: [
-            AppColors.accent,
-            AppColors.primary,
-            AppColors.primarySoft,
-            AppColors.accent,
-          ],
-        ).createShader(rect)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = stroke
-        ..strokeCap = StrokeCap.round;
-      canvas.drawArc(rect, -math.pi / 2, sweep, false, progressPaint);
-
-      final tipAngle = -math.pi / 2 + sweep;
-      final tip = Offset(
-        center.dx + radius * math.cos(tipAngle),
-        center.dy + radius * math.sin(tipAngle),
-      );
-      canvas.drawCircle(
-        tip,
-        6,
-        Paint()..color = AppColors.primarySoft.withOpacity(0.8),
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RingPainter oldDelegate) =>
-      oldDelegate.percent != percent;
-}
-
-/// ردیف آمار (آیکون + مقدار + برچسب).
 class _StatRow extends StatelessWidget {
-  const _StatRow({required this.icon, required this.label, required this.value});
+  const _StatRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   final IconData icon;
   final String label;
@@ -403,21 +382,39 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.accent, size: 20),
-        const SizedBox(height: 6),
-        GradientText(
-          value,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          label,
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: AppColors.accentLight, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

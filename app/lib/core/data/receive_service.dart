@@ -44,23 +44,7 @@ class ReceiveService {
     final ext = fileName.contains('.')
         ? fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase()
         : '';
-    const map = <String, String>{
-      'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',
-      'gif': 'image/gif', 'webp': 'image/webp', 'bmp': 'image/bmp',
-      'heic': 'image/heic', 'heif': 'image/heif', 'svg': 'image/svg+xml',
-      'mp4': 'video/mp4', 'mkv': 'video/x-matroska', 'mov': 'video/quicktime',
-      'avi': 'video/x-msvideo', 'webm': 'video/webm', '3gp': 'video/3gpp',
-      'm4v': 'video/x-m4v', 'mp3': 'audio/mpeg', 'wav': 'audio/wav',
-      'aac': 'audio/aac', 'ogg': 'audio/ogg', 'm4a': 'audio/mp4',
-      'flac': 'audio/flac', 'opus': 'audio/opus', 'amr': 'audio/amr',
-      'pdf': 'application/pdf', 'zip': 'application/zip',
-      'txt': 'text/plain', 'doc': 'application/msword',
-      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'xls': 'application/vnd.ms-excel',
-      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      'apk': 'application/vnd.android.package-archive',
-      'json': 'application/json', 'csv': 'text/csv', 'html': 'text/html',
-    };
+    const map = <String, String>{\n      'jpg': 'image/jpeg', 'jpeg': 'image/jpeg', 'png': 'image/png',\n      'gif': 'image/gif', 'webp': 'image/webp', 'bmp': 'image/bmp',\n      'heic': 'image/heic', 'heif': 'image/heif', 'svg': 'image/svg+xml',\n      'mp4': 'video/mp4', 'mkv': 'video/x-matroska', 'mov': 'video/quicktime',\n      'avi': 'video/x-msvideo', 'webm': 'video/webm', '3gp': 'video/3gpp',\n      'm4v': 'video/x-m4v', 'mp3': 'audio/mpeg', 'wav': 'audio/wav',\n      'aac': 'audio/aac', 'ogg': 'audio/ogg', 'm4a': 'audio/mp4',\n      'flac': 'audio/flac', 'opus': 'audio/opus', 'amr': 'audio/amr',\n      'pdf': 'application/pdf', 'zip': 'application/zip',\n      'txt': 'text/plain', 'doc': 'application/msword',\n      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',\n      'xls': 'application/vnd.ms-excel',\n      'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',\n      'apk': 'application/vnd.android.package-archive',\n      'json': 'application/json', 'csv': 'text/csv', 'html': 'text/html',\n    };
     return map[ext] ?? 'application/octet-stream';
   }
 
@@ -96,8 +80,8 @@ class ReceiveService {
     return _saveToDownloads(fileName: fileName, bytes: bytes, category: category);
   }
 
-  /// فایل را از یک مسیر موقت (فایل روی دیسک) ذخیره کن.
-  /// برای فایل‌های بزرگ به کار می‌رود تا تا حد امکان از بارگذاری کل فایل در RAM اجتناب شود.
+  /// فایل را از یک مسیر موقت (فایل روی دیسک) با stream-copy ذخیره کن.
+  /// برای فایل‌های بزرگ به کار می‌رود تا کل فایل در RAM بارگذاری نشود.
   Future<String> saveFromTempFile({
     required String fileName,
     required String tempFilePath,
@@ -107,6 +91,46 @@ class ReceiveService {
     final mime = mimeType ?? _mimeFor(fileName);
 
     if (Platform.isAndroid) {
+      // برای اندروید ۷، ۸، ۹ کپی مستقیم با بافر انجام می‌دهیم تا رم پر نشود و کرش نکند
+      final status = await Permission.storage.request();
+      if (status.isGranted) {
+        final extDir = await getExternalStorageDirectory();
+        final root = extDir != null ? extDir.path.split('Android')[0] : '/storage/emulated/0';
+        final dir = Directory('$root/AirHop/$category');
+        if (!await dir.exists()) await dir.create(recursive: true);
+        var path = '${dir.path}/$fileName';
+
+        final file = File(path);
+        if (await file.exists()) {
+          final dot = fileName.lastIndexOf('.');
+          final ext = dot >= 0 ? fileName.substring(dot) : '';
+          final base = dot >= 0 ? fileName.substring(0, dot) : fileName;
+          var i = 1;
+          while (await File(path).exists()) {
+            path = '${dir.path}/${base}_($i)$ext';
+            i++;
+          }
+        }
+        
+        // کپی استریمی با بافر بسیار کوچک (۶۴ کیلوبایت) برای جلوگیری از کرش رم (OOM) در فایل‌های بزرگ روی اندروید ۷
+        final source = File(tempFilePath);
+        final dest = File(path);
+        final ios = source.openRead();
+        final iosSink = dest.openWrite();
+        await ios.pipe(iosSink);
+        
+        // فراخوانی کانال بومی صرفاً برای اسکن گالری (بدون انتقال بایت‌های سنگین از حافظه Dart به Java)
+        try {
+          await _channel.invokeMethod<String>('scanFileOnly', {
+            'path': path,
+            'mimeType': mime,
+          });
+        } catch (_) {}
+        
+        return path;
+      }
+
+      // اندروید ۱۰+ (از طریق مدیااستور اگر فایل کوچک باشد یا کانال استریمی)
       try {
         final bytes = await File(tempFilePath).readAsBytes();
         final path = await _channel.invokeMethod<String>('saveFile', {
@@ -116,16 +140,8 @@ class ReceiveService {
           'bytes': bytes,
         });
         if (path != null && path.isNotEmpty) return path;
-      } catch (_) {
-        // fallback
-      }
-      return _saveLegacyDart(
-        fileName: fileName,
-        bytes: await File(tempFilePath).readAsBytes(),
-        category: category,
-      );
+      } catch (_) {}
     }
-
     // دسکتاپ: کپی مستقیم بدون بارگذاری کل فایل
     final downloads = await getDownloadsDirectory();
     final base = downloads?.path ?? (await getApplicationDocumentsDirectory()).path;

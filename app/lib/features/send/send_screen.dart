@@ -1,1 +1,335 @@
-aW1wb3J0ICdkYXJ0OmlvJzsKaW1wb3J0ICdkYXJ0OnR5cGVkX2RhdGEnOwoKaW1wb3J0ICdwYWNrYWdlOmNyb3NzX2ZpbGUvY3Jvc3NfZmlsZS5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOmRlc2t0b3BfZHJvcC9kZXNrdG9wX2Ryb3AuZGFydCc7CmltcG9ydCAncGFja2FnZTpmaWxlX3BpY2tlci9maWxlX3BpY2tlci5kYXJ0JzsKaW1wb3J0ICdwYWNrYWdlOmZsdXR0ZXIvbWF0ZXJpYWwuZGFydCc7CmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3JpdmVycG9kL2ZsdXR0ZXJfcml2ZXJwb2QuZGFydCc7CmltcG9ydCAncGFja2FnZTp1dWlkL3V1aWQuZGFydCc7CgppbXBvcnQgJy4uLy4uL2NvcmUvZG9tYWluL21vZGVscy5kYXJ0JzsKaW1wb3J0ICcuLi8uLi9jb3JlL3Byb3ZpZGVycy5kYXJ0JzsKaW1wb3J0ICcuLi8uLi9jb3JlL3RoZW1lL2FwcF9jb2xvcnMuZGFydCc7CmltcG9ydCAnLi4vLi4vY29yZS91dGlscy9maWxlX3VpLmRhcnQnOwppbXBvcnQgJy4uLy4uL2NvcmUvd2lkZ2V0cy9haXJob3BfZm9vdGVyLmRhcnQnOwppbXBvcnQgJy4uLy4uL2NvcmUvd2lkZ2V0cy9maWxlX2NhcmQuZGFydCc7CmltcG9ydCAnLi4vLi4vY29yZS93aWRnZXRzL2Zsb2F0aW5nX25hdmJhci5kYXJ0JzsKaW1wb3J0ICcuLi8uLi9jb3JlL3dpZGdldHMvZ2xhc3NfYnV0dG9uLmRhcnQnOwppbXBvcnQgJy4uLy4uL2NvcmUvd2lkZ2V0cy9nbGFzc19jYXJkLmRhcnQnOwppbXBvcnQgJy4uLy4uL2NvcmUvd2lkZ2V0cy9ncmFkaWVudF9iYWNrZ3JvdW5kLmRhcnQnOwppbXBvcnQgJy4uL3RyYW5zZmVyL3RyYW5zZmVyX3NjcmVlbi5kYXJ0JzsKCi8vLyDYtdmB2K3ZhyDYp9ix2LPYp9mEINmB2KfbjNmEICjYotm+2YTZiNivKS4KY2xhc3MgU2VuZFNjcmVlbiBleHRlbmRzIENvbnN1bWVyU3RhdGVmdWxXaWRnZXQgewogIGNvbnN0IFNlbmRTY3JlZW4oe3N1cGVyLmtleX0pOwoKICBAb3ZlcnJpZGUKICBDb25zdW1lclN0YXRlPFNlbmRTY3JlZW4+IGNyZWF0ZVN0YXRlKCkgPT4gX1NlbmRTY3JlZW5TdGF0ZSgpOwp9CgpjbGFzcyBfU2VuZFNjcmVlblN0YXRlIGV4dGVuZHMgQ29uc3VtZXJTdGF0ZTxTZW5kU2NyZWVuPiB7CiAgZmluYWwgTGlzdDxGaWxlTWV0YWRhdGE+IF9zZWxlY3RlZCA9IFtdOwogIGJvb2wgX3NlbmRpbmcgPSBmYWxzZTsKCiAgRnV0dXJlPHZvaWQ+IF9waWNrRmlsZXMoKSBhc3luYyB7CiAgICB0cnkgewogICAgICBmaW5hbCByZXN1bHQgPSBhd2FpdCBGaWxlUGlja2VyLnBsYXRmb3JtLnBpY2tGaWxlcygKICAgICAgICBhbGxvd011bHRpcGxlOiB0cnVlLAogICAgICAgIHdpdGhEYXRhOiB0cnVlLAogICAgICApOwogICAgICBpZiAocmVzdWx0ICE9IG51bGwgJiYgcmVzdWx0LmZpbGVzLmlzTm90RW1wdHkpIHsKICAgICAgICBmb3IgKGZpbmFsIGYgaW4gcmVzdWx0LmZpbGVzKSB7CiAgICAgICAgICBVaW50OExpc3Q/IGJ5dGVzID0gZi5ieXRlczsKICAgICAgICAgIC8vIGZpbGVfcGlja2VyINqv2KfZh9uMINio2LHYp9uMINmB2KfbjNmE4oCM2YfYp9uMINio2LLYsdqvIGJ5dGVzINix2KcgbnVsbCDYqNix2YXbjOKAjNqv2LHYr9in2YbYr9ibCiAgICAgICAgICAvLyDYr9ixINin24zZhiDYtdmI2LHYqiDZhdiz2KrZgtuM2YUg2KfYsiDZhdiz24zYsSDZgdin24zZhCDZhduM4oCM2K7ZiNin2YbbjNmFINiq2Kcg2YHYp9uM2YQg2K7Yp9mE24wg2KfYsdiz2KfZhCDZhti02YjYry4KICAgICAgICAgIGlmIChieXRlcyA9PSBudWxsICYmIGYucGF0aCAhPSBudWxsKSB7CiAgICAgICAgICAgIHRyeSB7CiAgICAgICAgICAgICAgYnl0ZXMgPSBhd2FpdCBGaWxlKGYucGF0aCEpLnJlYWRBc0J5dGVzKCk7CiAgICAgICAgICAgIH0gY2F0Y2ggKF8pIHsKICAgICAgICAgICAgICBieXRlcyA9IG51bGw7CiAgICAgICAgICAgIH0KICAgICAgICAgIH0KICAgICAgICAgIGlmICghbW91bnRlZCkgcmV0dXJuOwogICAgICAgICAgc2V0U3RhdGUoKCkgewogICAgICAgICAgICBfc2VsZWN0ZWQuYWRkKEZpbGVNZXRhZGF0YSgKICAgICAgICAgICAgICBpZDogY29uc3QgVXVpZCgpLnY0KCksCiAgICAgICAgICAgICAgbmFtZTogZi5uYW1lLAogICAgICAgICAgICAgIHNpemU6IGYuc2l6ZSwKICAgICAgICAgICAgICBtaW1lVHlwZTogZi5leHRlbnNpb24sCiAgICAgICAgICAgICAgYnl0ZXM6IGJ5dGVzLAogICAgICAgICAgICApKTsKICAgICAgICAgIH0pOwogICAgICAgIH0KICAgICAgfQogICAgfSBjYXRjaCAoZSkgewogICAgICBpZiAobW91bnRlZCkgewogICAgICAgIFNjYWZmb2xkTWVzc2VuZ2VyLm9mKGNvbnRleHQpLnNob3dTbmFja0JhcigKICAgICAgICAgIFNuYWNrQmFyKGNvbnRlbnQ6IFRleHQoJ9iu2LfYpyDYr9ixINin2YbYqtiu2KfYqCDZgdin24zZhDogJGUnKSksCiAgICAgICAgKTsKICAgICAgfQogICAgfQogIH0KCiAgRnV0dXJlPHZvaWQ+IF9hZGREcm9wcGVkRmlsZXMoTGlzdDxYRmlsZT4gZHJvcHBlZCkgYXN5bmMgewogICAgZm9yIChmaW5hbCBmaWxlIGluIGRyb3BwZWQpIHsKICAgICAgVWludDhMaXN0PyBieXRlczsKICAgICAgaW50IHNpemUgPSAwOwogICAgICB0cnkgewogICAgICAgIGZpbmFsIGRhdGEgPSBhd2FpdCBmaWxlLnJlYWRBc0J5dGVzKCk7CiAgICAgICAgYnl0ZXMgPSBkYXRhOwogICAgICAgIHNpemUgPSBkYXRhLmxlbmd0aDsKICAgICAgfSBjYXRjaCAoXykgewogICAgICAgIHRyeSB7IHNpemUgPSBhd2FpdCBmaWxlLmxlbmd0aCgpOyB9IGNhdGNoIChfKSB7IHNpemUgPSAwOyB9CiAgICAgIH0KICAgICAgaWYgKCFtb3VudGVkKSByZXR1cm47CiAgICAgIHNldFN0YXRlKCgpIHsKICAgICAgICBfc2VsZWN0ZWQuYWRkKEZpbGVNZXRhZGF0YSgKICAgICAgICAgIGlkOiBjb25zdCBVdWlkKCkudjQoKSwKICAgICAgICAgIG5hbWU6IGZpbGUubmFtZSwKICAgICAgICAgIHNpemU6IHNpemUsCiAgICAgICAgICBtaW1lVHlwZTogRmlsZVVpLmV4dGVuc2lvbk9mKGZpbGUubmFtZSksCiAgICAgICAgICBieXRlczogYnl0ZXMsCiAgICAgICAgKSk7CiAgICAgIH0pOwogICAgfQogIH0KCiAgRnV0dXJlPHZvaWQ+IF9zZW5kKCkgYXN5bmMgewogICAgaWYgKF9zZWxlY3RlZC5pc0VtcHR5KSByZXR1cm47CiAgICBzZXRTdGF0ZSgoKSA9PiBfc2VuZGluZyA9IHRydWUpOwogICAgYXdhaXQgcmVmLnJlYWQoc2Vzc2lvblByb3ZpZGVyLm5vdGlmaWVyKS5zZW5kRmlsZXMoTGlzdC5mcm9tKF9zZWxlY3RlZCkpOwogICAgaWYgKG1vdW50ZWQpIHsKICAgICAgTmF2aWdhdG9yLnB1c2hSZXBsYWNlbWVudCgKICAgICAgICBjb250ZXh0LAogICAgICAgIE1hdGVyaWFsUGFnZVJvdXRlKGJ1aWxkZXI6IChfKSA9PiBjb25zdCBUcmFuc2ZlclNjcmVlbigpKSwKICAgICAgKTsKICAgIH0KICB9CgogIEBvdmVycmlkZQogIFdpZGdldCBidWlsZChCdWlsZENvbnRleHQgY29udGV4dCkgewogICAgZmluYWwgc2Vzc2lvbiA9IHJlZi53YXRjaChzZXNzaW9uUHJvdmlkZXIpOwogICAgZmluYWwgcGVlciA9IHNlc3Npb24ucGVlckRldmljZTsKICAgIGZpbmFsIHBlZXJOYW1lID0gcGVlciAhPSBudWxsICYmIHBlZXIubmFtZS5pc05vdEVtcHR5ID8gcGVlci5uYW1lIDogJ9iv2LPYqtqv2KfZhyDZhdmC2LXYryc7CgogICAgcmV0dXJuIFNjYWZmb2xkKAogICAgICBib2R5OiBEcm9wVGFyZ2V0KAogICAgICAgIG9uRHJhZ0RvbmU6IChkZXRhaWxzKSA9PiBfYWRkRHJvcHBlZEZpbGVzKGRldGFpbHMuZmlsZXMpLAogICAgICAgIGNoaWxkOiBHcmFkaWVudEJhY2tncm91bmQoCiAgICAgICAgICBjaGlsZDogU2FmZUFyZWEoCiAgICAgICAgICAgIGNoaWxkOiBDb2x1bW4oCiAgICAgICAgICAgICAgY2hpbGRyZW46IFsKICAgICAgICAgICAgICAgIEZsb2F0aW5nTmF2YmFyKAogICAgICAgICAgICAgICAgICB0aXRsZTogJ9in2LHYs9in2YQg2YHYp9uM2YQnLAogICAgICAgICAgICAgICAgICBvbkJhY2s6ICgpID0+IE5hdmlnYXRvci5wb3AoY29udGV4dCksCiAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgRXhwYW5kZWQoCiAgICAgICAgICAgICAgICAgIGNoaWxkOiBTaW5nbGVDaGlsZFNjcm9sbFZpZXcoCiAgICAgICAgICAgICAgICAgICAgcGh5c2ljczogY29uc3QgQm91bmNpbmdTY3JvbGxQaHlzaWNzKCksCiAgICAgICAgICAgICAgICAgICAgcGFkZGluZzogY29uc3QgRWRnZUluc2V0cy5zeW1tZXRyaWMoaG9yaXpvbnRhbDogMjIsIHZlcnRpY2FsOiA0KSwKICAgICAgICAgICAgICAgICAgICBjaGlsZDogQ29sdW1uKAogICAgICAgICAgICAgICAgICAgICAgY3Jvc3NBeGlzQWxpZ25tZW50OiBDcm9zc0F4aXNBbGlnbm1lbnQuc3RhcnQsCiAgICAgICAgICAgICAgICAgICAgICBjaGlsZHJlbjogWwogICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBTaXplZEJveChoZWlnaHQ6IDgpLAogICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBUZXh0KAogICAgICAgICAgICAgICAgICAgICAgICAgICfYp9ix2LPYp9mEINmB2KfbjNmEJywKICAgICAgICAgICAgICAgICAgICAgICAgICB0ZXh0QWxpZ246IFRleHRBbGlnbi5jZW50ZXIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgc3R5bGU6IFRleHRTdHlsZSgKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbG9yOiBBcHBDb2xvcnMudGV4dFByaW1hcnksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBmb250U2l6ZTogMjIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBmb250V2VpZ2h0OiBGb250V2VpZ2h0Lnc4MDAsCiAgICAgICAgICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiA0KSwKICAgICAgICAgICAgICAgICAgICAgICAgVGV4dCgKICAgICAgICAgICAgICAgICAgICAgICAgICAn2K/Yp9ix24wg2KjZhyDCqyRwZWVyTmFtZcK7INmF24zigIzZgdix2LPYqtuMJywKICAgICAgICAgICAgICAgICAgICAgICAgICB0ZXh0QWxpZ246IFRleHRBbGlnbi5jZW50ZXIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgc3R5bGU6IGNvbnN0IFRleHRTdHlsZSgKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbG9yOiBBcHBDb2xvcnMudGV4dFNlY29uZGFyeSwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZvbnRTaXplOiAxMywKICAgICAgICAgICAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBTaXplZEJveChoZWlnaHQ6IDE2KSwKCiAgICAgICAgICAgICAgICAgICAgICAgIGlmIChfc2VsZWN0ZWQuaXNFbXB0eSkgLi4uWwogICAgICAgICAgICAgICAgICAgICAgICAgIF9Ecm9wWm9uZShvblRhcDogX3BpY2tGaWxlcyksCiAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiAxOCksCgogICAgICAgICAgICAgICAgICAgICAgICAgIF9TZWN0aW9uRGl2aWRlcih0ZXh0OiAn2KfZhtmI2KfYuSDZgdin24zZhOKAjNmH2KfbjCDZvti02KrbjNio2KfZhtuM4oCM2LTYr9mHJyksCiAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiAxMiksCiAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgX0ZpbGVUeXBlR3JpZCgpLAogICAgICAgICAgICAgICAgICAgICAgICBdIGVsc2UgLi4uWwogICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IFRleHQoCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAn2YHYp9uM2YTigIzZh9in24wg2KfZhtiq2K7Yp9io4oCM2LTYr9mHJywKICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0eWxlOiBUZXh0U3R5bGUoCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbG9yOiBBcHBDb2xvcnMudGV4dFByaW1hcnksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGZvbnRTaXplOiAxNiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZm9udFdlaWdodDogRm9udFdlaWdodC53NzAwLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IFNpemVkQm94KGhlaWdodDogMTApLAogICAgICAgICAgICAgICAgICAgICAgICAgIGZvciAodmFyIGkgPSAwOyBpIDwgX3NlbGVjdGVkLmxlbmd0aDsgaSsrKSAuLi5bCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBGaWxlQ2FyZCgKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgbmFtZTogX3NlbGVjdGVkW2ldLm5hbWUsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNpemU6IF9zZWxlY3RlZFtpXS5zaXplLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvblJlbW92ZTogKCkgPT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHNldFN0YXRlKCgpID0+IF9zZWxlY3RlZC5yZW1vdmVBdChpKSksCiAgICAgICAgICAgICAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiA4KSwKICAgICAgICAgICAgICAgICAgICAgICAgICBdLAogICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnN0IFNpemVkQm94KGhlaWdodDogNiksCiAgICAgICAgICAgICAgICAgICAgICAgICAgR2xhc3NCdXR0b24oCiAgICAgICAgICAgICAgICAgICAgICAgICAgICBsYWJlbDogX3NlbmRpbmcgPyAn2K/YsSDYrdin2YQg2KfYsdiz2KfZhC4uLicgOiAn2KfYsdiz2KfZhCDZgdin24zZhOKAjNmH2KcnLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgaWNvbjogSWNvbnMuc2VuZF9yb3VuZGVkLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgaGVpZ2h0OiA1NiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgIG9uUHJlc3NlZDogX3NlbmRpbmcgPyBudWxsIDogX3NlbmQsCiAgICAgICAgICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICAgICAgICAgXSwKICAgICAgICAgICAgICAgICAgICAgIF0sCiAgICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICAgKSwKICAgICAgICAgICAgICAgICksCiAgICAgICAgICAgICAgICBjb25zdCBBaXJob3BGb290ZXIoKSwKICAgICAgICAgICAgICBdLAogICAgICAgICAgICApLAogICAgICAgICAgKSwKICAgICAgICApLAogICAgICApLAogICAgKTsKICB9Cn0KCi8vLyBEcm9wIHpvbmUg2KjYstix2q8g2KjYpyDYrti34oCM2obbjNmGLgpjbGFzcyBfRHJvcFpvbmUgZXh0ZW5kcyBTdGF0ZWxlc3NXaWRnZXQgewogIGNvbnN0IF9Ecm9wWm9uZSh7cmVxdWlyZWQgdGhpcy5vblRhcH0pOwoKICBmaW5hbCBWb2lkQ2FsbGJhY2sgb25UYXA7CgogIEBvdmVycmlkZQogIFdpZGdldCBidWlsZChCdWlsZENvbnRleHQgY29udGV4dCkgewogICAgcmV0dXJuIEdlc3R1cmVEZXRlY3RvcigKICAgICAgb25UYXA6IG9uVGFwLAogICAgICBjaGlsZDogR2xhc3NDYXJkKAogICAgICAgIHBhZGRpbmc6IGNvbnN0IEVkZ2VJbnNldHMuc3ltbWV0cmljKHZlcnRpY2FsOiAyOCwgaG9yaXpvbnRhbDogMjQpLAogICAgICAgIGNoaWxkOiBDb2x1bW4oCiAgICAgICAgICBjaGlsZHJlbjogWwogICAgICAgICAgICBDb250YWluZXIoCiAgICAgICAgICAgICAgd2lkdGg6IDYwLAogICAgICAgICAgICAgIGhlaWdodDogNjAsCiAgICAgICAgICAgICAgZGVjb3JhdGlvbjogQm94RGVjb3JhdGlvbigKICAgICAgICAgICAgICAgIHNoYXBlOiBCb3hTaGFwZS5jaXJjbGUsCiAgICAgICAgICAgICAgICBncmFkaWVudDogQXBwQ29sb3JzLmJsdWVHcmFkaWVudCwKICAgICAgICAgICAgICAgIGJveFNoYWRvdzogWwogICAgICAgICAgICAgICAgICBCb3hTaGFkb3coCiAgICAgICAgICAgICAgICAgICAgY29sb3I6IEFwcENvbG9ycy5nbG93Qmx1ZS53aXRoT3BhY2l0eSgwLjUpLAogICAgICAgICAgICAgICAgICAgIGJsdXJSYWRpdXM6IDI0LAogICAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgXSwKICAgICAgICAgICAgICApLAogICAgICAgICAgICAgIGNoaWxkOiBjb25zdCBJY29uKEljb25zLmNsb3VkX3VwbG9hZF9yb3VuZGVkLAogICAgICAgICAgICAgICAgICBjb2xvcjogQ29sb3JzLndoaXRlLCBzaXplOiAzMCksCiAgICAgICAgICAgICksCiAgICAgICAgICAgIGNvbnN0IFNpemVkQm94KGhlaWdodDogMTQpLAogICAgICAgICAgICBjb25zdCBUZXh0KAogICAgICAgICAgICAgICfZgdin24zZhCDYsdinINio2qnYtNuM2K8g24zYpyDZhNmF2LMg2qnZhtuM2K8nLAogICAgICAgICAgICAgIHRleHRBbGlnbjogVGV4dEFsaWduLmNlbnRlciwKICAgICAgICAgICAgICBzdHlsZTogVGV4dFN0eWxlKAogICAgICAgICAgICAgICAgY29sb3I6IEFwcENvbG9ycy50ZXh0UHJpbWFyeSwKICAgICAgICAgICAgICAgIGZvbnRTaXplOiAxNSwKICAgICAgICAgICAgICAgIGZvbnRXZWlnaHQ6IEZvbnRXZWlnaHQudzcwMCwKICAgICAgICAgICAgICApLAogICAgICAgICAgICApLAogICAgICAgICAgICBjb25zdCBTaXplZEJveChoZWlnaHQ6IDQpLAogICAgICAgICAgICBjb25zdCBUZXh0KAogICAgICAgICAgICAgICfZgdin24zZhOKAjNmH2KfbjCDYrtmI2K8g2LHYpyDYp9uM2YbYrNinINix2YfYpyDaqdmG24zYrycsCiAgICAgICAgICAgICAgdGV4dEFsaWduOiBUZXh0QWxpZ24uY2VudGVyLAogICAgICAgICAgICAgIHN0eWxlOiBUZXh0U3R5bGUoY29sb3I6IEFwcENvbG9ycy50ZXh0U2Vjb25kYXJ5LCBmb250U2l6ZTogMTIpLAogICAgICAgICAgICApLAogICAgICAgICAgXSwKICAgICAgICApLAogICAgICApLAogICAgKTsKICB9Cn0KCi8vLyDYrNiv2KfaqdmG2YbYr9mHINio2Kcg2K7Yt9mI2Lcg2YbZgti32YfigIzahtuM2YYg2qnZhtin2LHbjC4KY2xhc3MgX1NlY3Rpb25EaXZpZGVyIGV4dGVuZHMgU3RhdGVsZXNzV2lkZ2V0IHsKICBjb25zdCBfU2VjdGlvbkRpdmlkZXIoe3JlcXVpcmVkIHRoaXMudGV4dH0pOwoKICBmaW5hbCBTdHJpbmcgdGV4dDsKCiAgQG92ZXJyaWRlCiAgV2lkZ2V0IGJ1aWxkKEJ1aWxkQ29udGV4dCBjb250ZXh0KSB7CiAgICByZXR1cm4gUm93KAogICAgICBjaGlsZHJlbjogWwogICAgICAgIEV4cGFuZGVkKAogICAgICAgICAgY2hpbGQ6IENvbnRhaW5lcihoZWlnaHQ6IDEsIGNvbG9yOiBBcHBDb2xvcnMuZ2xhc3NCb3JkZXIpLAogICAgICAgICksCiAgICAgICAgUGFkZGluZygKICAgICAgICAgIHBhZGRpbmc6IGNvbnN0IEVkZ2VJbnNldHMuc3ltbWV0cmljKGhvcml6b250YWw6IDEyKSwKICAgICAgICAgIGNoaWxkOiBUZXh0KAogICAgICAgICAgICB0ZXh0LAogICAgICAgICAgICBzdHlsZTogY29uc3QgVGV4dFN0eWxlKAogICAgICAgICAgICAgIGNvbG9yOiBBcHBDb2xvcnMudGV4dFNlY29uZGFyeSwKICAgICAgICAgICAgICBmb250U2l6ZTogMTMsCiAgICAgICAgICAgICAgZm9udFdlaWdodDogRm9udFdlaWdodC53NjAwLAogICAgICAgICAgICApLAogICAgICAgICAgKSwKICAgICAgICApLAogICAgICAgIEV4cGFuZGVkKAogICAgICAgICAgY2hpbGQ6IENvbnRhaW5lcihoZWlnaHQ6IDEsIGNvbG9yOiBBcHBDb2xvcnMuZ2xhc3NCb3JkZXIpLAogICAgICAgICksCiAgICAgIF0sCiAgICApOwogIH0KfQoKLy8vINi02KjaqdmHINu0INqp2KfYsdiq2Ycg2KfZhtmI2KfYuSDZgdin24zZhC4KY2xhc3MgX0ZpbGVUeXBlR3JpZCBleHRlbmRzIFN0YXRlbGVzc1dpZGdldCB7CiAgY29uc3QgX0ZpbGVUeXBlR3JpZCgpOwoKICBzdGF0aWMgY29uc3QgX3R5cGVzID0gWwogICAgKEljb25zLmltYWdlX3JvdW5kZWQsICfYqti12YjbjNixJywgJ0pQRywgUE5HLCBHSUYnLCBDb2xvcigweEZGMzREMzk5KSksCiAgICAoSWNvbnMudmlkZW9jYW1fcm91bmRlZCwgJ9mI24zYr9uM2YgnLCAnTVA0LCBNT1YsIEFWSScsIEFwcENvbG9ycy5waW5rKSwKICAgIChJY29ucy5kZXNjcmlwdGlvbl9yb3VuZGVkLCAn2LPZhtivJywgJ1BERiwgRE9DLCBUWFQnLCBBcHBDb2xvcnMuYWNjZW50TGlnaHQpLAogICAgKEljb25zLmZvbGRlcl96aXBfcm91bmRlZCwgJ9mB2LTYsdiv2YcnLCAnWklQLCBSQVIsIDdaJywgQ29sb3IoMHhGRkZCQkYyNCkpLAogIF07CgogIEBvdmVycmlkZQogIFdpZGdldCBidWlsZChCdWlsZENvbnRleHQgY29udGV4dCkgewogICAgcmV0dXJuIEdyaWRWaWV3LmNvdW50KAogICAgICBjcm9zc0F4aXNDb3VudDogMiwKICAgICAgc2hyaW5rV3JhcDogdHJ1ZSwKICAgICAgcGh5c2ljczogY29uc3QgTmV2ZXJTY3JvbGxhYmxlU2Nyb2xsUGh5c2ljcygpLAogICAgICBtYWluQXhpc1NwYWNpbmc6IDEwLAogICAgICBjcm9zc0F4aXNTcGFjaW5nOiAxMCwKICAgICAgY2hpbGRBc3BlY3RSYXRpbzogMS4zNSwKICAgICAgY2hpbGRyZW46IFsKICAgICAgICBmb3IgKGZpbmFsIHQgaW4gX3R5cGVzKQogICAgICAgICAgR2xhc3NDYXJkKAogICAgICAgICAgICBwYWRkaW5nOiBjb25zdCBFZGdlSW5zZXRzLmFsbCgxMyksCiAgICAgICAgICAgIGNoaWxkOiBDb2x1bW4oCiAgICAgICAgICAgICAgY3Jvc3NBeGlzQWxpZ25tZW50OiBDcm9zc0F4aXNBbGlnbm1lbnQuc3RhcnQsCiAgICAgICAgICAgICAgY2hpbGRyZW46IFsKICAgICAgICAgICAgICAgIENvbnRhaW5lcigKICAgICAgICAgICAgICAgICAgd2lkdGg6IDM4LAogICAgICAgICAgICAgICAgICBoZWlnaHQ6IDM4LAogICAgICAgICAgICAgICAgICBkZWNvcmF0aW9uOiBCb3hEZWNvcmF0aW9uKAogICAgICAgICAgICAgICAgICAgIHNoYXBlOiBCb3hTaGFwZS5jaXJjbGUsCiAgICAgICAgICAgICAgICAgICAgY29sb3I6IHQuJDQud2l0aE9wYWNpdHkoMC4xNSksCiAgICAgICAgICAgICAgICAgICksCiAgICAgICAgICAgICAgICAgIGNoaWxkOiBJY29uKHQuJDEsIGNvbG9yOiB0LiQ0LCBzaXplOiAyMSksCiAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiA4KSwKICAgICAgICAgICAgICAgIFRleHQoCiAgICAgICAgICAgICAgICAgIHQuJDIsCiAgICAgICAgICAgICAgICAgIHN0eWxlOiBjb25zdCBUZXh0U3R5bGUoCiAgICAgICAgICAgICAgICAgICAgY29sb3I6IEFwcENvbG9ycy50ZXh0UHJpbWFyeSwKICAgICAgICAgICAgICAgICAgICBmb250U2l6ZTogMTMuNSwKICAgICAgICAgICAgICAgICAgICBmb250V2VpZ2h0OiBGb250V2VpZ2h0Lnc2MDAsCiAgICAgICAgICAgICAgICAgICksCiAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgICAgY29uc3QgU2l6ZWRCb3goaGVpZ2h0OiAyKSwKICAgICAgICAgICAgICAgIFRleHQoCiAgICAgICAgICAgICAgICAgIHQuJDMsCiAgICAgICAgICAgICAgICAgIHN0eWxlOiBjb25zdCBUZXh0U3R5bGUoCiAgICAgICAgICAgICAgICAgICAgY29sb3I6IEFwcENvbG9ycy50ZXh0TXV0ZWQsCiAgICAgICAgICAgICAgICAgICAgZm9udFNpemU6IDEwLjUsCiAgICAgICAgICAgICAgICAgICksCiAgICAgICAgICAgICAgICApLAogICAgICAgICAgICAgIF0sCiAgICAgICAgICAgICksCiAgICAgICAgICApLAogICAgICBdLAogICAgKTsKICB9Cn0K
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:cross_file/cross_file.dart';
+import 'package:desktop_drop/desktop_drop.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:uuid/uuid.dart';
+
+import '../../core/domain/models.dart';
+import '../../core/providers.dart';
+import '../../core/theme/app_colors.dart';
+import '../../core/utils/file_ui.dart';
+import '../../core/widgets/airhop_footer.dart';
+import '../../core/widgets/file_card.dart';
+import '../../core/widgets/floating_navbar.dart';
+import '../../core/widgets/glass_button.dart';
+import '../../core/widgets/glass_card.dart';
+import '../../core/widgets/gradient_background.dart';
+import '../transfer/transfer_screen.dart';
+
+/// صفحه ارسال فایل (آپلود).
+class SendScreen extends ConsumerStatefulWidget {
+  const SendScreen({super.key});
+
+  @override
+  ConsumerState<SendScreen> createState() => _SendScreenState();
+}
+
+class _SendScreenState extends ConsumerState<SendScreen> {
+  final List<FileMetadata> _selected = [];
+  bool _sending = false;
+
+  Future<void> _pickFiles() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: true,
+        withData: true,
+      );
+      if (result != null && result.files.isNotEmpty) {
+        for (final f in result.files) {
+          Uint8List? bytes;
+          // برای فایل‌های زیر ۵ مگابایت بایت‌ها را لود می‌کنیم تا سریع ارسال شوند
+          // اما برای فایل‌های بزرگتر (مثل ۱۰۰ مگابایت روی اندروید ۷) به هیچ وجه bytes را یکجا لود نمی‌کنیم تا کرش نکند!
+          if (f.size < 5 * 1024 * 1024) {
+            bytes = f.bytes;
+            if (bytes == null && f.path != null) {
+              try {
+                bytes = await File(f.path!).readAsBytes();
+              } catch (_) {}
+            }
+          }
+          if (!mounted) return;
+          setState(() {
+            _selected.add(FileMetadata(
+              id: const Uuid().v4(),
+              name: f.name,
+              size: f.size,
+              mimeType: f.extension,
+              bytes: bytes,
+              // ذخیره مسیر واقعی برای استریم مستقیم موقع ارسال
+              path: f.path, 
+            ));
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('خطا در انتخاب فایل: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addDroppedFiles(List<XFile> dropped) async {
+    for (final file in dropped) {
+      Uint8List? bytes;
+      int size = 0;
+      try {
+        final data = await file.readAsBytes();
+        bytes = data;
+        size = data.length;
+      } catch (_) {
+        try { size = await file.length(); } catch (_) { size = 0; }
+      }
+      if (!mounted) return;
+      setState(() {
+        _selected.add(FileMetadata(
+          id: const Uuid().v4(),
+          name: file.name,
+          size: size,
+          mimeType: FileUi.extensionOf(file.name),
+          bytes: bytes,
+        ));
+      });
+    }
+  }
+
+  Future<void> _send() async {
+    if (_selected.isEmpty) return;
+    setState(() => _sending = true);
+    await ref.read(sessionProvider.notifier).sendFiles(List.from(_selected));
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const TransferScreen()),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final session = ref.watch(sessionProvider);
+    final peer = session.peerDevice;
+    final peerName = peer != null && peer.name.isNotEmpty ? peer.name : 'دستگاه مقصد';
+
+    return Scaffold(
+      body: DropTarget(
+        onDragDone: (details) => _addDroppedFiles(details.files),
+        child: GradientBackground(
+          child: SafeArea(
+            child: Column(
+              children: [
+                FloatingNavbar(
+                  title: 'ارسال فایل',
+                  onBack: () => Navigator.pop(context),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        const Text(
+                          'ارسال فایل',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: AppColors.textPrimary,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'داری به «$peerName» می‌فرستی',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        if (_selected.isEmpty) ...[
+                          _DropZone(onTap: _pickFiles),
+                          const SizedBox(height: 18),
+
+                          _SectionDivider(text: 'انواع فایل‌های پشتیبانی‌شده'),
+                          const SizedBox(height: 12),
+                          const _FileTypeGrid(),
+                        ] else ...[
+                          const Text(
+                            'فایل‌های انتخاب‌شده',
+                            style: TextStyle(
+                              color: AppColors.textPrimary,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          for (var i = 0; i < _selected.length; i++) ...[
+                            FileCard(
+                              name: _selected[i].name,
+                              size: _selected[i].size,
+                              onRemove: () =>
+                                  setState(() => _selected.removeAt(i)),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                          const SizedBox(height: 6),
+                          GlassButton(
+                            label: _sending ? 'در حال ارسال...' : 'ارسال فایل‌ها',
+                            icon: Icons.send_rounded,
+                            height: 56,
+                            onPressed: _sending ? null : _send,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const AirhopFooter(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DropZone extends StatelessWidget {
+  const _DropZone({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+      glowColor: AppColors.glowPurple,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.glowPurple.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.cloud_upload_outlined,
+              color: AppColors.accentLight,
+              size: 32,
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'کشیدن و رها کردن فایل یا انتخاب',
+            style: TextStyle(
+              color: AppColors.textPrimary,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'پشتیبانی از انواع فایل‌ها تا حجم نامحدود',
+            style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            width: 140,
+            child: GlassButton(
+              label: 'انتخاب فایل',
+              icon: Icons.add_rounded,
+              height: 44,
+              onPressed: onTap,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            text,
+            style: const TextStyle(color: AppColors.textMuted, fontSize: 11.5),
+          ),
+        ),
+        Expanded(child: Container(height: 1, color: AppColors.glassBorder)),
+      ],
+    );
+  }
+}
+
+class _FileTypeGrid extends StatelessWidget {
+  const _FileTypeGrid();
+
+  @override
+  Widget build(BuildContext context) {
+    const list = [
+      _TypeItem(icon: Icons.image_rounded, title: 'تصاویر', color: Colors.purple),
+      _TypeItem(icon: Icons.video_collection_rounded, title: 'ویدیوها', color: Colors.blue),
+      _TypeItem(icon: Icons.audiotrack_rounded, title: 'موزیک', color: Colors.green),
+      _TypeItem(icon: Icons.insert_drive_file_rounded, title: 'اسناد', color: Colors.orange),
+    ];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: list.map((item) => Expanded(child: item)).toList(),
+    );
+  }
+}
+
+class _TypeItem extends StatelessWidget {
+  const _TypeItem({
+    required this.icon,
+    required this.title,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String title;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.04),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.glassBorder),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: color.withOpacity(0.85), size: 24),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: const TextStyle(color: AppColors.textPrimary, fontSize: 11),
+          ),
+        ],
+      ),
+    );
+  }
+}

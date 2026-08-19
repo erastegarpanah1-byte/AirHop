@@ -43,6 +43,7 @@ class FileMetadata {
     required this.size,
     this.mimeType,
     this.bytes, // محتوای فایل (برای sender که از دیسک خوانده)
+    this.path,
   });
 
   final String id;
@@ -50,6 +51,7 @@ class FileMetadata {
   final int size; // بایت
   final String? mimeType;
   final Uint8List? bytes;
+  final String? path;
 
   Map<String, dynamic> toJson() => {
         'id': id,
