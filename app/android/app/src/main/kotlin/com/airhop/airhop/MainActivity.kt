@@ -59,6 +59,8 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    // ذخیره استریمی فایل‌های بزرگ: کپی از فایل موقت روی دیسک به MediaStore (اندروید ۱۰+)
+    // یا حافظه مشترک (اندروید ≥۹) با بافر ۶۴KB، برای جلوگیری از OOM روی فایل‌های ۱۰۰MB.
     private fun saveStreamedFile(call: MethodCall, result: MethodChannel.Result) {
         try {
             val fileName = call.argument<String>("fileName") ?: "file"
@@ -182,7 +184,7 @@ class MainActivity : FlutterActivity() {
                 } catch (_: Exception) {}
             }
         } catch (_: Exception) {
-            // ignore
+            // ignore — scan is best-effort
         }
     }
 }
