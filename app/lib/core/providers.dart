@@ -1,1 +1,291 @@
-aW1wb3J0ICdkYXJ0OmFzeW5jJzsKCmltcG9ydCAncGFja2FnZTpmbHV0dGVyX3JpdmVycG9kL2ZsdXR0ZXJfcml2ZXJwb2QuZGFydCc7CgppbXBvcnQgJ2RhdGEvcmVjZWl2ZV9zZXJ2aWNlLmRhcnQnOwppbXBvcnQgJ2RhdGEvc2lnbmFsaW5nX3NlcnZpY2UuZGFydCc7CmltcG9ydCAnZGF0YS93ZWJydGNfc2VydmljZS5kYXJ0JzsKaW1wb3J0ICdkYXRhL2hpc3RvcnlfcHJvdmlkZXIuZGFydCc7CmltcG9ydCAnZG9tYWluL21vZGVscy5kYXJ0JzsKCi8vLyBTdGF0ZSDYs9ix2KfYs9ix24wg2KzZhNiz2Ycg24wg2KzZgdiqINiz2KfYsi/Yp9mG2KrZgtin2YQuCmNsYXNzIFNlc3Npb25TdGF0ZSB7CiAgY29uc3QgU2Vzc2lvblN0YXRlKHsKICAgIHRoaXMucGFpcmluZ0NvZGUgPSAnJywKICAgIHRoaXMuc3RhdHVzID0gUGFpcmluZ1N0YXR1cy5jcmVhdGluZywKICAgIHRoaXMucHJvZ3Jlc3MgPSBjb25zdCBUcmFuc2ZlclByb2dyZXNzKHJlY2VpdmVkQnl0ZXM6IDAsIHRvdGFsQnl0ZXM6IDApLAogICAgdGhpcy5jdXJyZW50RmlsZSwKICAgIHRoaXMucGVlckRldmljZSwKICAgIHRoaXMuZmlsZXMgPSBjb25zdCBbXSwKICAgIHRoaXMuZXJyb3IsCiAgfSk7CgogIGZpbmFsIFN0cmluZyBwYWlyaW5nQ29kZTsKICBmaW5hbCBQYWlyaW5nU3RhdHVzIHN0YXR1czsKICBmaW5hbCBUcmFuc2ZlclByb2dyZXNzIHByb2dyZXNzOwogIGZpbmFsIEZpbGVNZXRhZGF0YT8gY3VycmVudEZpbGU7CiAgZmluYWwgRGV2aWNlSW5mbz8gcGVlckRldmljZTsKICBmaW5hbCBMaXN0PEZpbGVNZXRhZGF0YT4gZmlsZXM7CiAgZmluYWwgU3RyaW5nPyBlcnJvcjsKCiAgU2Vzc2lvblN0YXRlIGNvcHlXaXRoKHsKICAgIFN0cmluZz8gcGFpcmluZ0NvZGUsCiAgICBQYWlyaW5nU3RhdHVzPyBzdGF0dXMsCiAgICBUcmFuc2ZlclByb2dyZXNzPyBwcm9ncmVzcywKICAgIEZpbGVNZXRhZGF0YT8gY3VycmVudEZpbGUsCiAgICBEZXZpY2VJbmZvPyBwZWVyRGV2aWNlLAogICAgTGlzdDxGaWxlTWV0YWRhdGE+PyBmaWxlcywKICAgIFN0cmluZz8gZXJyb3IsCiAgfSkgPT4KICAgICAgU2Vzc2lvblN0YXRlKAogICAgICAgIHBhaXJpbmdDb2RlOiBwYWlyaW5nQ29kZSA/PyB0aGlzLnBhaXJpbmdDb2RlLAogICAgICAgIHN0YXR1czogc3RhdHVzID8/IHRoaXMuc3RhdHVzLAogICAgICAgIHByb2dyZXNzOiBwcm9ncmVzcyA/PyB0aGlzLnByb2dyZXNzLAogICAgICAgIGN1cnJlbnRGaWxlOiBjdXJyZW50RmlsZSA/PyB0aGlzLmN1cnJlbnRGaWxlLAogICAgICAgIHBlZXJEZXZpY2U6IHBlZXJEZXZpY2UgPz8gdGhpcy5wZWVyRGV2aWNlLAogICAgICAgIGZpbGVzOiBmaWxlcyA/PyB0aGlzLmZpbGVzLAogICAgICAgIGVycm9yOiBlcnJvciA/PyB0aGlzLmVycm9yLAogICAgICApOwp9CgpjbGFzcyBTZXNzaW9uTm90aWZpZXIgZXh0ZW5kcyBTdGF0ZU5vdGlmaWVyPFNlc3Npb25TdGF0ZT4gewogIFNlc3Npb25Ob3RpZmllcih0aGlzLl9yZWYpIDogc3VwZXIoY29uc3QgU2Vzc2lvblN0YXRlKCkpOwoKICBmaW5hbCBSZWYgX3JlZjsKCiAgU2lnbmFsaW5nU2VydmljZT8gX3NpZ25hbGluZzsKICBXZWJSdGNTZXJ2aWNlPyBfd2VicnRjOwogIFN0cmVhbVN1YnNjcmlwdGlvbj8gX2V2ZW50c1N1YjsKICBTdHJlYW1TdWJzY3JpcHRpb24/IF9wZWVyRGV2aWNlU3ViOwogIFN0cmVhbVN1YnNjcmlwdGlvbj8gX21lc3NhZ2VzU3ViOwoKICBEZXZpY2VJbmZvIF9teURldmljZSA9IGNvbnN0IERldmljZUluZm8obmFtZTogJ9iv2LPYqtqv2KfZhycsIHBsYXRmb3JtOiAndW5rbm93bicpOwoKICB2b2lkIF9sb2coU3RyaW5nIG1zZykgPT4gcHJpbnQoJ1tBaXJIb3BdICRtc2cnKTsKCiAgLy8vINir2KjYqiBsaXN0ZW5lciDZh9in24wgc2lnbmFsaW5nLiDYqNi52K8g2KfYsiDYp9uM2YbYjCByb29tUmVhZHkg2YggZGV2aWNlSW5mbyDYr9ix2LPYqiDZhdiv24zYsduM2Kog2YXbjOKAjNi02YjZhtivLgogIHZvaWQgX2F0dGFjaFNpZ25hbGluZ0xpc3RlbmVycyhQZWVyUm9sZSByb2xlKSB7CiAgICBfZXZlbnRzU3ViID8/PSBfc2lnbmFsaW5nIS5ldmVudHMubGlzdGVuKChpbmZvKSB7CiAgICAgIF9sb2coJ1skcm9sZV0gZXZlbnQ6IHJvb21SZWFkeT0ke2luZm8ucm9vbVJlYWR5fSBwZWVyQ291bnQ9JHtpbmZvLnBlZXJDb3VudH0nKTsKICAgICAgaWYgKGluZm8ucm9vbVJlYWR5KSB7CiAgICAgICAgX2xvZygnWyRyb2xlXSByb29tIHJlYWR5Jyk7CiAgICAgICAgX3NpZ25hbGluZyEuc2VuZERldmljZUluZm8oX215RGV2aWNlKTsKICAgICAgICBpZiAocm9sZSA9PSBQZWVyUm9sZS5yZWNlaXZlcikgewogICAgICAgICAgX2xvZygnWyRyb2xlXSAtPiBzdGF0dXMgY29ubmVjdGVkJyk7CiAgICAgICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5jb25uZWN0ZWQpOwogICAgICAgIH0gZWxzZSB7CiAgICAgICAgICAvLyBzZW5kZXI6INmF2LPYqtmC24zZhSDYqNmHINit2KfZhNiqINii2YXYp9iv2Ycg2KfYsdiz2KfZhCDYqNix2YggKNio2K/ZiNmGINin2YbYqti42KfYsSBkZXZpY2VJbmZvKQogICAgICAgICAgX2xvZygnWyRyb2xlXSAtPiBzdGF0dXMgcmVhZHlUb1NlbmQnKTsKICAgICAgICAgIHN0YXRlID0gc3RhdGUuY29weVdpdGgoc3RhdHVzOiBQYWlyaW5nU3RhdHVzLnJlYWR5VG9TZW5kKTsKICAgICAgICB9CiAgICAgIH0KICAgIH0pOwoKICAgIF9wZWVyRGV2aWNlU3ViID8/PSBfc2lnbmFsaW5nIS5wZWVyRGV2aWNlLmxpc3RlbigoZGV2aWNlKSB7CiAgICAgIF9sb2coJ1skcm9sZV0gcGVlciBkZXZpY2U6ICR7ZGV2aWNlLm5hbWV9ICgke2RldmljZS5wbGF0Zm9ybX0pJyk7CiAgICAgIHN0YXRlID0gc3RhdGUuY29weVdpdGgocGVlckRldmljZTogZGV2aWNlKTsKICAgICAgaWYgKHJvbGUgPT0gUGVlclJvbGUuc2VuZGVyKSB7CiAgICAgICAgX2xvZygnWyRyb2xlXSAtPiBzdGF0dXMgcmVhZHlUb1NlbmQnKTsKICAgICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5yZWFkeVRvU2VuZCk7CiAgICAgIH0KICAgIH0pOwoKICAgIF9tZXNzYWdlc1N1YiA/Pz0gX3NpZ25hbGluZyEubWVzc2FnZXMubGlzdGVuKChtKSB7CiAgICAgIF9sb2coJ1skcm9sZV0gc2lnbmFsOiAke20udHlwZS5uYW1lfScpOwogICAgfSk7CgogICAgX3NpZ25hbGluZyEuZXJyb3JzLmxpc3RlbigoZXJyKSB7CiAgICAgIF9sb2coJ1skcm9sZV0gRVJST1IgZnJvbSBzaWduYWxpbmc6ICRlcnInKTsKICAgICAgc3RhdGUgPSBzdGF0ZS5jb3B5V2l0aChzdGF0dXM6IFBhaXJpbmdTdGF0dXMuZmFpbGVkLCBlcnJvcjogZXJyKTsKICAgIH0pOwogIH0KCiAgRnV0dXJlPHZvaWQ+IHN0YXJ0U2VuZGluZyhEZXZpY2VJbmZvIG15RGV2aWNlKSBhc3luYyB7CiAgICBfbXlEZXZpY2UgPSBteURldmljZTsKICAgIF9sb2coJz09PSBzdGFydFNlbmRpbmcgKHNlbmRlcikgPT09Jyk7CiAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5jcmVhdGluZyk7CgogICAgX3NpZ25hbGluZyA9IFNpZ25hbGluZ1NlcnZpY2UoKTsKICAgIF9hdHRhY2hTaWduYWxpbmdMaXN0ZW5lcnMoUGVlclJvbGUuc2VuZGVyKTsKCiAgICB0cnkgewogICAgICBmaW5hbCBjb2RlID0gYXdhaXQgX3NpZ25hbGluZyEuY3JlYXRlUm9vbSgpOwogICAgICBfbG9nKCdyb29tIGNyZWF0ZWQ6ICRjb2RlJyk7CiAgICAgIGF3YWl0IF9zaWduYWxpbmchLmpvaW5Sb29tKGNvZGUsIHJvbGU6ICdzZW5kZXInKTsKICAgICAgX2xvZygnam9pbmVkIHJvb20gYXMgc2VuZGVyJyk7CgogICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHBhaXJpbmdDb2RlOiBjb2RlLCBzdGF0dXM6IFBhaXJpbmdTdGF0dXMud2FpdGluZyk7CiAgICAgIGF3YWl0IGluaXRpYWxpemVXZWJSdGMoUGVlclJvbGUuc2VuZGVyKTsKICAgICAgX2xvZygnc2VuZGVyIHdlYnJ0YyBpbml0aWFsaXplZCcpOwogICAgfSBjYXRjaCAoZSkgewogICAgICBfbG9nKCdzdGFydFNlbmRpbmcgRkFJTEVEOiAkZScpOwogICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5mYWlsZWQsIGVycm9yOiBlLnRvU3RyaW5nKCkpOwogICAgfQogIH0KCiAgRnV0dXJlPHZvaWQ+IHN0YXJ0UmVjZWl2aW5nKFN0cmluZyBjb2RlLCBEZXZpY2VJbmZvIG15RGV2aWNlKSBhc3luYyB7CiAgICBfbXlEZXZpY2UgPSBteURldmljZTsKICAgIF9sb2coJz09PSBzdGFydFJlY2VpdmluZyAocmVjZWl2ZXIpIGNvZGU9JGNvZGUgPT09Jyk7CiAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5jcmVhdGluZywgcGFpcmluZ0NvZGU6IGNvZGUpOwoKICAgIF9zaWduYWxpbmcgPSBTaWduYWxpbmdTZXJ2aWNlKCk7CiAgICBfYXR0YWNoU2lnbmFsaW5nTGlzdGVuZXJzKFBlZXJSb2xlLnJlY2VpdmVyKTsKCiAgICB0cnkgewogICAgICBhd2FpdCBfc2lnbmFsaW5nIS5qb2luUm9vbShjb2RlLCByb2xlOiAncmVjZWl2ZXInKTsKICAgICAgX2xvZygnam9pbmVkIHJvb20gYXMgcmVjZWl2ZXInKTsKICAgICAgc3RhdGUgPSBzdGF0ZS5jb3B5V2l0aChzdGF0dXM6IFBhaXJpbmdTdGF0dXMud2FpdGluZyk7CiAgICAgIGF3YWl0IGluaXRpYWxpemVXZWJSdGMoUGVlclJvbGUucmVjZWl2ZXIpOwogICAgICBfbG9nKCdyZWNlaXZlciB3ZWJydGMgaW5pdGlhbGl6ZWQnKTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgX2xvZygnc3RhcnRSZWNlaXZpbmcgRkFJTEVEOiAkZScpOwogICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5mYWlsZWQsIGVycm9yOiBlLnRvU3RyaW5nKCkpOwogICAgfQogIH0KCiAgRnV0dXJlPHZvaWQ+IGluaXRpYWxpemVXZWJSdGMoUGVlclJvbGUgcm9sZSkgYXN5bmMgewogICAgaWYgKF93ZWJydGMgIT0gbnVsbCkgcmV0dXJuOwoKICAgIF93ZWJydGMgPSBXZWJSdGNTZXJ2aWNlKHNpZ25hbGluZzogX3NpZ25hbGluZyEsIHJvbGU6IHJvbGUpOwogICAgYXdhaXQgX3dlYnJ0YyEuaW5pdGlhbGl6ZSgpOwoKICAgIGlmIChyb2xlID09IFBlZXJSb2xlLnJlY2VpdmVyKSB7CiAgICAgIF93ZWJydGMhLmZpbGVSZWNlaXZlZC5saXN0ZW4oKHJlY2VpdmVkKSBhc3luYyB7CiAgICAgICAgX2xvZygnZmlsZSByZWNlaXZlZDogJHtyZWNlaXZlZC5maWxlTmFtZX0gKCR7cmVjZWl2ZWQuYnl0ZXMubGVuZ3RofSBieXRlcyknKTsKICAgICAgICBmaW5hbCBzYXZlZFBhdGggPSBhd2FpdCBjb25zdCBSZWNlaXZlU2VydmljZSgpLnNhdmVGaWxlKAogICAgICAgICAgZmlsZU5hbWU6IHJlY2VpdmVkLmZpbGVOYW1lLAogICAgICAgICAgYnl0ZXM6IHJlY2VpdmVkLmJ5dGVzLAogICAgICAgICk7CiAgICAgICAgX2xvZygnc2F2ZWQgdG86ICRzYXZlZFBhdGgnKTsKICAgICAgICBfcmVjb3JkSGlzdG9yeSgKICAgICAgICAgIGZpbGVOYW1lOiByZWNlaXZlZC5maWxlTmFtZSwKICAgICAgICAgIGZpbGVTaXplOiByZWNlaXZlZC5ieXRlcy5sZW5ndGgsCiAgICAgICAgICBkaXJlY3Rpb246IGZhbHNlLAogICAgICAgICAgc3VjY2VzczogdHJ1ZSwKICAgICAgICApOwogICAgICAgIHN0YXRlID0gc3RhdGUuY29weVdpdGgoCiAgICAgICAgICBzdGF0dXM6IFBhaXJpbmdTdGF0dXMuY29tcGxldGVkLAogICAgICAgICAgY3VycmVudEZpbGU6IEZpbGVNZXRhZGF0YSgKICAgICAgICAgICAgaWQ6IHJlY2VpdmVkLmZpbGVOYW1lLAogICAgICAgICAgICBuYW1lOiByZWNlaXZlZC5maWxlTmFtZSwKICAgICAgICAgICAgc2l6ZTogcmVjZWl2ZWQuYnl0ZXMubGVuZ3RoLAogICAgICAgICAgKSwKICAgICAgICApOwogICAgICB9KTsKICAgIH0KCiAgICBfd2VicnRjIS5wcm9ncmVzcy5saXN0ZW4oKHApIHsKICAgICAgc3RhdGUgPSBzdGF0ZS5jb3B5V2l0aChzdGF0dXM6IFBhaXJpbmdTdGF0dXMudHJhbnNmZXJyaW5nLCBwcm9ncmVzczogcCk7CiAgICB9KTsKICB9CgogIHZvaWQgX3JlY29yZEhpc3RvcnkoewogICAgcmVxdWlyZWQgU3RyaW5nIGZpbGVOYW1lLAogICAgcmVxdWlyZWQgaW50IGZpbGVTaXplLAogICAgcmVxdWlyZWQgYm9vbCBkaXJlY3Rpb24sIC8vIHRydWU9c2VudCwgZmFsc2U9cmVjZWl2ZWQKICAgIHJlcXVpcmVkIGJvb2wgc3VjY2VzcywKICB9KSB7CiAgICB0cnkgewogICAgICBfcmVmLnJlYWQoaGlzdG9yeVByb3ZpZGVyLm5vdGlmaWVyKS5hZGQoVHJhbnNmZXJSZWNvcmQoCiAgICAgICAgaWQ6IERhdGVUaW1lLm5vdygpLm1pY3Jvc2Vjb25kc1NpbmNlRXBvY2gudG9TdHJpbmcoKSwKICAgICAgICBmaWxlTmFtZTogZmlsZU5hbWUsCiAgICAgICAgZmlsZVNpemU6IGZpbGVTaXplLAogICAgICAgIGRpcmVjdGlvbjogZGlyZWN0aW9uLAogICAgICAgIGNvbXBsZXRlZEF0OiBEYXRlVGltZS5ub3coKSwKICAgICAgICBzdWNjZXNzOiBzdWNjZXNzLAogICAgICApKTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgX2xvZygnKGlzdG9yeSBhZGQgZmFpbGVkOiAkZScpOwogICAgfQogIH0KCiAgRnV0dXJlPHZvaWQ+IHNlbmRGaWxlcyhMaXN0PEZpbGVNZXRhZGF0YT4gZmlsZXMpIGFzeW5jIHsKICAgIHN0YXRlID0gc3RhdGUuY29weVdpdGgoZmlsZXM6IGZpbGVzLCBzdGF0dXM6IFBhaXJpbmdTdGF0dXMudHJhbnNmZXJyaW5nKTsKCiAgICBpZiAoX3dlYnJ0YyA9PSBudWxsKSB7CiAgICAgIGF3YWl0IGluaXRpYWxpemVXZWJSdGMoUGVlclJvbGUuc2VuZGVyKTsKICAgIH0KCiAgICBmb3IgKHZhciBpID0gMDsgaSA8IGZpbGVzLmxlbmd0aDsgaSsrKSB7CiAgICAgIGZpbmFsIGYgPSBmaWxlc1tpXTsKICAgICAgc3RhdGUgPSBzdGF0ZS5jb3B5V2l0aChjdXJyZW50RmlsZTogZik7CiAgICAgIGZpbmFsIGNvbnRlbnQgPSBmLmJ5dGVzOwogICAgICBpZiAoY29udGVudCA9PSBudWxsIHx8IGNvbnRlbnQuaXNFbXB0eSkgewogICAgICAgIC8vINio2K/ZiNmGINio2KfbjNiqINmI2KfZgti524wg2KfYsdiz2KfZhCDZhtqp2YbYmyDYr9ixINi624zYsSDYp9uM2YYg2LXZiNix2Kogc2VuZGVyINio2Ycg2KfYtNiq2KjYp9mHCiAgICAgICAgLy8gMTAwJSDZhti02KfZhiDZhduM4oCM2K/Zh9ivINiv2LEg2K3Yp9mE24wg2qnZhyDZh9uM2oYg2K/Yp9iv2YfigIzYp9uMINmF2YbYqtmC2YQg2YbYtNiv2Ycg2KfYs9iqLgogICAgICAgIF9sb2coJ1NLSVAgZmlsZSAoZW1wdHkgYnl0ZXMpOiAke2YubmFtZX0nKTsKICAgICAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKAogICAgICAgICAgc3RhdHVzOiBQYWlyaW5nU3RhdHVzLmZhaWxlZCwKICAgICAgICAgIGVycm9yOiAn2YHYp9uM2YQgwqske2YubmFtZX3CuyDZgtin2KjZhCDYrtmI2KfZhtiv2YYg2YbYqNmI2K8nLAogICAgICAgICk7CiAgICAgICAgcmV0dXJuOwogICAgICB9CiAgICAgIGF3YWl0IF93ZWJydGMhLnNlbmRGaWxlKGYsIGNvbnRlbnQpOwogICAgfQoKICAgIC8vINir2KjYqiDYqtin2LHbjNiu2obZhyDYqNix2KfbjCDZh9ixINmB2KfbjNmEINin2LHYs9in2YTigIzYtNiv2YcKICAgIGZvciAoZmluYWwgZiBpbiBmaWxlcykgewogICAgICBfcmVjb3JkSGlzdG9yeSgKICAgICAgICBmaWxlTmFtZTogZi5uYW1lLAogICAgICAgIGZpbGVTaXplOiBmLnNpemUsCiAgICAgICAgZGlyZWN0aW9uOiB0cnVlLAogICAgICAgIHN1Y2Nlc3M6IHRydWUsCiAgICAgICk7CiAgICB9CiAgICBzdGF0ZSA9IHN0YXRlLmNvcHlXaXRoKHN0YXR1czogUGFpcmluZ1N0YXR1cy5jb21wbGV0ZWQpOwogIH0KCiAgRnV0dXJlPHZvaWQ+IHNlbmRGaWxlKEZpbGVNZXRhZGF0YSBtZXRhZGF0YSwgTGlzdDxpbnQ+IGNvbnRlbnQpIGFzeW5jIHsKICAgIGF3YWl0IHNlbmRGaWxlcyhbCiAgICAgIEZpbGVNZXRhZGF0YSgKICAgICAgICBpZDogbWV0YWRhdGEuaWQsCiAgICAgICAgbmFtZTogbWV0YWRhdGEubmFtZSwKICAgICAgICBzaXplOiBtZXRhZGF0YS5zaXplLAogICAgICAgIG1pbWVUeXBlOiBtZXRhZGF0YS5taW1lVHlwZSwKICAgICAgICBieXRlczogY29udGVudCBhcyBkeW5hbWljLAogICAgICApLAogICAgXSk7CiAgfQoKICB2b2lkIHJlc2V0KCkgewogICAgX2xvZygnPT09IHJlc2V0ID09PScpOwogICAgX2V2ZW50c1N1Yj8uY2FuY2VsKCk7CiAgICBfcGVlckRldmljZVN1Yj8uY2FuY2VsKCk7CiAgICBfbWVzc2FnZXNTdWI/LmNhbmNlbCgpOwogICAgX2V2ZW50c1N1YiA9IG51bGw7CiAgICBfcGVlckRldmljZVN1YiA9IG51bGw7CiAgICBfbWVzc2FnZXNTdWIgPSBudWxsOwogICAgc3RhdGUgPSBjb25zdCBTZXNzaW9uU3RhdGUoKTsKICAgIF9zaWduYWxpbmc/LmRpc3Bvc2UoKTsKICAgIF93ZWJydGM/LmRpc3Bvc2UoKTsKICAgIF9zaWduYWxpbmcgPSBudWxsOwogICAgX3dlYnJ0YyA9IG51bGw7CiAgfQp9CgpmaW5hbCBzZXNzaW9uUHJvdmlkZXIgPSBTdGF0ZU5vdGlmaWVyUHJvdmlkZXI8U2Vzc2lvbk5vdGlmaWVyLCBTZXNzaW9uU3RhdGU+KChyZWYpIHsKICByZXR1cm4gU2Vzc2lvbk5vdGlmaWVyKHJlZik7Cn0pOwo=
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'data/receive_service.dart';
+import 'data/signaling_service.dart';
+import 'data/webrtc_service.dart';
+import 'data/history_provider.dart';
+import 'domain/models.dart';
+
+/// State سراسری جلسه ی جفت ساز/انتقال.
+class SessionState {
+  const SessionState({
+    this.pairingCode = '',
+    this.status = PairingStatus.creating,
+    this.progress = const TransferProgress(receivedBytes: 0, totalBytes: 0),
+    this.currentFile,
+    this.peerDevice,
+    this.files = const [],
+    this.error,
+  });
+
+  final String pairingCode;
+  final PairingStatus status;
+  final TransferProgress progress;
+  final FileMetadata? currentFile;
+  final DeviceInfo? peerDevice;
+  final List<FileMetadata> files;
+  final String? error;
+
+  SessionState copyWith({
+    String? pairingCode,
+    PairingStatus? status,
+    TransferProgress? progress,
+    FileMetadata? currentFile,
+    DeviceInfo? peerDevice,
+    List<FileMetadata>? files,
+    String? error,
+  }) =>
+      SessionState(
+        pairingCode: pairingCode ?? this.pairingCode,
+        status: status ?? this.status,
+        progress: progress ?? this.progress,
+        currentFile: currentFile ?? this.currentFile,
+        peerDevice: peerDevice ?? this.peerDevice,
+        files: files ?? this.files,
+        error: error ?? this.error,
+      );
+}
+
+class SessionNotifier extends StateNotifier<SessionState> {
+  SessionNotifier(this._ref) : super(const SessionState());
+
+  final Ref _ref;
+
+  SignalingService? _signaling;
+  WebRtcService? _webrtc;
+  StreamSubscription? _eventsSub;
+  StreamSubscription? _peerDeviceSub;
+  StreamSubscription? _messagesSub;
+
+  DeviceInfo _myDevice = const DeviceInfo(name: 'دستگاه', platform: 'unknown');
+
+  void _log(String msg) => print('[AirHop] $msg');
+
+  /// ثبت listener های signaling. بعد از این، roomReady و deviceInfo درست مدیریت می‌شوند.
+  void _attachSignalingListeners(PeerRole role) {
+    _eventsSub ??= _signaling!.events.listen((info) {
+      _log('[$role] event: roomReady=${info.roomReady} peerCount=${info.peerCount}');
+      if (info.roomReady) {
+        _log('[$role] room ready');
+        _signaling!.sendDeviceInfo(_myDevice);
+        if (role == PeerRole.receiver) {
+          _log('[$role] -> status connected');
+          state = state.copyWith(status: PairingStatus.connected);
+        } else {
+          // sender: مستقیم به حالت آماده ارسال برو (بدون انتظار deviceInfo)
+          _log('[$role] -> status readyToSend');
+          state = state.copyWith(status: PairingStatus.readyToSend);
+        }
+      }
+    });
+
+    _peerDeviceSub ??= _signaling!.peerDevice.listen((device) {
+      _log('[$role] peer device: ${device.name} (${device.platform})');
+      state = state.copyWith(peerDevice: device);
+      if (role == PeerRole.sender) {
+        _log('[$role] -> status readyToSend');
+        state = state.copyWith(status: PairingStatus.readyToSend);
+      }
+    });
+
+    _messagesSub ??= _signaling!.messages.listen((m) {
+      _log('[$role] signal: ${m.type.name}');
+    });
+
+    _signaling!.errors.listen((err) {
+      _log('[$role] ERROR from signaling: $err');
+      state = state.copyWith(status: PairingStatus.failed, error: err);
+    });
+  }
+
+  Future<void> startSending(DeviceInfo myDevice) async {
+    _myDevice = myDevice;
+    _log('=== startSending (sender) ===');
+    state = state.copyWith(status: PairingStatus.creating);
+
+    _signaling = SignalingService();
+    _attachSignalingListeners(PeerRole.sender);
+
+    try {
+      final code = await _signaling!.createRoom();
+      _log('room created: $code');
+      await _signaling!.joinRoom(code, role: 'sender');
+      _log('joined room as sender');
+
+      state = state.copyWith(pairingCode: code, status: PairingStatus.waiting);
+      await initializeWebRtc(PeerRole.sender);
+      _log('sender webrtc initialized');
+    } catch (e) {
+      _log('startSending FAILED: $e');
+      state = state.copyWith(status: PairingStatus.failed, error: e.toString());
+    }
+  }
+
+  Future<void> startReceiving(String code, DeviceInfo myDevice) async {
+    _myDevice = myDevice;
+    _log('=== startReceiving (receiver) code=$code ===');
+    state = state.copyWith(status: PairingStatus.creating, pairingCode: code);
+
+    _signaling = SignalingService();
+    _attachSignalingListeners(PeerRole.receiver);
+
+    try {
+      await _signaling!.joinRoom(code, role: 'receiver');
+      _log('joined room as receiver');
+      state = state.copyWith(status: PairingStatus.waiting);
+      await initializeWebRtc(PeerRole.receiver);
+      _log('receiver webrtc initialized');
+    } catch (e) {
+      _log('startReceiving FAILED: $e');
+      state = state.copyWith(status: PairingStatus.failed, error: e.toString());
+    }
+  }
+
+  Future<void> initializeWebRtc(PeerRole role) async {
+    if (_webrtc != null) return;
+
+    _webrtc = WebRtcService(signaling: _signaling!, role: role);
+    await _webrtc!.initialize();
+
+    if (role == PeerRole.receiver) {
+      _webrtc!.fileReceived.listen((received) async {
+        final svc = const ReceiveService();
+        final String savedPath;
+        final int fileSize;
+
+        if (received.tempFilePath != null) {
+          // فایل بزرگ: مستقیم از فایل موقت روی دیسک ذخیره می‌شود
+          fileSize = await File(received.tempFilePath!).length();
+          _log('file received (streamed): ${received.fileName} ($fileSize bytes)');
+          savedPath = await svc.saveFromTempFile(
+            fileName: received.fileName,
+            tempFilePath: received.tempFilePath!,
+          );
+          // پاک‌سازی فایل موقت بعد از ذخیره
+          try {
+            await File(received.tempFilePath!).delete();
+          } catch (_) {}
+        } else {
+          final bytes = received.bytes ?? Uint8List(0);
+          fileSize = bytes.length;
+          _log('file received: ${received.fileName} ($fileSize bytes)');
+          savedPath = await svc.saveFile(
+            fileName: received.fileName,
+            bytes: bytes,
+          );
+        }
+
+        _log('saved to: $savedPath');
+        _recordHistory(
+          fileName: received.fileName,
+          fileSize: fileSize,
+          direction: false,
+          success: true,
+        );
+        state = state.copyWith(
+          status: PairingStatus.completed,
+          currentFile: FileMetadata(
+            id: received.fileName,
+            name: received.fileName,
+            size: fileSize,
+          ),
+        );
+      });
+    }
+
+    _webrtc!.progress.listen((p) {
+      state = state.copyWith(status: PairingStatus.transferring, progress: p);
+    });
+  }
+
+  void _recordHistory({
+    required String fileName,
+    required int fileSize,
+    required bool direction, // true=sent, false=received
+    required bool success,
+  }) {
+    try {
+      _ref.read(historyProvider.notifier).add(TransferRecord(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        fileName: fileName,
+        fileSize: fileSize,
+        direction: direction,
+        completedAt: DateTime.now(),
+        success: success,
+      ));
+    } catch (e) {
+      _log('history add failed: $e');
+    }
+  }
+
+  Future<void> sendFiles(List<FileMetadata> files) async {
+    state = state.copyWith(files: files, status: PairingStatus.transferring);
+
+    if (_webrtc == null) {
+      await initializeWebRtc(PeerRole.sender);
+    }
+
+    for (var i = 0; i < files.length; i++) {
+      final f = files[i];
+      state = state.copyWith(currentFile: f);
+      final content = f.bytes;
+      if (content == null || content.isEmpty) {
+        // بدون بایت واقعی ارسال نکن؛ در غیر این صورت sender به اشتباه
+        // 100% نشان می‌دهد در حالی که هیچ داده‌ای منتقل نشده است.
+        _log('SKIP file (empty bytes): ${f.name}');
+        state = state.copyWith(
+          status: PairingStatus.failed,
+          error: 'فایل «${f.name}» قابل خواندن نبود',
+        );
+        return;
+      }
+      await _webrtc!.sendFile(f, content);
+    }
+
+    // ثبت تاریخچه برای هر فایل ارسال‌شده
+    for (final f in files) {
+      _recordHistory(
+        fileName: f.name,
+        fileSize: f.size,
+        direction: true,
+        success: true,
+      );
+    }
+    state = state.copyWith(status: PairingStatus.completed);
+  }
+
+  Future<void> sendFile(FileMetadata metadata, List<int> content) async {
+    await sendFiles([
+      FileMetadata(
+        id: metadata.id,
+        name: metadata.name,
+        size: metadata.size,
+        mimeType: metadata.mimeType,
+        bytes: content as dynamic,
+      ),
+    ]);
+  }
+
+  void reset() {
+    _log('=== reset ===');
+    _eventsSub?.cancel();
+    _peerDeviceSub?.cancel();
+    _messagesSub?.cancel();
+    _eventsSub = null;
+    _peerDeviceSub = null;
+    _messagesSub = null;
+    state = const SessionState();
+    _signaling?.dispose();
+    _webrtc?.dispose();
+    _signaling = null;
+    _webrtc = null;
+  }
+}
+
+final sessionProvider = StateNotifierProvider<SessionNotifier, SessionState>((ref) {
+  return SessionNotifier(ref);
+});
