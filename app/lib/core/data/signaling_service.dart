@@ -139,6 +139,7 @@ class SignalingService {
     return IOClient(io);
   }
 
+  /// اتصال وب‌سوکت به اتاق — با fallback بین سرورها.
   Future<void> joinRoom(String code, {required String role}) async {
     final bases = <String>[
       if (_activeServer != null) _activeServer!,
