@@ -4,8 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/data/connectivity_service.dart';
 import 'core/theme/app_theme.dart';
+import 'features/about/about_screen.dart';
+import 'features/history/history_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/offline/offline_screen.dart';
+import 'features/settings/settings_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +37,11 @@ class AirhopApp extends StatelessWidget {
         textDirection: TextDirection.rtl,
         child: child!,
       ),
+      routes: {
+        '/history': (_) => const HistoryScreen(),
+        '/settings': (_) => const SettingsScreen(),
+        '/about': (_) => const AboutScreen(),
+      },
       home: const _RootGate(),
     );
   }
