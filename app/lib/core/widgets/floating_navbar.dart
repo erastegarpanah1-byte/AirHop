@@ -108,26 +108,29 @@ class FloatingNavbar extends StatelessWidget {
                 ),
           ),
         ),
-        if (onSettings != null) ...[
-          _NavCircleButton(
-            icon: Icons.settings_rounded,
-            onTap: onSettings!,
-          ),
-          const SizedBox(width: 6),
-        ],
-        if (onHelp != null)
-          _NavCircleButton(
-            icon: Icons.help_outline_rounded,
-            onTap: onHelp!,
-          )
-        else
-          const SizedBox(width: 44),
+        _NavCircleButton(
+          icon: Icons.settings_rounded,
+          onTap: onSettings ?? () => navigatorSettings(context),
+        ),
+        const SizedBox(width: 6),
+        _NavCircleButton(
+          icon: Icons.help_outline_rounded,
+          onTap: onHelp ?? () => navigatorAbout(context),
+        ),
       ],
     );
   }
 
   void navigatorHome(BuildContext context) {
     Navigator.of(context).popUntil((r) => r.isFirst);
+  }
+
+  void navigatorSettings(BuildContext context) {
+    Navigator.of(context).pushNamed('/settings');
+  }
+
+  void navigatorAbout(BuildContext context) {
+    Navigator.of(context).pushNamed('/about');
   }
 }
 
