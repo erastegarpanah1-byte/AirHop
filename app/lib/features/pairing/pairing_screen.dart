@@ -73,7 +73,6 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
       });
     }
 
-    // نمایش خطا در صورت fail
     if (session.error != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -193,32 +192,35 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         const SizedBox(height: 6),
         SizedBox(
           width: 200,
-          child: TextField(
-            controller: _codeController,
-            textAlign: TextAlign.center,
-            maxLength: 6,
-            keyboardType: TextInputType.text,
-            textCapitalization: TextCapitalization.characters,
-            style: const TextStyle(
-              color: AppColors.textPrimary,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 6,
-            ),
-            decoration: const InputDecoration(
-              counterText: '',
-              hintText: '------',
-              hintStyle: TextStyle(color: AppColors.textMuted, letterSpacing: 6),
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.accentLight, width: 2),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: TextField(
+              controller: _codeController,
+              textAlign: TextAlign.center,
+              maxLength: 6,
+              keyboardType: TextInputType.text,
+              textCapitalization: TextCapitalization.characters,
+              style: const TextStyle(
+                color: AppColors.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 6,
               ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: AppColors.glassBorder),
+              decoration: const InputDecoration(
+                counterText: '',
+                hintText: '------',
+                hintStyle: TextStyle(color: AppColors.textMuted, letterSpacing: 6),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.accentLight, width: 2),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.glassBorder),
+                ),
               ),
+              onChanged: (val) {
+                if (val.length == 6) _join();
+              },
             ),
-            onChanged: (val) {
-              if (val.length == 6) _join();
-            },
           ),
         ),
         const SizedBox(height: 12),
@@ -393,42 +395,46 @@ class _PairingCodeDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final chars = code.split('');
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (chars.isEmpty)
-          const Text(
-            '------',
-            style: TextStyle(
-              color: AppColors.textMuted,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 4,
-            ),
-          )
-        else
-          for (final char in chars) ...[
-            Container(
-              width: 32,
-              height: 44,
-              alignment: Alignment.center,
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.07),
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.glassBorder),
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+        textDirection: TextDirection.ltr,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (chars.isEmpty)
+            const Text(
+              '------',
+              style: TextStyle(
+                color: AppColors.textMuted,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 4,
               ),
-              child: Text(
-                char,
-                style: const TextStyle(
-                  color: AppColors.textPrimary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
+            )
+          else
+            for (final char in chars) ...[
+              Container(
+                width: 32,
+                height: 44,
+                alignment: Alignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.07),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AppColors.glassBorder),
+                ),
+                child: Text(
+                  char,
+                  style: const TextStyle(
+                    color: AppColors.textPrimary,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
-          ],
-      ],
+            ],
+        ],
+      ),
     );
   }
 }
@@ -461,7 +467,6 @@ class _BarcodeScannerState extends State<_BarcodeScanner> {
     for (final barcode in capture.barcodes) {
       final raw = barcode.rawValue;
       if (raw == null || raw.isEmpty) continue;
-      // به محض دیدن کد، متوقف و وصل شو (بدون نیاز به دکمه)
       _joined = true;
       try {
         _controller.stop();
